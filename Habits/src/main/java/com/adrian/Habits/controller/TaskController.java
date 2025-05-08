@@ -23,50 +23,66 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<Task> getALlTask(){
-        return taskService.getAllTask();
+    public ResponseEntity<List<Task>> getAllTask(){
+        List<Task> tasks = taskService.getAllTask();
+
+        return (!tasks.isEmpty()) ? ResponseEntity.ok(tasks) : ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}/get-by-id")
-    public Task getTaskById(@PathVariable Long id){
-        return taskService.getTaskById(id);
+    public ResponseEntity<Task> getTaskById(@PathVariable Long id){
+        Task task = taskService.getTaskById(id);
+
+        return (task != null) ? ResponseEntity.ok(task) : ResponseEntity.notFound().build();
     }
 
     @GetMapping("/{title}/get-by-title")
-    public List<Task> getTaskByTitle(@PathVariable String title){
-        return taskService.getTaskByTitle(title);
+    public ResponseEntity<List<Task>> getTaskByTitle(@PathVariable String title){
+        List<Task> tasks = taskService.getTaskByTitle(title);
+
+        return (!tasks.isEmpty()) ? ResponseEntity.ok(tasks) : ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/{dueDate}/get-by-duedate")
-    public List<Task> getTaskByDueDate(@PathVariable LocalDate dueDate){
-        return taskService.getTaskByDueDate(dueDate);
+    @GetMapping("/{dueDate}/get-by-dueDate")
+    public ResponseEntity<List<Task>> getTaskByDueDate(@PathVariable LocalDate dueDate){
+        List<Task> tasks = taskService.getTaskByDueDate(dueDate);
+
+        return (!tasks.isEmpty()) ? ResponseEntity.ok(tasks) : ResponseEntity.notFound().build();
     }
 
     @PostMapping
     public ResponseEntity<Task> createTask(@Valid @RequestBody CreateTaskRequest request){
         Task task = taskService.createTask(request);
 
-        return new ResponseEntity<>(task, HttpStatus.CREATED);
+        return (task != null) ? new ResponseEntity<>(task, HttpStatus.CREATED) : ResponseEntity.badRequest().build();
     }
 
-    @PutMapping("/{id}/update-task")
-    public Task updateTask(@PathVariable Long id, @RequestBody UpdateTaskRequest request){
-        return taskService.updateTask(id, request);
+    @PutMapping("/{id}")
+    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody UpdateTaskRequest request){
+        Task task = taskService.updateTask(id, request);
+
+        return (task != null) ? ResponseEntity.ok(task) : ResponseEntity.badRequest().build();
     }
 
     @PatchMapping("/{id}/toggle-completion")
-    public Task toggleTask(@PathVariable Long id){
-        return taskService.toggleIsComplete(id);
+    public ResponseEntity<Task> toggleTask(@PathVariable Long id){
+        Task task = taskService.toggleIsComplete(id);
+
+        return (task != null) ? ResponseEntity.ok(task) : ResponseEntity.badRequest().build();
     }
 
-    @DeleteMapping("/{id}/delete-task")
-    public void deleteTask(@PathVariable Long id){
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTask(@PathVariable Long id){
         taskService.deleteTask(id);
+
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping
-    public void deleteTask(){
+    public ResponseEntity<Void> deleteTask(){
         taskService.deleteAllTask();
+
+        return ResponseEntity.noContent().build();
     }
 
 }

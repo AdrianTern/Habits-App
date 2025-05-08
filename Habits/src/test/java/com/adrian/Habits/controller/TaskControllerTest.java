@@ -1,10 +1,12 @@
 package com.adrian.Habits.controller;
 
 import com.adrian.Habits.dto.CreateTaskRequest;
+import com.adrian.Habits.dto.UpdateTaskRequest;
 import com.adrian.Habits.model.Task;
 import com.adrian.Habits.service.TaskService;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -74,5 +76,72 @@ public class TaskControllerTest {
                 .andExpect(jsonPath("$.dueDate").value("2025-05-05"));
 
         verify(taskService).createTask(any(CreateTaskRequest.class));
+    }
+
+    @Test
+    public void updateTask() throws Exception{
+        Task task = new Task();
+        task.setId(1L);
+        task.setTitle("Test1");
+        task.setDescription("Test1");
+        task.setDueDate(LocalDate.of(2025,5,5));
+
+        UpdateTaskRequest request = new UpdateTaskRequest();
+        request.setTitle("Test2");
+        request.setDescription("Test2");
+        request.setDueDate(LocalDate.of(2025,5,6));
+        request.setIsComplete(true);
+
+        task.setTitle(request.getTitle());
+        task.setDescription(request.getDescription());
+        task.setDueDate(request.getDueDate());
+        task.setIsComplete(request.getIsComplete());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        String jsonRequest = objectMapper.writeValueAsString(request);
+
+        when(taskService.updateTask(eq(1L), any(UpdateTaskRequest.class))).thenReturn(task);
+
+        mockMvc.perform(put("/api/tasks/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonRequest))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("Test2"))
+                .andExpect(jsonPath("$.description").value("Test2"))
+                .andExpect(jsonPath("$.dueDate").value("2025-05-06"));
+
+        verify(taskService).updateTask(eq(1L), any(UpdateTaskRequest.class));
+    }
+
+    @Test
+    public void toggleTask() throws Exception{
+        Task task = new Task();
+        task.setId(1L);
+        task.setTitle("Test");
+        task.setIsComplete(false);
+
+        task.setIsComplete(!task.getIsComplete());
+
+        when(taskService.toggleIsComplete(1L)).thenReturn(task);
+
+        mockMvc.perform(patch("/api/tasks/1/toggle-completion"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.isComplete").value(true));
+
+        verify(taskService).toggleIsComplete(1L);
+    }
+
+    @Test
+    public void deleteTask() throws Exception{
+        Long taskId = 1L;
+
+        doNothing().when(taskService).deleteTask(taskId);
+
+        mockMvc.perform(delete("/api/tasks/1"))
+                .andExpect(status().isNoContent());
+
+        verify(taskService).deleteTask(taskId);
     }
 }

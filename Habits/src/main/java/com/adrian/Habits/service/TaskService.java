@@ -36,6 +36,7 @@ public class TaskService {
     }
 
     public Task createTask(CreateTaskRequest createTaskRequest) {
+        System.out.println("create from service");
         return taskRepository.save(new Task(
                 createTaskRequest.getTitle(),
                 createTaskRequest.getDescription(),
