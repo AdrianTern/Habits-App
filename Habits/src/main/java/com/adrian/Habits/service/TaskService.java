@@ -36,12 +36,12 @@ public class TaskService {
     }
 
     public Task createTask(CreateTaskRequest createTaskRequest) {
-        System.out.println("create from service");
-        return taskRepository.save(new Task(
-                createTaskRequest.getTitle(),
-                createTaskRequest.getDescription(),
-                createTaskRequest.getDueDate()
-        ));
+        Task task = Task.builder()
+                        .title(createTaskRequest.getTitle())
+                        .description(createTaskRequest.getDescription())
+                        .dueDate(createTaskRequest.getDueDate()).build();
+
+        return taskRepository.save(task);
     }
 
     public Task updateTask(Long id,UpdateTaskRequest updateTaskRequest){
