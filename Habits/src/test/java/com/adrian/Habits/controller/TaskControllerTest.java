@@ -36,9 +36,10 @@ public class TaskControllerTest {
     @Test
     public void getTaskById() throws Exception{
         Long taskId = 1L;
-        Task task = new Task();
-        task.setId(taskId);
-        task.setTitle("Test");
+        Task task = Task.builder()
+                .id(taskId)
+                .title("Test")
+                .build();
 
         when(taskService.getTaskById(taskId)).thenReturn(task);
 
@@ -50,16 +51,18 @@ public class TaskControllerTest {
 
     @Test
     public void createTask() throws Exception{
-        CreateTaskRequest request = new CreateTaskRequest();
-        request.setTitle("Test");
-        request.setDescription("Test");
-        request.setDueDate(LocalDate.of(2025,5,5));
+        CreateTaskRequest request = CreateTaskRequest.builder()
+                .title("Test")
+                .description("Test")
+                .dueDate(LocalDate.of(2025,5,5))
+                .build();
 
-        Task task = new Task();
-        task.setId(1L);
-        task.setTitle(request.getTitle());
-        task.setDescription(request.getDescription());
-        task.setDueDate(request.getDueDate());
+        Task task = Task.builder()
+                .id(1L)
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .dueDate(request.getDueDate())
+                .build();
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
@@ -80,17 +83,19 @@ public class TaskControllerTest {
 
     @Test
     public void updateTask() throws Exception{
-        Task task = new Task();
-        task.setId(1L);
-        task.setTitle("Test1");
-        task.setDescription("Test1");
-        task.setDueDate(LocalDate.of(2025,5,5));
+        Task task = Task.builder()
+                .id(1L)
+                .title("Test1")
+                .description("Test1")
+                .dueDate(LocalDate.of(2025,5,5))
+                .build();
 
-        UpdateTaskRequest request = new UpdateTaskRequest();
-        request.setTitle("Test2");
-        request.setDescription("Test2");
-        request.setDueDate(LocalDate.of(2025,5,6));
-        request.setIsComplete(true);
+        UpdateTaskRequest request = UpdateTaskRequest.builder()
+                .title("Test2")
+                .description("Test2")
+                .dueDate(LocalDate.of(2025,5,6))
+                .isComplete(true)
+                .build();
 
         task.setTitle(request.getTitle());
         task.setDescription(request.getDescription());
@@ -116,10 +121,11 @@ public class TaskControllerTest {
 
     @Test
     public void toggleTask() throws Exception{
-        Task task = new Task();
-        task.setId(1L);
-        task.setTitle("Test");
-        task.setIsComplete(false);
+        Task task = Task.builder()
+                .id(1L)
+                .title("Test")
+                .isComplete(false)
+                .build();
 
         task.setIsComplete(!task.getIsComplete());
 

@@ -31,12 +31,14 @@ public class TaskServiceTest {
     private TaskService taskService;
 
     @Test
-    public void getAllTasks_shouldReturnAllTasksFromRepo(){
-        Task task1  = new Task();
-        task1.setTitle("One");
+    public void getAllTasks_shouldReturnAllTasksFromRepo() {
+        Task task1 = Task.builder()
+                .title("One")
+                .build();
 
-        Task task2 = new Task();
-        task2.setTitle("Two");
+        Task task2 = Task.builder()
+                .title("Two")
+                .build();
 
         when(taskRepository.findAll()).thenReturn(Arrays.asList(task1, task2));
 
@@ -48,11 +50,12 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void getTaskById_found(){
+    public void getTaskById_found() {
         Long taskId = 1L;
-        Task task = new Task();
-        task.setId(taskId);
-        task.setTitle("Test");
+        Task task = Task.builder()
+                .id(taskId)
+                .title("Test")
+                .build();
 
         when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
 
@@ -65,7 +68,7 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void getTaskById_notFound(){
+    public void getTaskById_notFound() {
         Long taskId = 1L;
         when(taskRepository.findById(taskId)).thenReturn(Optional.empty());
 
@@ -75,14 +78,16 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void getTaskByTitle_found(){
+    public void getTaskByTitle_found() {
         String title = "Test";
 
-        Task task1 = new Task();
-        task1.setTitle(title);
+        Task task1 = Task.builder()
+                .title(title)
+                .build();
 
-        Task task2 = new Task();
-        task2.setTitle(title);
+        Task task2 = Task.builder()
+                .title(title)
+                .build();
 
         when(taskRepository.findByTitle(title)).thenReturn(Arrays.asList(task1, task2));
 
@@ -96,14 +101,16 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void getTaskByDueDate_shouldReturnTaskByDueDate(){
+    public void getTaskByDueDate_shouldReturnTaskByDueDate() {
         LocalDate dueDate = LocalDate.of(2025, 5, 5);
 
-        Task task1 = new Task();
-        task1.setDueDate(dueDate);
+        Task task1 = Task.builder()
+                .dueDate(dueDate)
+                .build();
 
-        Task task2 = new Task();
-        task2.setDueDate(dueDate);
+        Task task2 = Task.builder()
+                .dueDate(dueDate)
+                .build();
 
         when(taskRepository.findByDueDate(dueDate)).thenReturn(Arrays.asList(task1, task2));
 
@@ -117,16 +124,18 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void createTask_shouldSaveAndReturnTask(){
-        CreateTaskRequest request = new CreateTaskRequest();
-        request.setTitle("Test");
-        request.setDescription("Test");
-        request.setDueDate(LocalDate.now());
+    public void createTask_shouldSaveAndReturnTask() {
+        CreateTaskRequest request = CreateTaskRequest.builder()
+                .title("Test")
+                .description("Test")
+                .dueDate(LocalDate.now())
+                .build();
 
-        Task task = new Task();
-        task.setTitle(request.getTitle());
-        task.setDescription(request.getDescription());
-        task.setDueDate(request.getDueDate());
+        Task task = Task.builder()
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .dueDate(request.getDueDate())
+                .build();
 
         when(taskRepository.save(any(Task.class))).thenReturn(task);
 
@@ -139,14 +148,16 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void updateTask_shouldSaveAndUpdateTask(){
+    public void updateTask_shouldSaveAndUpdateTask() {
         Long taskId = 1L;
-        Task existingTask = new Task();
-        existingTask.setId(taskId);
-        existingTask.setTitle("Test1");
+        Task existingTask = Task.builder()
+                .id(taskId)
+                .title("Test1")
+                .build();
 
-        UpdateTaskRequest request = new UpdateTaskRequest();
-        request.setTitle("Test2");
+        UpdateTaskRequest request = UpdateTaskRequest.builder()
+                .title("Test2")
+                .build();
 
         when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTask));
         when(taskRepository.save(any(Task.class))).thenReturn(existingTask);
@@ -160,12 +171,13 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void toggleIsComplete_shouldSaveAndUpdateTask(){
+    public void toggleIsComplete_shouldSaveAndUpdateTask() {
         Long taskId = 1L;
-        Task task = new Task();
-        task.setId(taskId);
-        task.setTitle("Test");
-        task.setIsComplete(false);
+        Task task = Task.builder()
+                .id(taskId)
+                .title("Test")
+                .isComplete(false)
+                .build();
 
         when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
         when(taskRepository.save(any(Task.class))).thenReturn(task);
@@ -180,11 +192,12 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void deleteTaskById_shouldDeleteTask(){
+    public void deleteTaskById_shouldDeleteTask() {
         Long taskId = 1L;
-        Task task = new Task();
-        task.setId(taskId);
-        task.setTitle("Test");
+        Task task = Task.builder()
+                .id(taskId)
+                .title("Test")
+                .build();
 
         when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
 
@@ -195,7 +208,7 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void deleteAllTask_shouldDeleteAll(){
+    public void deleteAllTask_shouldDeleteAll() {
         taskService.deleteAllTask();
 
         verify(taskRepository).deleteAll();
