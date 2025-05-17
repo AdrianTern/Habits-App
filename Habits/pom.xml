@@ -28,6 +28,8 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<frontend.src.directory>src/ui</frontend.src.directory>
+    	<node.version>v22.15.1</node.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -77,31 +79,109 @@
 
 	<build>
 		<plugins>
+			<!-- Java Compiler Plugin -->
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<annotationProcessorPaths>
-						<path>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</path>
-					</annotationProcessorPaths>
-				</configuration>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<configuration>
+				<annotationProcessorPaths>
+				<path>
+					<groupId>org.projectlombok</groupId>
+					<artifactId>lombok</artifactId>
+					<version>${lombok.version}</version>
+				</path>
+				</annotationProcessorPaths>
+			</configuration>
 			</plugin>
+
+			<!-- Spring Boot Plugin -->
 			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-maven-plugin</artifactId>
+			<configuration>
+				<excludes>
+				<exclude>
+					<groupId>org.projectlombok</groupId>
+					<artifactId>lombok</artifactId>
+				</exclude>
+				</excludes>
+			</configuration>
+			</plugin>
+
+			<!-- Frontend Plugin for React/Vite/Angular -->
+			<plugin>
+			<groupId>com.github.eirslett</groupId>
+			<artifactId>frontend-maven-plugin</artifactId>
+			<version>1.14.0</version> <!-- Use latest stable -->
+			<configuration>
+				<nodeVersion>${node.version}</nodeVersion>
+				<installDirectory>${project.build.directory}/node</installDirectory>
+			</configuration>
+			<executions>
+
+				<!-- Install Node & NPM -->
+				<execution>
+				<id>install-node-and-npm</id>
+				<goals>
+					<goal>install-node-and-npm</goal>
+				</goals>
+				<phase>generate-resources</phase>
+				</execution>
+
+				<!-- npm install -->
+				<execution>
+				<id>npm-install</id>
+				<goals>
+					<goal>npm</goal>
+				</goals>
+				<phase>generate-resources</phase>
 				<configuration>
-					<excludes>
-						<exclude>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
-					</excludes>
+					<arguments>install</arguments>
+					<workingDirectory>${frontend.src.directory}</workingDirectory>
 				</configuration>
+				</execution>
+
+				<!-- npm run build -->
+				<execution>
+				<id>npm-run-build</id>
+				<goals>
+					<goal>npm</goal>
+				</goals>
+				<phase>prepare-package</phase>
+				<configuration>
+					<arguments>run build</arguments>
+					<workingDirectory>${frontend.src.directory}</workingDirectory>
+					<environmentVariables>
+    					<NODE_OPTIONS>--openssl-legacy-provider</NODE_OPTIONS>
+  					</environmentVariables>
+				</configuration>
+				</execution>
+
+			</executions>
+			</plugin>
+
+			<!-- Copy Frontend Build to Spring Boot Static -->
+			<plugin>
+			<artifactId>maven-resources-plugin</artifactId>
+			<executions>
+				<execution>
+				<id>copy-frontend</id>
+				<phase>prepare-package</phase>
+				<goals>
+					<goal>copy-resources</goal>
+				</goals>
+				<configuration>
+					<outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
+					<resources>
+					<resource>
+						<directory>${frontend.src.directory}/build</directory>
+						<filtering>false</filtering>
+					</resource>
+					</resources>
+				</configuration>
+				</execution>
+			</executions>
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
