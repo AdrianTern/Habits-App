@@ -1,2 +1,4 @@
 # Project exclude paths
 /Habits/target/
+.idea/vcs.xml
+.vscode/
