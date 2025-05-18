@@ -1,8 +1,8 @@
 package com.adrian.Habits.controller;
 
 import com.adrian.Habits.dto.CreateTaskRequest;
+import com.adrian.Habits.dto.TaskResponse;
 import com.adrian.Habits.dto.UpdateTaskRequest;
-import com.adrian.Habits.model.Task;
 import com.adrian.Habits.service.TaskService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -23,50 +23,50 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Task>> getAllTask(){
-        List<Task> tasks = taskService.getAllTask();
+    public ResponseEntity<List<TaskResponse>> getAllTask(){
+        List<TaskResponse> tasks = taskService.getAllTask();
 
         return (!tasks.isEmpty()) ? ResponseEntity.ok(tasks) : ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}/get-by-id")
-    public ResponseEntity<Task> getTaskById(@PathVariable Long id){
-        Task task = taskService.getTaskById(id);
+    public ResponseEntity<TaskResponse> getTaskById(@PathVariable Long id){
+        TaskResponse task = taskService.getTaskById(id);
 
         return (task != null) ? ResponseEntity.ok(task) : ResponseEntity.notFound().build();
     }
 
     @GetMapping("/{title}/get-by-title")
-    public ResponseEntity<List<Task>> getTaskByTitle(@PathVariable String title){
-        List<Task> tasks = taskService.getTaskByTitle(title);
+    public ResponseEntity<List<TaskResponse>> getTaskByTitle(@PathVariable String title){
+        List<TaskResponse> tasks = taskService.getTaskByTitle(title);
 
         return (!tasks.isEmpty()) ? ResponseEntity.ok(tasks) : ResponseEntity.notFound().build();
     }
 
     @GetMapping("/{dueDate}/get-by-dueDate")
-    public ResponseEntity<List<Task>> getTaskByDueDate(@PathVariable LocalDate dueDate){
-        List<Task> tasks = taskService.getTaskByDueDate(dueDate);
+    public ResponseEntity<List<TaskResponse>> getTaskByDueDate(@PathVariable LocalDate dueDate){
+        List<TaskResponse> tasks = taskService.getTaskByDueDate(dueDate);
 
         return (!tasks.isEmpty()) ? ResponseEntity.ok(tasks) : ResponseEntity.notFound().build();
     }
 
     @PostMapping
-    public ResponseEntity<Task> createTask(@Valid @RequestBody CreateTaskRequest request){
-        Task task = taskService.createTask(request);
+    public ResponseEntity<TaskResponse> createTask(@Valid @RequestBody CreateTaskRequest request){
+        TaskResponse task = taskService.createTask(request);
 
         return (task != null) ? new ResponseEntity<>(task, HttpStatus.CREATED) : ResponseEntity.badRequest().build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody UpdateTaskRequest request){
-        Task task = taskService.updateTask(id, request);
+    public ResponseEntity<TaskResponse> updateTask(@PathVariable Long id, @RequestBody UpdateTaskRequest request){
+        TaskResponse task = taskService.updateTask(id, request);
 
         return (task != null) ? ResponseEntity.ok(task) : ResponseEntity.badRequest().build();
     }
 
     @PatchMapping("/{id}/toggle-completion")
-    public ResponseEntity<Task> toggleTask(@PathVariable Long id){
-        Task task = taskService.toggleIsComplete(id);
+    public ResponseEntity<TaskResponse> toggleTask(@PathVariable Long id){
+        TaskResponse task = taskService.toggleIsComplete(id);
 
         return (task != null) ? ResponseEntity.ok(task) : ResponseEntity.badRequest().build();
     }

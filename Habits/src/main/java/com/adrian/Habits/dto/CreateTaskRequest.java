@@ -11,7 +11,6 @@ import java.time.LocalDate;
 public class CreateTaskRequest {
     @NotBlank(message = "Title cannot be blank")
     private String title;
-
     private String description;
     private LocalDate dueDate;
 

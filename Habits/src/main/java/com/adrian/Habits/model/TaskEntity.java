@@ -15,12 +15,12 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @Entity
-public class Task {
+public class TaskEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
     private String description;
     private LocalDate dueDate;
-    private Boolean isComplete = false;
+    private Boolean isComplete;
 }

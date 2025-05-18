@@ -1,8 +1,10 @@
 package com.adrian.Habits.service;
 
 import com.adrian.Habits.dto.CreateTaskRequest;
+import com.adrian.Habits.dto.TaskResponse;
 import com.adrian.Habits.dto.UpdateTaskRequest;
-import com.adrian.Habits.model.Task;
+import com.adrian.Habits.mapper.TaskMapper;
+import com.adrian.Habits.model.TaskEntity;
 import com.adrian.Habits.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
@@ -19,51 +21,63 @@ public class TaskService {
         this.taskRepository = taskRepository;
     }
 
-    public List<Task> getAllTask(){
-        return taskRepository.findAll();
+    public List<TaskResponse> getAllTask(){
+        return taskRepository.findAll()
+                             .stream()
+                             .map(TaskMapper::toTaskResponse)
+                             .toList();
     }
 
-    public Task getTaskById(Long id){
-        return taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
+    public TaskResponse getTaskById(Long id){
+        TaskEntity task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        return TaskMapper.toTaskResponse(task);
     }
 
-    public List<Task> getTaskByTitle(String title){
-        return taskRepository.findByTitle(title);
+    public List<TaskResponse> getTaskByTitle(String title){
+        return taskRepository.findByTitle(title)
+                             .stream()
+                             .map(TaskMapper::toTaskResponse)
+                             .toList();
     }
 
-    public List<Task> getTaskByDueDate(LocalDate dueDate){
-        return taskRepository.findByDueDate(dueDate);
+    public List<TaskResponse> getTaskByDueDate(LocalDate dueDate){
+        return taskRepository.findByDueDate(dueDate)
+                             .stream()
+                             .map(TaskMapper::toTaskResponse)
+                             .toList();
     }
 
-    public Task createTask(CreateTaskRequest createTaskRequest) {
-        Task task = Task.builder()
-                        .title(createTaskRequest.getTitle())
-                        .description(createTaskRequest.getDescription())
-                        .dueDate(createTaskRequest.getDueDate()).build();
-
-        return taskRepository.save(task);
+    public TaskResponse createTask(CreateTaskRequest createTaskRequest) {
+        TaskEntity task = TaskMapper.toTaskEntity(createTaskRequest);
+        TaskEntity saved = taskRepository.save(task);
+        
+        return TaskMapper.toTaskResponse(saved);
     }
 
-    public Task updateTask(Long id,UpdateTaskRequest updateTaskRequest){
-        Task task = getTaskById(id);
+    public TaskResponse updateTask(Long id,UpdateTaskRequest updateTaskRequest){
+        TaskEntity task = taskRepository.findById(id)
+                                        .orElseThrow(() -> new RuntimeException("Task not found"));
 
-        if (updateTaskRequest.getTitle() != null) task.setTitle(updateTaskRequest.getTitle());
-        if (updateTaskRequest.getDescription() != null) task.setDescription(updateTaskRequest.getDescription());
-        if (updateTaskRequest.getDueDate() != null) task.setDueDate(updateTaskRequest.getDueDate());
-        task.setIsComplete(updateTaskRequest.getIsComplete());
+        TaskMapper.updateTaskEntity(task, updateTaskRequest);
+        TaskEntity saved = taskRepository.save(task);
 
-        return taskRepository.save(task);
+        return TaskMapper.toTaskResponse(saved);
     }
 
-    public Task toggleIsComplete(Long id){
-        Task task = getTaskById(id);
+    public TaskResponse toggleIsComplete(Long id){
+        TaskEntity task = taskRepository.findById(id)
+                                        .orElseThrow(() -> new RuntimeException("Task not found"));
         task.setIsComplete(!task.getIsComplete());
+        TaskEntity saved = taskRepository.save(task);
 
-        return taskRepository.save(task);
+        return TaskMapper.toTaskResponse(saved);
     }
 
     public void deleteTask(Long id){
-        Task task = getTaskById(id);
+        TaskEntity task = taskRepository.findById(id)
+                                        .orElseThrow(() -> new RuntimeException("Task not found"));
 
         taskRepository.delete(task);
     }

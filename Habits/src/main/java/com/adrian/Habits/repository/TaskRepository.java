@@ -1,6 +1,6 @@
 package com.adrian.Habits.repository;
 
-import com.adrian.Habits.model.Task;
+import com.adrian.Habits.model.TaskEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -8,10 +8,10 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface TaskRepository extends JpaRepository<Task, Long> {
+public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
 
-    List<Task> findByTitle(String title);
+    List<TaskEntity> findByTitle(String title);
 
-    List<Task> findByDueDate(LocalDate dueDate);
+    List<TaskEntity> findByDueDate(LocalDate dueDate);
 }
 
