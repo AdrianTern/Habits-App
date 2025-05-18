@@ -1,8 +1,9 @@
 package com.adrian.Habits.service;
 
 import com.adrian.Habits.dto.CreateTaskRequest;
+import com.adrian.Habits.dto.TaskResponse;
 import com.adrian.Habits.dto.UpdateTaskRequest;
-import com.adrian.Habits.model.Task;
+import com.adrian.Habits.model.TaskEntity;
 import com.adrian.Habits.repository.TaskRepository;
 
 import org.junit.jupiter.api.Test;
@@ -32,17 +33,17 @@ public class TaskServiceTest {
 
     @Test
     public void getAllTasks_shouldReturnAllTasksFromRepo() {
-        Task task1 = Task.builder()
-                .title("One")
-                .build();
+        TaskEntity task1 = TaskEntity.builder()
+                                     .title("One")
+                                     .build();
 
-        Task task2 = Task.builder()
-                .title("Two")
-                .build();
+        TaskEntity task2 = TaskEntity.builder()
+                                     .title("Two")
+                                     .build();
 
         when(taskRepository.findAll()).thenReturn(Arrays.asList(task1, task2));
 
-        List<Task> result = taskService.getAllTask();
+        List<TaskResponse> result = taskService.getAllTask();
 
         assertEquals(2, result.size());
         assertEquals("One", result.get(0).getTitle());
@@ -52,14 +53,14 @@ public class TaskServiceTest {
     @Test
     public void getTaskById_found() {
         Long taskId = 1L;
-        Task task = Task.builder()
-                .id(taskId)
-                .title("Test")
-                .build();
+        TaskEntity task = TaskEntity.builder()
+                                    .id(taskId)
+                                    .title("Test")
+                                    .build();
 
         when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
 
-        Task result = taskService.getTaskById(taskId);
+        TaskResponse result = taskService.getTaskById(taskId);
 
         assertNotNull(result);
         assertEquals(taskId, result.getId());
@@ -81,17 +82,17 @@ public class TaskServiceTest {
     public void getTaskByTitle_found() {
         String title = "Test";
 
-        Task task1 = Task.builder()
-                .title(title)
-                .build();
+        TaskEntity task1 = TaskEntity.builder()
+                                     .title(title)
+                                     .build();
 
-        Task task2 = Task.builder()
-                .title(title)
-                .build();
+        TaskEntity task2 = TaskEntity.builder()
+                                     .title(title)
+                                     .build();
 
         when(taskRepository.findByTitle(title)).thenReturn(Arrays.asList(task1, task2));
 
-        List<Task> result = taskService.getTaskByTitle(title);
+        List<TaskResponse> result = taskService.getTaskByTitle(title);
 
         assertEquals(2, result.size());
         assertEquals(title, result.get(0).getTitle());
@@ -104,21 +105,21 @@ public class TaskServiceTest {
     public void getTaskByDueDate_shouldReturnTaskByDueDate() {
         LocalDate dueDate = LocalDate.of(2025, 5, 5);
 
-        Task task1 = Task.builder()
-                .dueDate(dueDate)
-                .build();
+        TaskEntity task1 = TaskEntity.builder()
+                                     .dueDate(dueDate)
+                                     .build();
 
-        Task task2 = Task.builder()
-                .dueDate(dueDate)
-                .build();
+        TaskEntity task2 = TaskEntity.builder()
+                                     .dueDate(dueDate)
+                                     .build();
 
         when(taskRepository.findByDueDate(dueDate)).thenReturn(Arrays.asList(task1, task2));
 
-        List<Task> result = taskService.getTaskByDueDate(dueDate);
+        List<TaskResponse> result = taskService.getTaskByDueDate(dueDate);
 
         assertEquals(2, result.size());
-        assertEquals(dueDate, result.get(0).getDueDate());
-        assertEquals(dueDate, result.get(1).getDueDate());
+        assertEquals(dueDate, LocalDate.parse(result.get(0).getDueDate()));
+        assertEquals(dueDate, LocalDate.parse(result.get(1).getDueDate()));
 
         verify(taskRepository).findByDueDate(dueDate);
     }
@@ -126,78 +127,84 @@ public class TaskServiceTest {
     @Test
     public void createTask_shouldSaveAndReturnTask() {
         CreateTaskRequest request = CreateTaskRequest.builder()
-                .title("Test")
-                .description("Test")
-                .dueDate(LocalDate.now())
-                .build();
+                                                        .title("Test")
+                                                        .description("Test")
+                                                        .dueDate(LocalDate.now())
+                                                        .build();
 
-        Task task = Task.builder()
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .dueDate(request.getDueDate())
-                .build();
+        TaskEntity task = TaskEntity.builder()
+                                        .title(request.getTitle())
+                                        .description(request.getDescription())
+                                        .dueDate(request.getDueDate())
+                                        .build();
 
-        when(taskRepository.save(any(Task.class))).thenReturn(task);
+        when(taskRepository.save(any(TaskEntity.class))).thenReturn(task);
 
-        Task result = taskService.createTask(request);
+        TaskResponse result = taskService.createTask(request);
 
         assertNotNull(result);
-        assertEquals(task, result);
-        verify(taskRepository).save(any(Task.class));
+        assertEquals(task.getId(), result.getId());
+        assertEquals(task.getTitle(), result.getTitle());
+        assertEquals(task.getDescription(), result.getDescription());
+        assertEquals(task.getDueDate().toString(), result.getDueDate());
+        assertEquals(task.getIsComplete(), result.getIsComplete());
+
+        verify(taskRepository).save(any(TaskEntity.class));
 
     }
 
     @Test
     public void updateTask_shouldSaveAndUpdateTask() {
         Long taskId = 1L;
-        Task existingTask = Task.builder()
-                .id(taskId)
-                .title("Test1")
-                .build();
+        TaskEntity existingTask = TaskEntity.builder()
+                                                .id(taskId)
+                                                .title("Test1")
+                                                .build();
 
         UpdateTaskRequest request = UpdateTaskRequest.builder()
-                .title("Test2")
-                .build();
+                                                        .title("Test2")
+                                                        .build();
 
         when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTask));
-        when(taskRepository.save(any(Task.class))).thenReturn(existingTask);
+        when(taskRepository.save(any(TaskEntity.class))).thenReturn(existingTask);
 
-        Task result = taskService.updateTask(taskId, request);
+        TaskResponse result = taskService.updateTask(taskId, request);
 
         assertNotNull(result);
         assertEquals("Test2", result.getTitle());
+
         verify(taskRepository).findById(taskId);
-        verify(taskRepository).save(any(Task.class));
+        verify(taskRepository).save(any(TaskEntity.class));
     }
 
     @Test
     public void toggleIsComplete_shouldSaveAndUpdateTask() {
         Long taskId = 1L;
-        Task task = Task.builder()
-                .id(taskId)
-                .title("Test")
-                .isComplete(false)
-                .build();
+        TaskEntity task = TaskEntity.builder()
+                                        .id(taskId)
+                                        .title("Test")
+                                        .isComplete(false)
+                                        .build();
 
         when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
-        when(taskRepository.save(any(Task.class))).thenReturn(task);
+        when(taskRepository.save(any(TaskEntity.class))).thenReturn(task);
 
-        Task result = taskService.toggleIsComplete(taskId);
+        TaskResponse result = taskService.toggleIsComplete(taskId);
 
         assertNotNull(result);
         assertEquals(true, result.getIsComplete());
 
         verify(taskRepository).findById(taskId);
-        verify(taskRepository).save(any(Task.class));
+        verify(taskRepository).save(any(TaskEntity.class));
     }
 
     @Test
     public void deleteTaskById_shouldDeleteTask() {
         Long taskId = 1L;
-        Task task = Task.builder()
-                .id(taskId)
-                .title("Test")
-                .build();
+        TaskEntity task = TaskEntity.builder()
+                                        .id(taskId)
+                                        .title("Test")
+                                        .build();
 
         when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
 

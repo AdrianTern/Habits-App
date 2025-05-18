@@ -2,7 +2,7 @@ package com.adrian.Habits.controller;
 
 import com.adrian.Habits.dto.CreateTaskRequest;
 import com.adrian.Habits.dto.UpdateTaskRequest;
-import com.adrian.Habits.model.Task;
+import com.adrian.Habits.dto.TaskResponse;
 import com.adrian.Habits.service.TaskService;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,10 +36,10 @@ public class TaskControllerTest {
     @Test
     public void getTaskById() throws Exception{
         Long taskId = 1L;
-        Task task = Task.builder()
-                .id(taskId)
-                .title("Test")
-                .build();
+        TaskResponse task = TaskResponse.builder()
+                                        .id(taskId)
+                                        .title("Test")
+                                        .build();
 
         when(taskService.getTaskById(taskId)).thenReturn(task);
 
@@ -57,12 +57,12 @@ public class TaskControllerTest {
                 .dueDate(LocalDate.of(2025,5,5))
                 .build();
 
-        Task task = Task.builder()
-                .id(1L)
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .dueDate(request.getDueDate())
-                .build();
+        TaskResponse task = TaskResponse.builder()
+                                        .id(1L)
+                                        .title(request.getTitle())
+                                        .description(request.getDescription())
+                                        .dueDate(request.getDueDate().toString())
+                                        .build();
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
@@ -83,23 +83,23 @@ public class TaskControllerTest {
 
     @Test
     public void updateTask() throws Exception{
-        Task task = Task.builder()
-                .id(1L)
-                .title("Test1")
-                .description("Test1")
-                .dueDate(LocalDate.of(2025,5,5))
-                .build();
+        TaskResponse task = TaskResponse.builder()
+                                        .id(1L)
+                                        .title("Test1")
+                                        .description("Test1")
+                                        .dueDate("2025-05-05")
+                                        .build();
 
         UpdateTaskRequest request = UpdateTaskRequest.builder()
-                .title("Test2")
-                .description("Test2")
-                .dueDate(LocalDate.of(2025,5,6))
-                .isComplete(true)
-                .build();
+                                                        .title("Test2")
+                                                        .description("Test2")
+                                                        .dueDate(LocalDate.of(2025,5,6))
+                                                        .isComplete(true)
+                                                        .build();
 
         task.setTitle(request.getTitle());
         task.setDescription(request.getDescription());
-        task.setDueDate(request.getDueDate());
+        task.setDueDate(request.getDueDate().toString());
         task.setIsComplete(request.getIsComplete());
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -121,11 +121,11 @@ public class TaskControllerTest {
 
     @Test
     public void toggleTask() throws Exception{
-        Task task = Task.builder()
-                .id(1L)
-                .title("Test")
-                .isComplete(false)
-                .build();
+        TaskResponse task = TaskResponse.builder()
+                                        .id(1L)
+                                        .title("Test")
+                                        .isComplete(false)
+                                        .build();
 
         task.setIsComplete(!task.getIsComplete());
 
