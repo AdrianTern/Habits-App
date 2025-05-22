@@ -13,7 +13,7 @@ public class TaskMapper {
                            .title(task.getTitle())
                            .description(task.getDescription())
                            .dueDate((task.getDueDate() != null) ? task.getDueDate().toString(): null)
-                           .isComplete(task.getIsComplete())
+                           .isCompleted(task.getIsCompleted()) 
                            .build();
     }
 
@@ -29,6 +29,6 @@ public class TaskMapper {
         if (request.getTitle() != null) task.setTitle(request.getTitle());
         if (request.getDescription() != null) task.setDescription(request.getDescription());
         if (request.getDueDate() != null) task.setDueDate(request.getDueDate());
-        task.setIsComplete(request.getIsComplete());
+        task.setIsCompleted(request.getIsCompleted());  
     }
 }

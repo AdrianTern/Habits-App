@@ -147,7 +147,7 @@ public class TaskServiceTest {
         assertEquals(task.getTitle(), result.getTitle());
         assertEquals(task.getDescription(), result.getDescription());
         assertEquals(task.getDueDate().toString(), result.getDueDate());
-        assertEquals(task.getIsComplete(), result.getIsComplete());
+        assertEquals(task.getIsCompleted(), result.getIsCompleted());
 
         verify(taskRepository).save(any(TaskEntity.class));
 
@@ -183,7 +183,7 @@ public class TaskServiceTest {
         TaskEntity task = TaskEntity.builder()
                                         .id(taskId)
                                         .title("Test")
-                                        .isComplete(false)
+                                        .isCompleted(false)
                                         .build();
 
         when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
@@ -192,7 +192,7 @@ public class TaskServiceTest {
         TaskResponse result = taskService.toggleIsComplete(taskId);
 
         assertNotNull(result);
-        assertEquals(true, result.getIsComplete());
+        assertEquals(true, result.getIsCompleted());
 
         verify(taskRepository).findById(taskId);
         verify(taskRepository).save(any(TaskEntity.class));

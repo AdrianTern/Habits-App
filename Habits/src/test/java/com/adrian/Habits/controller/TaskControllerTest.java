@@ -94,13 +94,13 @@ public class TaskControllerTest {
                                                         .title("Test2")
                                                         .description("Test2")
                                                         .dueDate(LocalDate.of(2025,5,6))
-                                                        .isComplete(true)
+                                                        .isCompleted(true)
                                                         .build();
 
         task.setTitle(request.getTitle());
         task.setDescription(request.getDescription());
         task.setDueDate(request.getDueDate().toString());
-        task.setIsComplete(request.getIsComplete());
+        task.setIsCompleted(request.getIsCompleted());
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
@@ -124,17 +124,17 @@ public class TaskControllerTest {
         TaskResponse task = TaskResponse.builder()
                                         .id(1L)
                                         .title("Test")
-                                        .isComplete(false)
+                                        .isCompleted(false)
                                         .build();
 
-        task.setIsComplete(!task.getIsComplete());
+        task.setIsCompleted(!task.getIsCompleted());
 
         when(taskService.toggleIsComplete(1L)).thenReturn(task);
 
-        mockMvc.perform(patch("/api/tasks/1/toggle-completion"))
+        mockMvc.perform(patch("/api/tasks/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.isComplete").value(true));
+                .andExpect(jsonPath("$.isCompleted").value(true));
 
         verify(taskService).toggleIsComplete(1L);
     }

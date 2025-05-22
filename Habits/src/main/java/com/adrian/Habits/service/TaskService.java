@@ -69,7 +69,7 @@ public class TaskService {
     public TaskResponse toggleIsComplete(Long id){
         TaskEntity task = taskRepository.findById(id)
                                         .orElseThrow(() -> new RuntimeException("Task not found"));
-        task.setIsComplete(!task.getIsComplete());
+        task.setIsCompleted(!task.getIsCompleted());
         TaskEntity saved = taskRepository.save(task);
 
         return TaskMapper.toTaskResponse(saved);
