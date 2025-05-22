@@ -16,5 +16,5 @@ public class TaskResponse {
     private String title;
     private String description;
     private String dueDate;
-    private Boolean isComplete;
+    private Boolean isCompleted;
 }

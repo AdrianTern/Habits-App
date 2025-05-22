@@ -15,5 +15,5 @@ public class UpdateTaskRequest {
 
     private String description;
     private LocalDate dueDate;
-    private Boolean isComplete;
+    private Boolean isCompleted;
 }

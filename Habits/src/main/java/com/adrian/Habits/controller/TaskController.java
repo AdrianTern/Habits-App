@@ -64,7 +64,7 @@ public class TaskController {
         return (task != null) ? ResponseEntity.ok(task) : ResponseEntity.badRequest().build();
     }
 
-    @PatchMapping("/{id}/toggle-completion")
+    @PatchMapping("/{id}")
     public ResponseEntity<TaskResponse> toggleTask(@PathVariable Long id){
         TaskResponse task = taskService.toggleIsComplete(id);
 
