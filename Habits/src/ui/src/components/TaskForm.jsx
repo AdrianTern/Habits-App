@@ -1,17 +1,12 @@
 import { 
     Box,
-    Button, 
-    Dialog,
-    DialogTitle,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    Slide,
     Typography,
     TextField,
     Stack,
     IconButton, 
-    Icon} from '@mui/material';
+    SwipeableDrawer,
+    Paper,
+} from '@mui/material';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import RemoveCircleRoundedIcon from '@mui/icons-material/RemoveCircleRounded';
 import AddCircleRoundedIcon from '@mui/icons-material/AddCircleRounded';
@@ -19,7 +14,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 function TaskForm({ task, isOpen, onClose, onSave, onDelete }){
     const isCreate = task == null;
@@ -30,6 +25,8 @@ function TaskForm({ task, isOpen, onClose, onSave, onDelete }){
     const [description, setDescription] = useState("");
     const [dueDate, setDueDate] = useState(dayjs());
     const [isCompleted, setIsCompleted] = useState(false);
+
+    const titleRef = useRef(null);
 
     useEffect(() => {
         if(isCreate){
@@ -44,6 +41,12 @@ function TaskForm({ task, isOpen, onClose, onSave, onDelete }){
             setIsCompleted(task.isCompleted);
         }
     }, [isCreate, task]);
+
+    useEffect(() => {
+        if(isOpen && titleRef.current){
+            titleRef.current.focus();
+        }
+    },  [isOpen])
     
     const handleOnTitleChange = (event) => {
         setTitle(event.target.value);
@@ -57,7 +60,8 @@ function TaskForm({ task, isOpen, onClose, onSave, onDelete }){
         setDueDate(newDate);
     }
 
-    const handleOnSave = async () => {
+    const handleOnSave = async (event) => {
+        event.preventDefault();
         const dueDateString = dueDate.format('YYYY-MM-DD');
         const newTask = {
             id,
@@ -80,65 +84,69 @@ function TaskForm({ task, isOpen, onClose, onSave, onDelete }){
 
     return(
         <Box>
-            <Dialog
+            <SwipeableDrawer
+                anchor='bottom'
                 open={isOpen}
                 onClose={onClose}
-                fullWidth 
             >
-                <DialogTitle>{dialogTitle}</DialogTitle>
-                <DialogContent >
-                    <Stack spacing={3}>
-                        <TextField
-                            onChange={handleOnTitleChange}
-                            required
-                            id='title'
-                            name='title'
-                            label="Title"
-                            value={title}
-                            variant='standard'
-                        />
-                        <TextField
-                            onChange={handleOnDescChange}
-                            fullWidth
-                            id='description'
-                            name='description'
-                            label="Description"
-                            value={description}
-                            variant='standard'
-                        />
-                    </Stack>
-                </DialogContent>
-                <DialogActions 
-                    sx={{
-                        justifyContent: "space-between",
-                        margin: "0.5rem 1rem 0.5rem 1rem",
-                    }}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                            label="Due Date"
-                            value={dueDate}
-                            sx={{ width: "10rem" }}
-                            onChange={(newDate) => handleOnDueDateChange(newDate)}
-                        />
-                    </LocalizationProvider>
-                    <Box display="flex" gap={1}>
-                        <IconButton
-                            aria-label='delete-task'
-                            sx={{color: 'custom.red'}}
-                            onClick={handleOnDelete}
-                        >
-                            {!isCreate && (<RemoveCircleRoundedIcon fontSize='large'/>)}
-                        </IconButton>
-                        <IconButton 
-                            aria-label='update-task'
-                            sx={{color: 'black'}}
-                            onClick={handleOnSave}
-                        >
-                            {isCreate ? <AddCircleRoundedIcon fontSize='large'/> : <CheckCircleRoundedIcon fontSize='large'/>}
-                        </IconButton>
-                    </Box>
-                </DialogActions>
-            </Dialog>
+                <Paper
+                    component="form"
+                    onSubmit={handleOnSave}
+                >
+                    <Box sx={{padding: '2rem'}}>
+                        <Box display="flex" justifyContent="space-between">
+                            <IconButton
+                                aria-label='delete-task'
+                                sx={{color: 'custom.red'}}
+                                onClick={handleOnDelete}
+                            >
+                                {!isCreate && (<RemoveCircleRoundedIcon fontSize='large'/>)}
+                            </IconButton>
+                            <Typography variant='h6'>
+                                {dialogTitle}
+                            </Typography>
+                            <IconButton 
+                                type='submit'
+                                aria-label='update-task'
+                                sx={{color: 'black'}}
+                            >
+                                {isCreate ? <AddCircleRoundedIcon fontSize='large'/> : <CheckCircleRoundedIcon fontSize='large'/>}
+                            </IconButton> 
+                        </Box>
+                        <Stack spacing={2} paddingTop='1rem'>
+                            <TextField
+                                onChange={handleOnTitleChange}
+                                required
+                                inputRef={titleRef}
+                                id='title'
+                                name='title'
+                                label="Title"
+                                value={title}
+                                variant='outlined'
+                            />
+                            <TextField
+                                onChange={handleOnDescChange}
+                                fullWidth
+                                id='description'
+                                name='description'
+                                label="Description"
+                                value={description}
+                                variant='outlined'
+                            />
+                        </Stack>
+                        <Box display='flex' marginTop='1rem'>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                    label="Due Date"
+                                    value={dueDate}
+                                    sx={{ width: "10rem" }}
+                                    onChange={(newDate) => handleOnDueDateChange(newDate)}
+                                />
+                            </LocalizationProvider>
+                        </Box>
+                    </Box> 
+                </Paper>
+            </SwipeableDrawer>
         </Box>
     );
 

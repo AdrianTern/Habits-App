@@ -18,7 +18,14 @@ function TaskList({ tasks, onToggle, onSave, onDelete }){
 
     return(
         <Box>
-            <List className="task-list">
+            <List 
+                className="task-list"
+                sx={{
+                    maxHeight: { xs: '60vh', sm: '70vh', md: '80vh'},
+                    maxWidth: {xs: '90vw', sm: '60vw', md: '50vw'},
+                    overflowY: 'auto',
+                    overflowX: 'hidden',
+                }}>
                 {tasks.map(task => (
                     <TaskItem 
                         key={task.id} 
