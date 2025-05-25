@@ -1,13 +1,55 @@
 import TaskItem from "./TaskItem";
-import { List } from '@mui/material';
+import { Box, List, IconButton } from '@mui/material';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { useState, useEffect } from 'react';
+import TaskForm from "./TaskForm";
 
-function TaskList({ tasks, onToggle }){
+function TaskList({ tasks, onToggle, onSave, onDelete }){
+    const [openTaskDialog, setOpenTaskDialog] = useState(false);
+    const [currentTask, setCurrentTask] = useState(null);
+
+    const handleOpenDialog = () => {
+        setOpenTaskDialog(true);
+    };
+
+    const handleCloseDialog = () => {
+        setOpenTaskDialog(false);
+    }
+
     return(
-        <List className="task-list">
-            {tasks.map(task => (
-                <TaskItem key={task.id} task={task} onToggle={onToggle}/>
-            ))}
-        </List>
+        <Box>
+            <List className="task-list">
+                {tasks.map(task => (
+                    <TaskItem 
+                        key={task.id} 
+                        task={task} 
+                        onToggle={onToggle}
+                        onEdit={()=>{
+                            setCurrentTask(task);
+                            handleOpenDialog();
+                        }}
+                    />
+                ))}
+            </List>
+            <Box sx={{display: 'flex', justifyContent:'center'}}>
+                <IconButton 
+                    aria-label="add task"
+                    onClick={() => {
+                        setCurrentTask(null);
+                        handleOpenDialog();
+                    }} 
+                    sx={{ 
+                        color: 'black',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                            transform: 'scale(1.30)',
+                        }
+                    }}>
+                    <AddCircleIcon fontSize='large'/>
+                </IconButton>
+            </Box>
+            <TaskForm task={currentTask} isOpen={openTaskDialog} onClose={handleCloseDialog} onSave={onSave} onDelete={onDelete}/>         
+        </Box>
     );
 }
 

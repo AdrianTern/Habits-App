@@ -33,7 +33,7 @@ export const updateTask = async (task) => {
     const response = await fetch(`${BASE_URL}/${task.id}`, {
         method: 'PUT',
         headers: {
-            'Content-Type': 'applicaton/json'
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify(task),
     });
@@ -67,15 +67,12 @@ export const toggleCompletion = async (task) => {
 // Delete task
 export const deleteTask = async (taskId) => {
     const response = await fetch(`${BASE_URL}/${taskId}`,{
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'applicaton/json'
-        },    
+        method: 'DELETE',  
     })
 
     if(!response.status === 204){
         throw new Error('Failed to delete task');
     }
 
-    return response.json();
+    return taskId;
 }
