@@ -14,7 +14,7 @@ import { styled } from '@mui/material/styles';
 import { useState } from 'react';
 
 
-function TaskItem({ task, onToggle }) {
+function TaskItem({ task, onToggle, onEdit}) {
     const[isCompleted, setIsCompleted] = useState(task.isCompleted);
 
     const handleToggle = () => {
@@ -29,21 +29,35 @@ function TaskItem({ task, onToggle }) {
         }
     });
 
+    const PrettyListItem = styled(ListItem)({
+        transition: 'all 0.5s ease',
+        '&:hover': {
+            transform: 'scale(1.02)',
+        },
+    });
+
+    const PrettyListItemButton = styled(ListItemButton)({
+        transition: 'all 0.5s ease',
+        '&:hover': {
+            transform: 'scale(1.02)',
+        },
+    });
+
     return (
-        <ListItem 
+        <PrettyListItem 
             key={task.id}
             className="task-item"
-            secondaryAction={
+            secondaryAction={!isCompleted && (
             <IconButton 
                 edge="end" 
-                aria-label="edit" 
+                aria-label="edit"
+                onClick={onEdit} 
                 sx={{ color: 'black'}}>
                 <EditNoteRoundedIcon fontSize='medium'/>
             </IconButton>
-            }
-            disablePadding
+            )}
         >
-            <ListItemButton onClick={handleToggle} dense>
+            <PrettyListItemButton onClick={handleToggle} dense>
                 <ListItemIcon>
                     <BlackCheckbox
                         className="task-iscomplete"
@@ -76,8 +90,8 @@ function TaskItem({ task, onToggle }) {
                         </>
                     }
                     />
-            </ListItemButton>
-        </ListItem>
+            </PrettyListItemButton>
+        </PrettyListItem>
     );  
 } 
 
