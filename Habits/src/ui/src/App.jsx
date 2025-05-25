@@ -1,5 +1,5 @@
 import TaskList from './components/TaskList';
-import { Typography, Box, Container, Paper } from '@mui/material';
+import { Typography, Box, Paper } from '@mui/material';
 import * as api from './api';
 import { useReducer } from 'react';
 import { taskReducer } from './reducers/taskReducer';
@@ -93,28 +93,39 @@ function App() {
   }, []);
 
   return (
-    <Container className="App">
-      <Typography 
-        variant='h3' 
-        className='app-title' 
-        align='center'
-        gutterBottom >
-          habits.
-      </Typography>
-      <Paper 
-        className="task-list-box"
-        elevation={24}
-        square={false}
-        sx={{
-          width: '80%',
-          minWidth: '300px',
-          maxWidth: '600px',
-          margin: '0 auto',
-          padding: '1rem',
-        }}>
-        <TaskList tasks={tasks} onToggle={handleToggle} onSave={handleTaskDialogSave} onDelete={handleDelete}/>
-      </Paper>
-    </Container>
+    <Box 
+      className="App"
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '90vh',
+        px: 2,
+      }}
+    >
+      <Box>
+        <Typography 
+          variant='h3' 
+          className='app-title' 
+          align='center'
+          gutterBottom >
+            habits.
+        </Typography>
+        <Paper 
+          className="task-list-box"
+          elevation={24}
+          square={false}
+          sx={{
+            width: {xs: '80%', sm: '100%'},
+            maxWidth: { xs: '90vw', sm: '70vw', md: '50vw'},
+            maxHeight: { xs: '70vh', sm: '80vh'},
+            margin: '0 auto',
+            padding: '1rem',
+          }}>
+          <TaskList tasks={tasks} onToggle={handleToggle} onSave={handleTaskDialogSave} onDelete={handleDelete}/>
+        </Paper>
+      </Box>
+    </Box>
   );
 }
 
