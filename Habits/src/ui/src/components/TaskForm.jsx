@@ -75,6 +75,10 @@ function TaskForm({ task, isOpen, onClose, onSave, onDelete }){
 
         // Close dialog
         onClose();
+
+        setTitle('');
+        setDescription('');
+        setDueDate(dayjs());
     }
 
     const handleOnDelete = () => {

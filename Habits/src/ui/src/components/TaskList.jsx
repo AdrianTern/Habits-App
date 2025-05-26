@@ -1,10 +1,11 @@
 import TaskItem from "./TaskItem";
 import { Box, List, IconButton } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import TaskForm from "./TaskForm";
+import { motion } from 'framer-motion';
 
-function TaskList({ tasks, onToggle, onSave, onDelete }){
+function TaskList({ tasks, onToggle, onSave, onDelete }) {
     const [openTaskDialog, setOpenTaskDialog] = useState(false);
     const [currentTask, setCurrentTask] = useState(null);
 
@@ -16,46 +17,54 @@ function TaskList({ tasks, onToggle, onSave, onDelete }){
         setOpenTaskDialog(false);
     }
 
-    return(
+    return (
         <Box>
-            <List 
+            <List
+                component={motion.ul}
+                layout
                 className="task-list"
                 sx={{
-                    maxHeight: { xs: '60vh', sm: '70vh', md: '80vh'},
-                    maxWidth: {xs: '90vw', sm: '60vw', md: '50vw'},
+                    maxHeight: { xs: '60vh', sm: '100vh' },
+                    maxWidth: { xs: '90vw', sm: '100vw' },
                     overflowY: 'auto',
-                    overflowX: 'hidden',
+                    overflowX: { xs: 'auto', sm: 'hidden' },
                 }}>
                 {tasks.map(task => (
-                    <TaskItem 
-                        key={task.id} 
-                        task={task} 
-                        onToggle={onToggle}
-                        onEdit={()=>{
-                            setCurrentTask(task);
-                            handleOpenDialog();
-                        }}
-                    />
+                    <motion.li
+                        key={task.id}
+                        layout
+                    >
+                        <TaskItem
+                            task={task}
+                            onToggle={onToggle}
+                            onEdit={() => {
+                                setCurrentTask(task);
+                                handleOpenDialog();
+                            }}
+                        />
+                    </motion.li>
                 ))}
             </List>
-            <Box sx={{display: 'flex', justifyContent:'center'}}>
-                <IconButton 
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                <IconButton
+                    component={motion.button}
+                    layout
                     aria-label="add task"
                     onClick={() => {
                         setCurrentTask(null);
                         handleOpenDialog();
-                    }} 
-                    sx={{ 
+                    }}
+                    sx={{
                         color: 'black',
                         transition: 'all 0.3s ease',
                         '&:hover': {
                             transform: 'scale(1.30)',
                         }
                     }}>
-                    <AddCircleIcon fontSize='large'/>
+                    <AddCircleIcon fontSize='large' />
                 </IconButton>
             </Box>
-            <TaskForm task={currentTask} isOpen={openTaskDialog} onClose={handleCloseDialog} onSave={onSave} onDelete={onDelete}/>         
+            <TaskForm task={currentTask} isOpen={openTaskDialog} onClose={handleCloseDialog} onSave={onSave} onDelete={onDelete} />
         </Box>
     );
 }

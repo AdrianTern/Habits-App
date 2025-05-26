@@ -47,12 +47,16 @@ function TaskItem({ task, onToggle, onEdit}) {
         <PrettyListItem 
             key={task.id}
             className="task-item"
-            secondaryAction={!isCompleted && (
+            secondaryAction={(
             <IconButton 
                 edge="end" 
                 aria-label="edit"
+                size='medium'
                 onClick={onEdit} 
-                sx={{ color: 'black'}}>
+                sx={{ 
+                    color: 'black',
+                    visibility: isCompleted ? 'hidden' : 'visible',
+                }}>
                 <EditNoteRoundedIcon fontSize='medium'/>
             </IconButton>
             )}
@@ -67,21 +71,26 @@ function TaskItem({ task, onToggle, onEdit}) {
                         icon={<RadioButtonUncheckedRoundedIcon/>}
                         checkedIcon={<RadioButtonCheckedRoundedIcon/>}
                         color='black'
-                        disableRipple/>
+                        disableRipple
+                        sx={{
+                            '& .MuiSvgIcon-root':{
+                                fontSize:{xs: '1rem', sm: '1.5rem'},
+                            }                           
+                        }}/>
                 </ListItemIcon>
                 <ListItemText 
                     className="task-title" 
                     sx={{
                         textDecoration: isCompleted ? 'line-through' : 'none',
-                        color: isCompleted ? 'gray' : 'black',
+                        color: isCompleted ? 'gray' : 'black'
                     }}
                     primary={
-                        <Typography variant='h6'>
+                        <Typography variant='h6' noWrap='false' sx={{fontSize: {xs: '0.8rem', sm: '1rem'}}}>
                             {task.title}
                         </Typography>} 
                     secondary={
                         <>
-                        <Typography variant='body2'>
+                        <Typography variant='body2' sx={{fontSize: {xs: '0.8rem', sm: '1rem'}}}>
                             {task.description}
                         </Typography>
                         <Typography variant='caption' color="text.secondary">
