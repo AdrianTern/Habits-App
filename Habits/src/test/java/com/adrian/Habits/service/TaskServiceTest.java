@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -122,6 +123,30 @@ public class TaskServiceTest {
         assertEquals(dueDate, LocalDate.parse(result.get(1).getDueDate()));
 
         verify(taskRepository).findByDueDate(dueDate);
+    }
+
+    @Test
+    public void getUpcomingTasks_shouldReturnTaskAfterToday() {
+        LocalDate today = LocalDate.of(2025, 5, 5);
+        LocalDate tomorrow = LocalDate.of(2025, 5, 6);
+
+        TaskEntity task1 = TaskEntity.builder()
+                                    .dueDate(tomorrow)
+                                    .build();
+
+        TaskEntity task2 = TaskEntity.builder()
+                                    .dueDate(tomorrow)
+                                    .build();
+
+        when(taskRepository.findByDueDateAfter(today)).thenReturn(Arrays.asList(task1, task2));
+        
+        List<TaskResponse> result = taskService.getUpcomingTasks(today);
+
+        assertEquals(2, result.size());
+        assertEquals(tomorrow, LocalDate.parse(result.get(0).getDueDate()));
+        assertEquals(tomorrow, LocalDate.parse(result.get(1).getDueDate()));
+
+        verify(taskRepository).findByDueDateAfter(today);
     }
 
     @Test

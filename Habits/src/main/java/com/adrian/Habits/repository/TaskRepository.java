@@ -13,5 +13,9 @@ public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
     List<TaskEntity> findByTitle(String title);
 
     List<TaskEntity> findByDueDate(LocalDate dueDate);
+
+    List<TaskEntity> findByDueDateAfter(LocalDate dueDate);
+
+    List<TaskEntity> findByDueDateBefore(LocalDate dueDate);
 }
 

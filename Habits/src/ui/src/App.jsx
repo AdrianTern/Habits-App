@@ -3,7 +3,6 @@ import { Typography, Box, Paper } from '@mui/material';
 import * as api from './api';
 import { useReducer } from 'react';
 import { taskReducer } from './reducers/taskReducer';
-import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import './App.css';
@@ -12,23 +11,17 @@ function App() {
   // useReducer to manage the state of tasks
   const [tasks, dispatch] = useReducer(taskReducer, []);
 
-  const setTasks = (taskSet) => {
-    dispatch({type: "SET_TASKS", payload: taskSet});
-  }
-
-  // Fetch tasks from the API when the component mounts
-  const fetchTasks = async () => {
+  const handleSelectTaskChip = async (dueDate) => {
     try{
-      const tasks = await api.getTasks();
+      const tasks = await api.getTasks(dueDate);
       dispatch({
         type: 'SET_TASKS',
-        payload: tasks,
+        payload: tasks
       })
+     } catch(error){
+        console.error('Failed to fetch task from chip selection', error);
+      }
     }
-    catch (error) {
-      console.error('Error fetching tasks:', error);
-    }
-  }
   
   const handleAddTask = async (task) => {
     try{
@@ -88,11 +81,6 @@ function App() {
     }
   }
 
-  // useEffect to fetch tasks when the component mounts
-  useEffect(() => {
-    fetchTasks();
-  }, []);
-
   return (
     <motion.div>
       <AnimatePresence>
@@ -116,7 +104,7 @@ function App() {
                   habits.
               </Typography>
             </motion.div>
-            <TaskChips />
+            <TaskChips onSelect={handleSelectTaskChip} />
             <Paper
               component={motion.div}
               layout

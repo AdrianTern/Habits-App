@@ -1,5 +1,5 @@
 import TaskItem from "./TaskItem";
-import { Box, List, IconButton } from '@mui/material';
+import { Box, List, IconButton, Typography, duration } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { useState } from 'react';
 import TaskForm from "./TaskForm";
@@ -17,19 +17,12 @@ function TaskList({ tasks, onToggle, onSave, onDelete }) {
         setOpenTaskDialog(false);
     }
 
-    return (
-        <Box>
-            <List
-                component={motion.ul}
-                layout
-                className="task-list"
-                sx={{
-                    maxHeight: { xs: '60vh', sm: '100vh' },
-                    maxWidth: { xs: '90vw', sm: '100vw' },
-                    overflowY: 'auto',
-                    overflowX: { xs: 'auto', sm: 'hidden' },
-                }}>
-                {tasks.map(task => (
+    const Items = () => {
+        const isEmpty = !tasks || tasks.length === 0;
+
+        if(!isEmpty){
+            return (
+                tasks.map(task => (
                     <motion.li
                         key={task.id}
                         layout
@@ -43,7 +36,40 @@ function TaskList({ tasks, onToggle, onSave, onDelete }) {
                             }}
                         />
                     </motion.li>
-                ))}
+                ))
+            ) 
+        } else{
+            return (
+                <Box
+                    key={isEmpty}
+                    component={motion.div}
+                    layout
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                >
+                    <Typography variant="h6" sx={{color: 'custom.darkgrey'}}>
+                        You have 0 tasks!
+                    </Typography>
+                </Box>
+            )
+        }
+    }
+    return (
+        <Box>
+            <List
+                component={motion.ul}
+                layout
+                className="task-list"
+                sx={{
+                    maxHeight: { xs: '60vh', sm: '100vh' },
+                    maxWidth: { xs: '90vw', sm: '100vw' },
+                    overflowY: 'auto',
+                    overflowX: { xs: 'auto', sm: 'hidden' },
+                }}>
+                {Items()}
             </List>
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                 <IconButton

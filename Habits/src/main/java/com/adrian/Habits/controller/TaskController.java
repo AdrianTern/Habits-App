@@ -5,11 +5,13 @@ import com.adrian.Habits.dto.TaskResponse;
 import com.adrian.Habits.dto.UpdateTaskRequest;
 import com.adrian.Habits.service.TaskService;
 import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -23,8 +25,22 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TaskResponse>> getAllTask(){
-        List<TaskResponse> tasks = taskService.getAllTask();
+    public ResponseEntity<List<TaskResponse>> getAllTask(@RequestParam(required = false) String dueDate){
+        List<TaskResponse> tasks = new ArrayList<>();
+
+        if(dueDate!=null){
+            LocalDate today = LocalDate.now();
+            
+            if ("today".equalsIgnoreCase(dueDate)) {
+                tasks = taskService.getTaskByDueDate(today);
+            } else if("upcoming".equalsIgnoreCase(dueDate)) {
+                tasks = taskService.getUpcomingTasks(today);
+            } else if("overdued".equalsIgnoreCase(dueDate)){
+                tasks = taskService.getOverduedTasks(today);
+            }
+        } else{
+            tasks = taskService.getAllTask();
+        }
 
         return (!tasks.isEmpty()) ? ResponseEntity.ok(tasks) : ResponseEntity.noContent().build();
     }

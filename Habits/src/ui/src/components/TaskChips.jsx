@@ -16,9 +16,15 @@ function TaskChips({ onSelect }){
 
     const [selectedGroupKey, setSelectedGroupKey] = useState(taskGroups[0].key)
 
-    const handleOnClick = (key) => {
-        setSelectedGroupKey(key)
+    const handleOnSelect = (key) => {
+        setSelectedGroupKey(key);
+        onSelect(key);
     }
+
+    useEffect(() => {
+        onSelect(selectedGroupKey);
+    }, [])
+
     return(
         <Box
             component={motion.div}
@@ -29,7 +35,7 @@ function TaskChips({ onSelect }){
                 justifyContent: 'center',
                 alignItems: 'center',
                 marginBottom: '1.5rem',
-                flexWrap: 'wrap-reverse',
+                flexWrap: 'wrap',
                 maxWidth: { xs: '100vw', sm: '70vw', md: '50vw'},
             }}
         >
@@ -39,7 +45,7 @@ function TaskChips({ onSelect }){
                     label={taskGroup.label} 
                     icon={taskGroup.icon}
                     color={ selectedGroupKey === taskGroup.key ? 'primary' : 'default' } 
-                    onClick={(key) => handleOnClick(taskGroup.key)}/>
+                    onClick={(key) => handleOnSelect(taskGroup.key)}/>
             ))}   
         </Box>
     )
