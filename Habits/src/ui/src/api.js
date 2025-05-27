@@ -1,12 +1,18 @@
 const BASE_URL = '/api/tasks';
 
 // Get all tasks
-export const getTasks = async () => {
-    const response = await fetch(BASE_URL);
+export const getTasks = async (dueDate = null) => {
+    let url = BASE_URL;
+    if(dueDate && dueDate !== 'all'){
+        url = `${BASE_URL}?dueDate=${dueDate}`;
+    }
+    const response = await fetch(url);
 
     if(!response.ok){
         throw new Error('Failed to fetch tasks');
     }
+
+    if(response.status === 204) return [];
 
     return response.json();
 }

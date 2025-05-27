@@ -49,6 +49,20 @@ public class TaskService {
                              .toList();
     }
 
+    public List<TaskResponse> getUpcomingTasks(LocalDate dueDate){
+        return taskRepository.findByDueDateAfter(dueDate)
+                             .stream()
+                             .map(TaskMapper::toTaskResponse)
+                             .toList();
+    }
+
+    public List<TaskResponse> getOverduedTasks(LocalDate dueDate){
+        return taskRepository.findByDueDateBefore(dueDate)
+                             .stream()
+                             .map(TaskMapper::toTaskResponse)
+                             .toList();
+    }
+
     public TaskResponse createTask(CreateTaskRequest createTaskRequest) {
         TaskEntity task = TaskMapper.toTaskEntity(createTaskRequest);
         TaskEntity saved = taskRepository.save(task);
