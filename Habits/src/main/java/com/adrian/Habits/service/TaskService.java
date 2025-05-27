@@ -57,10 +57,17 @@ public class TaskService {
     }
 
     public List<TaskResponse> getOverduedTasks(LocalDate dueDate){
-        return taskRepository.findByDueDateBefore(dueDate)
+        return taskRepository.findByDueDateBeforeAndIsCompleted(dueDate, false)
                              .stream()
                              .map(TaskMapper::toTaskResponse)
                              .toList();
+    }
+
+    public List<TaskResponse> getPresentAndUpcomingTasks(){
+        return taskRepository.findPresentAndUpcomingTasks()
+                            .stream()
+                            .map(TaskMapper::toTaskResponse)
+                            .toList();
     }
 
     public TaskResponse createTask(CreateTaskRequest createTaskRequest) {

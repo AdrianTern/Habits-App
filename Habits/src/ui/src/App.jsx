@@ -9,19 +9,32 @@ import './App.css';
 import TaskChips from './components/TaskChips';
 function App() {
   // useReducer to manage the state of tasks
-  const [tasks, dispatch] = useReducer(taskReducer, []);
+  const initialState = {
+    tasks: [],
+    filter: 'today',
+  };
+  const [state, dispatch] = useReducer(taskReducer, initialState);
+  const{ tasks, filter } = state;
 
-  const handleSelectTaskChip = async (dueDate) => {
+  const fetchTasks = async(newFilter) => {
     try{
-      const tasks = await api.getTasks(dueDate);
+      const tasks = await api.getTasks(newFilter);
       dispatch({
         type: 'SET_TASKS',
-        payload: tasks
+        payload: tasks,
       })
-     } catch(error){
-        console.error('Failed to fetch task from chip selection', error);
-      }
+    } catch(error){
+      console.error('Failed to fetch tasks', error);
     }
+  }
+
+  const handleSelectTaskChip = async (newFilter) => {
+    dispatch({
+      type: 'SET_FILTER',
+      payload: newFilter,
+    })
+    fetchTasks(newFilter);
+  }
   
   const handleAddTask = async (task) => {
     try{
@@ -33,6 +46,7 @@ function App() {
     } catch(error){
         console.error("Failed to add task", error);
     }
+    fetchTasks(filter);
   }
 
   const handleUpdateTask = async (task) => {
@@ -45,6 +59,7 @@ function App() {
     } catch(error){
         console.error("Failed to update task", error);
     }
+    fetchTasks(filter);
   }
 
   const handleTaskDialogSave = async (isCreate, task) => {
@@ -67,6 +82,7 @@ function App() {
     catch (error) {
       console.error('Error toggling task:', error);
     }
+    fetchTasks(filter);
   }
 
   const handleDelete = async (taskId) => {
@@ -79,6 +95,7 @@ function App() {
     } catch(error){
       console.error('Failed to delete task', error)
     }
+    fetchTasks(filter);
   }
 
   return (
