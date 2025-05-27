@@ -4,8 +4,10 @@ import * as api from './api';
 import { useReducer } from 'react';
 import { taskReducer } from './reducers/taskReducer';
 import { useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import './App.css';
+import TaskChips from './components/TaskChips';
 function App() {
   // useReducer to manage the state of tasks
   const [tasks, dispatch] = useReducer(taskReducer, []);
@@ -17,7 +19,6 @@ function App() {
   // Fetch tasks from the API when the component mounts
   const fetchTasks = async () => {
     try{
-      console.log('fetch')
       const tasks = await api.getTasks();
       dispatch({
         type: 'SET_TASKS',
@@ -93,39 +94,48 @@ function App() {
   }, []);
 
   return (
-    <Box 
-      className="App"
-      sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '90vh',
-        px: 2,
-      }}
-    >
-      <Box>
-        <Typography 
-          variant='h3' 
-          className='app-title' 
-          align='center'
-          gutterBottom >
-            habits.
-        </Typography>
-        <Paper 
-          className="task-list-box"
-          elevation={24}
-          square={false}
+    <motion.div>
+      <AnimatePresence>
+        <Box 
+          className="App"
           sx={{
-            width: {xs: '80%', sm: '100%'},
-            maxWidth: { xs: '90vw', sm: '70vw', md: '50vw'},
-            maxHeight: { xs: '70vh', sm: '80vh'},
-            margin: '0 auto',
-            padding: '1rem',
-          }}>
-          <TaskList tasks={tasks} onToggle={handleToggle} onSave={handleTaskDialogSave} onDelete={handleDelete}/>
-        </Paper>
-      </Box>
-    </Box>
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '80vh',
+            margin: '0 auto'
+          }}
+        >
+          <Box>
+            <motion.div layout>
+              <Typography 
+                variant='h3' 
+                className='app-title' 
+                align='center'
+                gutterBottom >
+                  habits.
+              </Typography>
+            </motion.div>
+            <TaskChips />
+            <Paper
+              component={motion.div}
+              layout
+              className="task-list-box"
+              elevation={24}
+              square={false}
+              sx={{
+                maxWidth: { xs: '90vw', sm: '70vw', md: '50vw'},
+                maxHeight: { xs: '70vh', sm: '80vh'},
+                boxSizing: 'border-box',
+                margin: '0 auto',
+                padding: '1rem',
+              }}>
+              <TaskList tasks={tasks} onToggle={handleToggle} onSave={handleTaskDialogSave} onDelete={handleDelete}/>
+            </Paper>
+          </Box>
+        </Box>
+      </AnimatePresence>
+    </motion.div>
   );
 }
 

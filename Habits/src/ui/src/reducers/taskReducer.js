@@ -3,13 +3,8 @@
 // It handles actions such as setting tasks, adding a task, updating a task, toggling a task's completion status, and deleting a task.
 const sortTasks = (tasks) => {
     return [...tasks].sort((a,b) => {
-      const isCompletedDiff = a.isCompleted - b.isCompleted;
-      if(isCompletedDiff !== 0) return isCompletedDiff;
-
-      const dueDateDiff = new Date(a.dueDate) - new Date(b.dueDate);
-      if(dueDateDiff !== 0) return dueDateDiff;
-
-      return a.title.localeCompare(b.title);
+        if(a.isCompleted !== b.isCompleted) return a.isCompleted ? 1 : -1;
+        return new Date(a.dueDate) - new Date(b.dueDate);
     });
   }
 
