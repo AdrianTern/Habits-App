@@ -5,16 +5,20 @@ import {
     ListItemText, 
     IconButton, 
     Checkbox, 
-    Typography 
+    Typography,
+    Box, 
 } from '@mui/material';
 import EditNoteRoundedIcon from '@mui/icons-material/EditNoteRounded';
 import RadioButtonUncheckedRoundedIcon from '@mui/icons-material/RadioButtonUncheckedRounded';
 import RadioButtonCheckedRoundedIcon from '@mui/icons-material/RadioButtonCheckedRounded';
+import ErrorRoundedIcon from '@mui/icons-material/ErrorRounded';
 import { styled } from '@mui/material/styles';
 import { useState } from 'react';
+import dayjs from 'dayjs';
 
 function TaskItem({ task, onToggle, onEdit}) {
     const[isCompleted, setIsCompleted] = useState(task.isCompleted);
+    const isOverdued = !isCompleted && dayjs(task.dueDate).isBefore(dayjs(), 'day');
 
     const handleToggle = () => {
         setIsCompleted(!isCompleted);
@@ -84,9 +88,20 @@ function TaskItem({ task, onToggle, onEdit}) {
                         color: isCompleted ? 'gray' : 'black'
                     }}
                     primary={
-                        <Typography variant='h6' noWrap='false' sx={{fontSize: {xs: '0.8rem', sm: '1rem'}}}>
-                            {task.title}
-                        </Typography>} 
+                        <Box display="flex">
+                            <Typography 
+                                variant='h6' 
+                                noWrap='false' 
+                                sx={{
+                                    fontSize: {xs: '0.8rem', sm: '1rem'},
+                                    mr: 1
+                                    }}
+                            >
+                                {task.title}
+                            </Typography >
+                            {isOverdued && <ErrorRoundedIcon fontSize='small' sx={{color: 'custom.darkred'}}/>}
+                        </Box>
+                        } 
                     secondary={
                         <>
                         <Typography variant='body2' sx={{fontSize: {xs: '0.8rem', sm: '1rem'}}}>

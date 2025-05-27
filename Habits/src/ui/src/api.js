@@ -1,10 +1,10 @@
 const BASE_URL = '/api/tasks';
 
 // Get all tasks
-export const getTasks = async (dueDate = null) => {
+export const getTasks = async (filter = null) => {
     let url = BASE_URL;
-    if(dueDate && dueDate !== 'all'){
-        url = `${BASE_URL}?dueDate=${dueDate}`;
+    if(filter && filter !== 'all'){
+        url = `${BASE_URL}?filter=${filter}`;
     }
     const response = await fetch(url);
 

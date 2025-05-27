@@ -11,19 +11,30 @@ const sortTasks = (tasks) => {
 export const taskReducer = (state, action) => {
     switch(action.type) {
         case 'SET_TASKS':
-            return sortTasks(action.payload);
+            return {...state, tasks: sortTasks(action.payload)};
+        case 'SET_FILTER':
+            return {...state, filter: action.payload};
         case 'ADD_TASK':
-            return sortTasks([...state, action.payload]);
+            return {...state, tasks: sortTasks([...state.tasks, action.payload])};
         case 'UPDATE_TASK':
-            return sortTasks(state.map(task =>
-                task.id === action.payload.id ? action.payload : task
-            ));
+            return {
+                ...state, 
+                tasks: sortTasks(state.tasks.map(task =>
+                    task.id === action.payload.id ? action.payload : task
+                ))
+            };
         case 'TOGGLE_TASK':
-            return sortTasks(state.map(task =>
-                task.id === action.payload.id ? { ...task, isCompleted: !task.isCompleted } : task
-            ));
+            return {
+                ...state,
+                tasks: sortTasks(state.tasks.map(task =>
+                    task.id === action.payload.id ? { ...task, isCompleted: !task.isCompleted } : task
+                )) 
+            };
         case 'DELETE_TASK':
-            return sortTasks(state.filter( task => task.id !== action.payload ));
+            return {
+                ...state,
+                tasks: sortTasks(state.tasks.filter( task => task.id !== action.payload ))
+            };
         default:
             return state;   
     }

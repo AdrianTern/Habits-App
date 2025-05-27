@@ -150,6 +150,30 @@ public class TaskServiceTest {
     }
 
     @Test
+    public void getPresentAndUpcomingTasks_shouldReturnPresentAndFutureTasks(){
+        LocalDate today = LocalDate.of(2025, 5, 5);
+        LocalDate tomorrow = LocalDate.of(2025, 5, 6);
+
+        TaskEntity task1 = TaskEntity.builder()
+                                    .dueDate(today)
+                                    .build();
+
+        TaskEntity task2 = TaskEntity.builder()
+                                    .dueDate(tomorrow)
+                                    .build();
+
+        when(taskRepository.findPresentAndUpcomingTasks()).thenReturn(Arrays.asList(task1, task2));
+
+        List<TaskResponse> result = taskService.getPresentAndUpcomingTasks();
+
+        assertEquals(2, result.size());
+        assertEquals(today, LocalDate.parse(result.get(0).getDueDate()));
+        assertEquals(tomorrow, LocalDate.parse(result.get(1).getDueDate()));
+
+        verify(taskRepository).findPresentAndUpcomingTasks();
+    }
+
+    @Test
     public void createTask_shouldSaveAndReturnTask() {
         CreateTaskRequest request = CreateTaskRequest.builder()
                                                         .title("Test")

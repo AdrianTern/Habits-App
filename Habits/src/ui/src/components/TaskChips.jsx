@@ -10,7 +10,7 @@ function TaskChips({ onSelect }){
     const [taskGroups, setTaskGroups] = useState([
         { key: 'today', label: "Today's tasks", icon: <TodayRoundedIcon />},
         { key:'upcoming', label: "Upcoming tasks", icon: <WatchLaterRoundedIcon /> },
-        { key:'overdued', label: "Overdued tasks", icon: <ErrorRoundedIcon /> },
+        { key:'overdue', label: "Overdue tasks", icon: <ErrorRoundedIcon /> },
         { key: 'all', label: "All tasks", icon: <AssignmentRoundedIcon /> },
     ]);
 

@@ -25,21 +25,21 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TaskResponse>> getAllTask(@RequestParam(required = false) String dueDate){
+    public ResponseEntity<List<TaskResponse>> getAllTask(@RequestParam(required = false) String filter){
         List<TaskResponse> tasks = new ArrayList<>();
 
-        if(dueDate!=null){
+        if(filter!=null){
             LocalDate today = LocalDate.now();
             
-            if ("today".equalsIgnoreCase(dueDate)) {
+            if ("today".equalsIgnoreCase(filter)) {
                 tasks = taskService.getTaskByDueDate(today);
-            } else if("upcoming".equalsIgnoreCase(dueDate)) {
+            } else if("upcoming".equalsIgnoreCase(filter)) {
                 tasks = taskService.getUpcomingTasks(today);
-            } else if("overdued".equalsIgnoreCase(dueDate)){
+            } else if("overdue".equalsIgnoreCase(filter)){
                 tasks = taskService.getOverduedTasks(today);
             }
         } else{
-            tasks = taskService.getAllTask();
+            tasks = taskService.getPresentAndUpcomingTasks();
         }
 
         return (!tasks.isEmpty()) ? ResponseEntity.ok(tasks) : ResponseEntity.noContent().build();
