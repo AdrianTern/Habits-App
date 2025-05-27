@@ -93,10 +93,8 @@ function App() {
     fetchTasks();
   }, []);
 
-  const MotionTypography = motion(Typography);
-
   return (
-    <motion.div layout>
+    <motion.div>
       <AnimatePresence>
         <Box 
           className="App"
@@ -109,18 +107,19 @@ function App() {
           }}
         >
           <Box>
-            <MotionTypography 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              variant='h3' 
-              className='app-title' 
-              align='center'
-              gutterBottom >
-                habits.
-            </MotionTypography>
+            <motion.div layout>
+              <Typography 
+                variant='h3' 
+                className='app-title' 
+                align='center'
+                gutterBottom >
+                  habits.
+              </Typography>
+            </motion.div>
             <TaskChips />
-            <Paper 
+            <Paper
+              component={motion.div}
+              layout
               className="task-list-box"
               elevation={24}
               square={false}

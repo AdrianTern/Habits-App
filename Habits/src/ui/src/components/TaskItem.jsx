@@ -13,7 +13,6 @@ import RadioButtonCheckedRoundedIcon from '@mui/icons-material/RadioButtonChecke
 import { styled } from '@mui/material/styles';
 import { useState } from 'react';
 
-
 function TaskItem({ task, onToggle, onEdit}) {
     const[isCompleted, setIsCompleted] = useState(task.isCompleted);
 
