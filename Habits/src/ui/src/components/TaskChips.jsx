@@ -1,4 +1,4 @@
-import { Typography, Box, Chip } from '@mui/material';
+import { Typography, Box, Chip, Badge } from '@mui/material';
 import TodayRoundedIcon from '@mui/icons-material/TodayRounded';
 import WatchLaterRoundedIcon from '@mui/icons-material/WatchLaterRounded';
 import ErrorRoundedIcon from '@mui/icons-material/ErrorRounded';
@@ -6,19 +6,36 @@ import AssignmentRoundedIcon from '@mui/icons-material/AssignmentRounded';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-function TaskChips({ onSelect }){
-    const [taskGroups, setTaskGroups] = useState([
+function TaskChips({ onSelect, taskCount }){
+    const taskGroups = [
         { key: 'today', label: "Today's tasks", icon: <TodayRoundedIcon />},
         { key:'upcoming', label: "Upcoming tasks", icon: <WatchLaterRoundedIcon /> },
         { key:'overdue', label: "Overdue tasks", icon: <ErrorRoundedIcon /> },
         { key: 'all', label: "All tasks", icon: <AssignmentRoundedIcon /> },
-    ]);
+    ];
 
     const [selectedGroupKey, setSelectedGroupKey] = useState(taskGroups[0].key)
 
     const handleOnSelect = (key) => {
         setSelectedGroupKey(key);
         onSelect(key);
+    }
+
+    const taskBadgeCount = (key) => {
+        let count = 0;
+        const maxCount = 99;
+
+        if(key === 'today') count = taskCount.todayCount;
+        else if(key === 'upcoming') count = taskCount.upcomingCount;
+        else if(key === 'overdue') count = taskCount.overdueCount;
+        else if(key === 'all') count = taskCount.allCount;
+
+        count = Math.min(count, maxCount);
+
+        if(count === maxCount) return `${maxCount}+`;
+        else if(count === 0) return '';
+        
+        return count;
     }
 
     useEffect(() => {
@@ -42,10 +59,12 @@ function TaskChips({ onSelect }){
             {taskGroups.map(taskGroup => (
                 <Chip 
                     key={taskGroup.key} 
-                    label={taskGroup.label} 
+                    label={`${taskGroup.label} ${taskBadgeCount(taskGroup.key)}`} 
                     icon={taskGroup.icon}
                     color={ selectedGroupKey === taskGroup.key ? 'primary' : 'default' } 
-                    onClick={(key) => handleOnSelect(taskGroup.key)}/>
+                    onClick={(key) => handleOnSelect(taskGroup.key)}
+                    sx={{padding:0.5}}
+                />
             ))}   
         </Box>
     )

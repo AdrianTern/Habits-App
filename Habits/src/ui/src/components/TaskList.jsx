@@ -71,7 +71,14 @@ function TaskList({ tasks, onToggle, onSave, onDelete }) {
                 }}>
                 {Items()}
             </List>
-            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Box 
+                component={motion.div}
+                layout
+                sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'center' 
+                }}
+            >
                 <IconButton
                     aria-label="add task"
                     onClick={() => {

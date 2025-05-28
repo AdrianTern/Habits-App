@@ -99,7 +99,7 @@ function TaskItem({ task, onToggle, onEdit}) {
                             >
                                 {task.title}
                             </Typography >
-                            {isOverdued && <ErrorRoundedIcon fontSize='small' sx={{color: 'custom.darkred'}}/>}
+                            {isOverdued && <ErrorRoundedIcon fontSize='small' sx={{color: 'custom.darkred', mt:0.2}}/>}
                         </Box>
                         } 
                     secondary={
