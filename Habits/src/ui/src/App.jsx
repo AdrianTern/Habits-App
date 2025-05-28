@@ -1,9 +1,10 @@
 import TaskList from './components/TaskList';
 import { Typography, Box, Paper } from '@mui/material';
-import * as api from './api';
+import * as api from './api/api';
 import { useReducer } from 'react';
 import { taskReducer } from './reducers/taskReducer';
 import { motion, AnimatePresence } from 'framer-motion';
+import { isTaskMatchFilter } from './utils/isTaskMatchFilter'; 
 
 import './App.css';
 import TaskChips from './components/TaskChips';
@@ -12,16 +13,22 @@ function App() {
   const initialState = {
     tasks: [],
     filter: 'today',
+    taskCount: {
+      todayCount: 0,
+      upcomingCount: 0,
+      overdueCount: 0,
+      allCount: 0,
+    },
   };
   const [state, dispatch] = useReducer(taskReducer, initialState);
-  const{ tasks, filter } = state;
+  const{ tasks, filter, taskCount } = state;
 
   const fetchTasks = async(newFilter) => {
     try{
-      const tasks = await api.getTasks(newFilter);
+      const result = await api.getTasks(newFilter);
       dispatch({
         type: 'SET_TASKS',
-        payload: tasks,
+        payload: result,
       })
     } catch(error){
       console.error('Failed to fetch tasks', error);
@@ -35,49 +42,43 @@ function App() {
     })
     fetchTasks(newFilter);
   }
-  
+
+  const dispatchTaskWithFilter = (actionType, task) => {
+    if(isTaskMatchFilter(actionType, filter)){
+      dispatch({
+        type: actionType,
+        payload: task,
+      })
+    }
+  }
+
   const handleAddTask = async (task) => {
     try{
       const newTask = await api.addTask(task);
-      dispatch({
-        type: 'ADD_TASK',
-        payload: newTask
-      })
+      dispatchTaskWithFilter('ADD_TASK', newTask);
+      fetchTasks(filter);
     } catch(error){
         console.error("Failed to add task", error);
     }
-    fetchTasks(filter);
   }
 
   const handleUpdateTask = async (task) => {
     try{
       const updatedTask = await api.updateTask(task);
-      dispatch({
-        type: 'UPDATE_TASK',
-        payload: updatedTask
-      })
+      dispatchTaskWithFilter('UPDATE_TASK', updatedTask);
+      fetchTasks(filter);
     } catch(error){
         console.error("Failed to update task", error);
     }
     fetchTasks(filter);
   }
 
-  const handleTaskDialogSave = async (isCreate, task) => {
-    if(isCreate){
-      handleAddTask(task);
-    }else{
-      handleUpdateTask(task);
-    }
-  }
-
   // handleToggle function to toggle the completion status of a task
   const handleToggle = async (task ) => {
     try{
       const updatedTask = await api.toggleCompletion(task);
-      dispatch({
-        type: 'TOGGLE_TASK',
-        payload: updatedTask
-      })
+      dispatchTaskWithFilter('TOGGLE_TASK', updatedTask);
+      fetchTasks(filter);
     }
     catch (error) {
       console.error('Error toggling task:', error);
@@ -92,10 +93,18 @@ function App() {
         type: 'DELETE_TASK',
         payload: taskId
       })
+      fetchTasks(filter);
     } catch(error){
       console.error('Failed to delete task', error)
     }
-    fetchTasks(filter);
+  }
+
+  const handleTaskDialogSave = async (isCreate, task) => {
+    if(isCreate){
+      handleAddTask(task);
+    }else{
+      handleUpdateTask(task);
+    }
   }
 
   return (
@@ -121,7 +130,7 @@ function App() {
                   habits.
               </Typography>
             </motion.div>
-            <TaskChips onSelect={handleSelectTaskChip} />
+            <TaskChips onSelect={handleSelectTaskChip} taskCount={taskCount} />
             <Paper
               component={motion.div}
               layout

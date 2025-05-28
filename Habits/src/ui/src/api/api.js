@@ -2,9 +2,11 @@ const BASE_URL = '/api/tasks';
 
 // Get all tasks
 export const getTasks = async (filter = null) => {
+    const clientTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     let url = BASE_URL;
+
     if(filter && filter !== 'all'){
-        url = `${BASE_URL}?filter=${filter}`;
+        url = `${BASE_URL}?filter=${filter}&timezone=${clientTimeZone}`;
     }
     const response = await fetch(url);
 

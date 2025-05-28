@@ -63,8 +63,8 @@ public class TaskService {
                              .toList();
     }
 
-    public List<TaskResponse> getPresentAndUpcomingTasks(){
-        return taskRepository.findPresentAndUpcomingTasks()
+    public List<TaskResponse> getAllTasks(){
+        return taskRepository.findAllTasks()
                             .stream()
                             .map(TaskMapper::toTaskResponse)
                             .toList();

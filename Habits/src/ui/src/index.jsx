@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 import { ThemeProvider } from '@mui/material/styles';
 import '@fontsource/inter';
-import theme from './theme';
+import theme from './utils/theme';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 

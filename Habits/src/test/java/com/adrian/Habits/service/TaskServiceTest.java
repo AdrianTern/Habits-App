@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -150,27 +149,33 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void getPresentAndUpcomingTasks_shouldReturnPresentAndFutureTasks(){
+    public void getAllTasks_shouldReturnPresentAndFutureTasksAndOverdueTasks(){
+        LocalDate yesterday = LocalDate.of(2024, 5, 4);
         LocalDate today = LocalDate.of(2025, 5, 5);
         LocalDate tomorrow = LocalDate.of(2025, 5, 6);
 
         TaskEntity task1 = TaskEntity.builder()
-                                    .dueDate(today)
+                                    .dueDate(yesterday)
                                     .build();
 
         TaskEntity task2 = TaskEntity.builder()
+                                    .dueDate(today)
+                                    .build();
+
+        TaskEntity task3 = TaskEntity.builder()
                                     .dueDate(tomorrow)
                                     .build();
 
-        when(taskRepository.findPresentAndUpcomingTasks()).thenReturn(Arrays.asList(task1, task2));
+        when(taskRepository.findAllTasks()).thenReturn(Arrays.asList(task1, task2, task3));
 
-        List<TaskResponse> result = taskService.getPresentAndUpcomingTasks();
+        List<TaskResponse> result = taskService.getAllTasks();
 
-        assertEquals(2, result.size());
-        assertEquals(today, LocalDate.parse(result.get(0).getDueDate()));
-        assertEquals(tomorrow, LocalDate.parse(result.get(1).getDueDate()));
+        assertEquals(3, result.size());
+        assertEquals(yesterday, LocalDate.parse(result.get(0).getDueDate()));
+        assertEquals(today, LocalDate.parse(result.get(1).getDueDate()));
+        assertEquals(tomorrow, LocalDate.parse(result.get(2).getDueDate()));
 
-        verify(taskRepository).findPresentAndUpcomingTasks();
+        verify(taskRepository).findAllTasks();
     }
 
     @Test
