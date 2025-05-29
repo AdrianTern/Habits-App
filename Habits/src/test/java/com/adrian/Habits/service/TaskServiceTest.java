@@ -113,7 +113,7 @@ public class TaskServiceTest {
                                      .dueDate(dueDate)
                                      .build();
 
-        when(taskRepository.findByDueDate(dueDate)).thenReturn(Arrays.asList(task1, task2));
+        when(taskRepository.findByDueDateOrDueDateIsNull(dueDate)).thenReturn(Arrays.asList(task1, task2));
 
         List<TaskResponse> result = taskService.getTaskByDueDate(dueDate);
 
@@ -121,7 +121,7 @@ public class TaskServiceTest {
         assertEquals(dueDate, LocalDate.parse(result.get(0).getDueDate()));
         assertEquals(dueDate, LocalDate.parse(result.get(1).getDueDate()));
 
-        verify(taskRepository).findByDueDate(dueDate);
+        verify(taskRepository).findByDueDateOrDueDateIsNull(dueDate);
     }
 
     @Test
@@ -137,7 +137,7 @@ public class TaskServiceTest {
                                     .dueDate(tomorrow)
                                     .build();
 
-        when(taskRepository.findByDueDateAfter(today)).thenReturn(Arrays.asList(task1, task2));
+        when(taskRepository.findByDueDateAfterOrDueDateIsNull(today)).thenReturn(Arrays.asList(task1, task2));
         
         List<TaskResponse> result = taskService.getUpcomingTasks(today);
 
@@ -145,7 +145,7 @@ public class TaskServiceTest {
         assertEquals(tomorrow, LocalDate.parse(result.get(0).getDueDate()));
         assertEquals(tomorrow, LocalDate.parse(result.get(1).getDueDate()));
 
-        verify(taskRepository).findByDueDateAfter(today);
+        verify(taskRepository).findByDueDateAfterOrDueDateIsNull(today);
     }
 
     @Test

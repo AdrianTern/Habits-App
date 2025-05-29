@@ -28,7 +28,7 @@ public class TaskMapper {
     public static void updateTaskEntity(TaskEntity task, UpdateTaskRequest request){
         if (request.getTitle() != null) task.setTitle(request.getTitle());
         if (request.getDescription() != null) task.setDescription(request.getDescription());
-        if (request.getDueDate() != null) task.setDueDate(request.getDueDate());
+        task.setDueDate(request.getDueDate());
         task.setIsCompleted(request.getIsCompleted());  
     }
 }

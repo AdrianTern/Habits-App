@@ -43,14 +43,14 @@ public class TaskService {
     }
 
     public List<TaskResponse> getTaskByDueDate(LocalDate dueDate){
-        return taskRepository.findByDueDate(dueDate)
+        return taskRepository.findByDueDateOrDueDateIsNull(dueDate)
                              .stream()
                              .map(TaskMapper::toTaskResponse)
                              .toList();
     }
 
     public List<TaskResponse> getUpcomingTasks(LocalDate dueDate){
-        return taskRepository.findByDueDateAfter(dueDate)
+        return taskRepository.findByDueDateAfterOrDueDateIsNull(dueDate)
                              .stream()
                              .map(TaskMapper::toTaskResponse)
                              .toList();
