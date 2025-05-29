@@ -1,11 +1,13 @@
-import { 
+import {
     Box,
     Typography,
     TextField,
     Stack,
-    IconButton, 
+    IconButton,
     SwipeableDrawer,
     Paper,
+    Switch,
+    FormControlLabel,
 } from '@mui/material';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import RemoveCircleRoundedIcon from '@mui/icons-material/RemoveCircleRounded';
@@ -14,79 +16,145 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { useForm, Controller } from 'react-hook-form';
+import { styled } from '@mui/material/styles';
 
-function TaskForm({ task, isOpen, onClose, onSave, onDelete }){
+function TaskForm({ task, isOpen, onClose, onSave, onDelete }) {
     const isCreate = task == null;
     const dialogTitle = (isCreate ? "Add a new task" : "Edit task");
-    
-    const [id, setId] = useState("");
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [dueDate, setDueDate] = useState(dayjs());
-    const [isCompleted, setIsCompleted] = useState(false);
 
+    const { handleSubmit, control, watch, reset }
+        = useForm({
+            defaultValues: {
+                id: "",
+                title: "",
+                description: "",
+                dueDate: dayjs(),
+                isCompleted: false,
+                hasDueDate: false,
+            }
+        })
+    const hasDueDate = watch('hasDueDate');
     const titleRef = useRef(null);
+    const descRef = useRef(null);
 
     useEffect(() => {
-        if(isCreate){
-            setTitle("");
-            setDescription("");
-            setDueDate(dayjs());
-        }else{
-            setId(task.id);
-            setTitle(task.title);
-            setDescription(task.description);
-            setDueDate(dayjs(task.dueDate));
-            setIsCompleted(task.isCompleted);
-        }
-    }, [isCreate, task]);
+        reset({
+            id: task?.id || "",
+            title: task?.title || "",
+            description: task?.description || "",
+            dueDate: task?.dueDate ? dayjs(task.dueDate) : dayjs(),
+            isCompleted: task?.isCompleted || false,
+            hasDueDate: task?.dueDate ? true : false,
+        })
+    }, [isCreate, task, isOpen]);
 
     useEffect(() => {
-        if(isOpen && titleRef.current){
+        if (isOpen && titleRef.current) {
             titleRef.current.focus();
         }
-    },  [isOpen])
-    
-    const handleOnTitleChange = (event) => {
-        setTitle(event.target.value);
-    }
+    }, [isOpen])
 
-    const handleOnDescChange = (event) => {
-        setDescription(event.target.value);
-    }
-
-    const handleOnDueDateChange = (newDate) => {
-        setDueDate(newDate);
-    }
-
-    const handleOnSave = async (event) => {
-        event.preventDefault();
-        const dueDateString = dueDate.format('YYYY-MM-DD');
+    const handleOnSave = async (data) => {
+        const dueDateString = hasDueDate ? data.dueDate.format('YYYY-MM-DD') : '';
         const newTask = {
-            id,
-            title,
-            description,
+            id: data.id,
+            title: data.title,
+            description: data.description,
             dueDate: dueDateString,
-            isCompleted
+            isCompleted: data.isCompleted
         }
         // Add/Update task
         onSave(isCreate, newTask);
 
         // Close dialog
         onClose();
-
-        setTitle('');
-        setDescription('');
-        setDueDate(dayjs());
     }
 
     const handleOnDelete = () => {
-        onDelete(id);
+        onDelete(task.id);
         onClose();
     }
 
-    return(
+    const FormButton = styled(IconButton)({
+        transition: 'all 0.3s ease',
+        '&:hover': {
+            transform: 'scale(1.30)',
+        }
+    })
+
+    const renderTextField = (name, label, inputRef, required) => (
+        <Controller
+            name={name}
+            control={control}
+            render={({ field }) => (
+                <TextField
+                    required={required}
+                    inputRef={inputRef}
+                    id={name}
+                    name={name}
+                    label={label}
+                    variant='outlined'
+                    value={field.value}
+                    onChange={field.onChange}
+                />
+            )}
+        />
+    )
+
+    const renderDateSwitch = () => (
+        <Controller
+            name="hasDueDate"
+            control={control}
+            render={({ field }) => (
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={field.value}
+                            onChange={field.onChange}
+                            sx={{
+                                '& .MuiSwitch-thumb': {
+                                    color: 'primary.main',
+                                },
+                                '& .MuiSwitch-switchBase + .MuiSwitch-track': {
+                                    backgroundColor: 'custom.lightgrey',
+                                    opacity: 1
+                                },
+                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                    backgroundColor: 'custom.darkred',
+                                    opacity: 1
+                                }
+                            }}
+                        />
+                    }
+                    label="Date"
+                    labelPlacement='start'
+                />
+            )}
+        />
+    );
+
+    const renderDatePicker = () => (
+        <Controller
+            name="dueDate"
+            control={control}
+            render={({ field }) => (
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                        label="Due Date"
+                        value={field.value}
+                        sx={{ width: "10rem" }}
+                        minDate={dayjs()}
+                        onChange={(newDate) => field.onChange(newDate)}
+                    />
+                </LocalizationProvider>
+            )}
+        />
+    )
+
+    return (
         <Box>
             <SwipeableDrawer
                 anchor='bottom'
@@ -95,60 +163,51 @@ function TaskForm({ task, isOpen, onClose, onSave, onDelete }){
             >
                 <Paper
                     component="form"
-                    onSubmit={handleOnSave}
+                    onSubmit={handleSubmit(handleOnSave)}
                 >
-                    <Box sx={{padding: '2rem'}}>
+                    <Box
+                        component={motion.div}
+                        layout
+                        transition={{
+                            layout: {
+                                type: 'tween',
+                                ease: 'easeInOut'
+                            }
+                        }}
+                        sx={{ padding: '2rem' }}
+                    >
                         <Box display="flex" justifyContent="space-between">
-                            <IconButton
+                            <FormButton
                                 aria-label='delete-task'
-                                sx={{color: 'custom.red'}}
+                                sx={{ color: 'custom.red' }}
                                 onClick={handleOnDelete}
                             >
-                                {!isCreate && (<RemoveCircleRoundedIcon fontSize='large'/>)}
-                            </IconButton>
+                                {!isCreate && (<RemoveCircleRoundedIcon fontSize='large' />)}
+                            </FormButton>
                             <Typography variant='h6'>
                                 {dialogTitle}
                             </Typography>
-                            <IconButton 
+                            <FormButton
                                 type='submit'
                                 aria-label='update-task'
-                                sx={{color: 'black'}}
+                                sx={{ color: 'black' }}
                             >
-                                {isCreate ? <AddCircleRoundedIcon fontSize='large'/> : <CheckCircleRoundedIcon fontSize='large'/>}
-                            </IconButton> 
+                                {isCreate ? <AddCircleRoundedIcon fontSize='large' /> : <CheckCircleRoundedIcon fontSize='large' />}
+                            </FormButton>
                         </Box>
                         <Stack spacing={2} paddingTop='1rem'>
-                            <TextField
-                                onChange={handleOnTitleChange}
-                                required
-                                inputRef={titleRef}
-                                id='title'
-                                name='title'
-                                label="Title"
-                                value={title}
-                                variant='outlined'
-                            />
-                            <TextField
-                                onChange={handleOnDescChange}
-                                fullWidth
-                                id='description'
-                                name='description'
-                                label="Description"
-                                value={description}
-                                variant='outlined'
-                            />
+                            {renderTextField('title', 'Title', titleRef, true)}
+                            {renderTextField('description', 'Description', descRef, false)}
                         </Stack>
                         <Box display='flex' marginTop='1rem'>
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DatePicker
-                                    label="Due Date"
-                                    value={dueDate}
-                                    sx={{ width: "10rem" }}
-                                    onChange={(newDate) => handleOnDueDateChange(newDate)}
-                                />
-                            </LocalizationProvider>
+                            {renderDateSwitch()}
                         </Box>
-                    </Box> 
+                        {hasDueDate &&
+                            <Box display='flex' marginTop='1rem'>
+                                {renderDatePicker()}
+                            </Box>
+                        }
+                    </Box>
                 </Paper>
             </SwipeableDrawer>
         </Box>

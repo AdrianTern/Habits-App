@@ -55,6 +55,7 @@ function App() {
   const handleAddTask = async (task) => {
     try{
       const newTask = await api.addTask(task);
+      console.log(newTask)
       dispatchTaskWithFilter('ADD_TASK', newTask);
       fetchTasks(filter);
     } catch(error){
