@@ -23,11 +23,8 @@ function TaskList({ tasks, onToggle, onSave, onDelete }) {
         if(!isEmpty){
             return (
                 tasks.map(task => (
-                    <motion.li
-                        key={task.id}
-                        layout
-                    >
                         <TaskItem
+                            key={task.id}
                             task={task}
                             onToggle={onToggle}
                             onEdit={() => {
@@ -35,7 +32,6 @@ function TaskList({ tasks, onToggle, onSave, onDelete }) {
                                 handleOpenDialog();
                             }}
                         />
-                    </motion.li>
                 ))
             ) 
         } else{
@@ -66,7 +62,7 @@ function TaskList({ tasks, onToggle, onSave, onDelete }) {
                 sx={{
                     maxHeight: { xs: '60vh', sm: '100vh' },
                     maxWidth: { xs: '90vw', sm: '100vw' },
-                    overflowY: 'auto',
+                    overflowY: { xs: 'auto', sm: 'hidden' },
                     overflowX: { xs: 'auto', sm: 'hidden' },
                 }}>
                 {Items()}
