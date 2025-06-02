@@ -22,6 +22,8 @@ public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
 
     List<TaskEntity> findByDueDateBeforeAndIsCompleted(LocalDate dueDate, Boolean isCompleted);
 
+    List<TaskEntity> findByRoutineDetailsIsRoutineTaskTrue();
+
     void deleteByIsCompleted(Boolean isCompleted);
 }
 

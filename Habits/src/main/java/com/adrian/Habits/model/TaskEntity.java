@@ -1,6 +1,7 @@
 package com.adrian.Habits.model;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,4 +27,6 @@ public class TaskEntity {
     @Column(nullable = false)
     @Builder.Default
     private Boolean isCompleted = false;
+    @Embedded
+    private RoutineDetails routineDetails;
 }

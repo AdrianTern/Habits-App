@@ -1,10 +1,10 @@
 package com.adrian.Habits.controller;
 
-import com.adrian.Habits.dto.CreateTaskRequest;
 import com.adrian.Habits.dto.TaskCount;
-import com.adrian.Habits.dto.TaskResponse;
-import com.adrian.Habits.dto.TaskResponseWrapper;
-import com.adrian.Habits.dto.UpdateTaskRequest;
+import com.adrian.Habits.dto.request.CreateTaskRequest;
+import com.adrian.Habits.dto.request.UpdateTaskRequest;
+import com.adrian.Habits.dto.response.TaskResponse;
+import com.adrian.Habits.dto.wrapper.TaskResponseWrapper;
 import com.adrian.Habits.service.TaskService;
 import jakarta.validation.Valid;
 
@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -54,6 +57,11 @@ public class TaskController {
         }
 
         return ResponseEntity.ok(tasksResponseWrapper);
+    }
+    
+    @GetMapping("/routineTasks")
+    public ResponseEntity<List<TaskResponse>> getRoutineTasks(){
+        return ResponseEntity.ok(taskService.getRoutineTasks());
     }
 
     @GetMapping("/{id}/get-by-id")

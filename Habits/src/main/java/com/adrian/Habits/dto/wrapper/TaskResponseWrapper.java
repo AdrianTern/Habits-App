@@ -1,15 +1,16 @@
-package com.adrian.Habits.dto;
+package com.adrian.Habits.dto.wrapper;
 
 import java.util.List;
 
+import com.adrian.Habits.dto.TaskCount;
+import com.adrian.Habits.dto.response.TaskResponse;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
