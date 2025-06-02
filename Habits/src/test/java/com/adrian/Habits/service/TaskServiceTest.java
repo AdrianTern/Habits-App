@@ -1,8 +1,8 @@
 package com.adrian.Habits.service;
 
-import com.adrian.Habits.dto.CreateTaskRequest;
-import com.adrian.Habits.dto.TaskResponse;
-import com.adrian.Habits.dto.UpdateTaskRequest;
+import com.adrian.Habits.dto.request.CreateTaskRequest;
+import com.adrian.Habits.dto.request.UpdateTaskRequest;
+import com.adrian.Habits.dto.response.TaskResponse;
 import com.adrian.Habits.model.TaskEntity;
 import com.adrian.Habits.repository.TaskRepository;
 

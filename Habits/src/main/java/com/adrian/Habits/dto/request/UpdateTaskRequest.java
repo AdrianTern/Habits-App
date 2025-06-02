@@ -1,4 +1,4 @@
-package com.adrian.Habits.dto;
+package com.adrian.Habits.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
@@ -8,10 +8,12 @@ import java.time.LocalDate;
 
 @Data
 @Builder
-public class CreateTaskRequest {
+public class UpdateTaskRequest {
+
     @NotBlank(message = "Title cannot be blank")
     private String title;
     private String description;
     private LocalDate dueDate;
-
+    private Boolean isCompleted;
+    private RoutineDetailsRequest routineDetailsRequest;
 }

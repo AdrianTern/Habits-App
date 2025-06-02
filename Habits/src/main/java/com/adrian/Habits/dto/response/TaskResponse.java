@@ -1,14 +1,13 @@
-package com.adrian.Habits.dto;
+package com.adrian.Habits.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+
 
 @Builder
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaskResponse {
@@ -17,4 +16,5 @@ public class TaskResponse {
     private String description;
     private String dueDate;
     private Boolean isCompleted;
+    private RoutineDetailsResponse routineDetailsResponse;
 }
