@@ -6,6 +6,8 @@ import lombok.Data;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @Data
 @Builder
 public class UpdateTaskRequest {
@@ -15,5 +17,6 @@ public class UpdateTaskRequest {
     private String description;
     private LocalDate dueDate;
     private Boolean isCompleted;
+    @JsonProperty("routineDetailsResponse")
     private RoutineDetailsRequest routineDetailsRequest;
 }

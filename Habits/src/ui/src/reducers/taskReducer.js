@@ -20,7 +20,8 @@ export const taskReducer = (state, action) => {
                     todayCount: action.payload ? action.payload.taskCount.todayCount : 0,
                     upcomingCount: action.payload.taskCount.upcomingCount,
                     overdueCount: action.payload.taskCount.overdueCount,
-                    allCount: action.payload.taskCount.allCount
+                    allCount: action.payload.taskCount.allCount,
+                    routineCount: action.payload.taskCount.routineCount,
                 }
             };
         case 'SET_FILTER':
