@@ -16,4 +16,5 @@ public class TaskCount {
     private long upcomingCount;
     private long overdueCount;
     private long allCount;
+    private long routineCount;
 }

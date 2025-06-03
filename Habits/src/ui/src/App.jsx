@@ -18,6 +18,7 @@ function App() {
       upcomingCount: 0,
       overdueCount: 0,
       allCount: 0,
+      routineCount: 0,
     },
   };
   const [state, dispatch] = useReducer(taskReducer, initialState);
@@ -55,7 +56,6 @@ function App() {
   const handleAddTask = async (task) => {
     try{
       const newTask = await api.addTask(task);
-      console.log(newTask)
       dispatchTaskWithFilter('ADD_TASK', newTask);
       fetchTasks(filter);
     } catch(error){

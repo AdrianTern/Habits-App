@@ -12,6 +12,7 @@ import EditNoteRoundedIcon from '@mui/icons-material/EditNoteRounded';
 import RadioButtonUncheckedRoundedIcon from '@mui/icons-material/RadioButtonUncheckedRounded';
 import RadioButtonCheckedRoundedIcon from '@mui/icons-material/RadioButtonCheckedRounded';
 import ErrorRoundedIcon from '@mui/icons-material/ErrorRounded';
+import RepeatRoundedIcon from '@mui/icons-material/RepeatRounded';
 import { styled, useTheme } from '@mui/material/styles';
 import { useState } from 'react';
 import dayjs from 'dayjs';
@@ -20,7 +21,9 @@ import { motion } from 'framer-motion';
 function TaskItem({ task, onToggle, onEdit }) {
     const theme = useTheme();
     const [isCompleted, setIsCompleted] = useState(task.isCompleted);
-    const isOverdued = !isCompleted && dayjs(task.dueDate).isBefore(dayjs(), 'day');
+    const isRoutine = task?.routineDetailsResponse?.isRoutineTask || false;
+    const isOverdued = !isRoutine && !isCompleted && dayjs(task.dueDate).isBefore(dayjs(), 'day');
+
 
     const handleToggle = () => {
         setIsCompleted(!isCompleted);
@@ -106,10 +109,11 @@ function TaskItem({ task, onToggle, onEdit }) {
                                         {task.title}
                                     </Typography >
                                     {isOverdued && <ErrorRoundedIcon fontSize='small' sx={{ color: 'custom.darkred', mt: 0.2 }} />}
+                                    {isRoutine && <RepeatRoundedIcon fontSize='small' sx={{ color: 'custom.darkgreen', mt: 0.2 }} />}
                                 </Box>
                             }
                         />
-                        <TaskInfo/>
+                        {!isRoutine && <TaskInfo/>}
                     </Box>
                 </PrettyListItemButton>
                 <IconButton

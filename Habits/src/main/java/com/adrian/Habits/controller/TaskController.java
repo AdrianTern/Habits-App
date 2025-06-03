@@ -39,8 +39,15 @@ public class TaskController {
         List<TaskResponse> upcomingTasks = taskService.getUpcomingTasks(today);
         List<TaskResponse> overdueTasks = taskService.getOverduedTasks(today);
         List<TaskResponse> allTasks = taskService.getAllTasks();
+        List<TaskResponse> routineTasks = taskService.getRoutineTasks();
 
-        TaskCount taskCount = new TaskCount(todayTasks.size(), upcomingTasks.size(), overdueTasks.size(), allTasks.size());
+        TaskCount taskCount = TaskCount.builder()
+                                    .todayCount(todayTasks.size())
+                                    .upcomingCount(upcomingTasks.size())
+                                    .overdueCount(overdueTasks.size())
+                                    .allCount(allTasks.size())
+                                    .routineCount(routineTasks.size())
+                                    .build();
                                     
         TaskResponseWrapper tasksResponseWrapper = TaskResponseWrapper.builder().taskCount(taskCount).build();
 
@@ -51,17 +58,14 @@ public class TaskController {
                 tasksResponseWrapper.setTaskResponse(upcomingTasks);
             } else if("overdue".equalsIgnoreCase(filter)){
                 tasksResponseWrapper.setTaskResponse(overdueTasks);
+            } else if ("routine".equalsIgnoreCase(filter)) {
+                tasksResponseWrapper.setTaskResponse(routineTasks);
             }
         } else{
             tasksResponseWrapper.setTaskResponse(allTasks);
         }
 
         return ResponseEntity.ok(tasksResponseWrapper);
-    }
-    
-    @GetMapping("/routineTasks")
-    public ResponseEntity<List<TaskResponse>> getRoutineTasks(){
-        return ResponseEntity.ok(taskService.getRoutineTasks());
     }
 
     @GetMapping("/{id}/get-by-id")
