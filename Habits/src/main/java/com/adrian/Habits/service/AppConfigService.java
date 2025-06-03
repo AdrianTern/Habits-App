@@ -127,7 +127,7 @@ public class AppConfigService{
             // Delete the routine if it is expired, else reset isCompleted
             List<TaskEntity> routineTasks = taskRepository.findByRoutineDetailsIsRoutineTaskTrue();
             routineTasks.forEach(routine -> {
-                LocalDate endDate = routine.getRoutineDetails().getRoutineEndDate();
+                LocalDate endDate = routine.getDueDate();
                 if (endDate != null && endDate.isBefore(currentDate)) taskRepository.delete(routine);
                 else routine.setIsCompleted(false);
             });

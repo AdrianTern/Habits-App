@@ -113,15 +113,15 @@ public class TaskServiceTest {
                                      .dueDate(dueDate)
                                      .build();
 
-        when(taskRepository.findByDueDateOrDueDateIsNull(dueDate)).thenReturn(Arrays.asList(task1, task2));
+        when(taskRepository.findTodayTasks(dueDate)).thenReturn(Arrays.asList(task1, task2));
 
-        List<TaskResponse> result = taskService.getTaskByDueDate(dueDate);
+        List<TaskResponse> result = taskService.getTodayTasks(dueDate);
 
         assertEquals(2, result.size());
         assertEquals(dueDate, LocalDate.parse(result.get(0).getDueDate()));
         assertEquals(dueDate, LocalDate.parse(result.get(1).getDueDate()));
 
-        verify(taskRepository).findByDueDateOrDueDateIsNull(dueDate);
+        verify(taskRepository).findTodayTasks(dueDate);
     }
 
     @Test
@@ -166,16 +166,16 @@ public class TaskServiceTest {
                                     .dueDate(tomorrow)
                                     .build();
 
-        when(taskRepository.findAllTasks()).thenReturn(Arrays.asList(task1, task2, task3));
+        when(taskRepository.findAllTasks(today)).thenReturn(Arrays.asList(task1, task2, task3));
 
-        List<TaskResponse> result = taskService.getAllTasks();
+        List<TaskResponse> result = taskService.getAllTasks(today);
 
         assertEquals(3, result.size());
         assertEquals(yesterday, LocalDate.parse(result.get(0).getDueDate()));
         assertEquals(today, LocalDate.parse(result.get(1).getDueDate()));
         assertEquals(tomorrow, LocalDate.parse(result.get(2).getDueDate()));
 
-        verify(taskRepository).findAllTasks();
+        verify(taskRepository).findAllTasks(today);
     }
 
     @Test

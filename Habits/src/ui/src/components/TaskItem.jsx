@@ -113,7 +113,7 @@ function TaskItem({ task, onToggle, onEdit }) {
                                 </Box>
                             }
                         />
-                        {!isRoutine && <TaskInfo/>}
+                        <TaskInfo />
                     </Box>
                 </PrettyListItemButton>
                 <IconButton

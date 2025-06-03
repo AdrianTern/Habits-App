@@ -1,7 +1,5 @@
 package com.adrian.Habits.model;
 
-import java.time.LocalDate;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
@@ -18,5 +16,4 @@ public class RoutineDetails {
     @Column(nullable = false)
     @Builder.Default
     private Boolean isRoutineTask = false;
-    private LocalDate routineEndDate;
 }
