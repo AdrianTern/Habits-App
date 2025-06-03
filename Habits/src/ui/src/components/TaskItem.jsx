@@ -59,7 +59,7 @@ function TaskItem({ task, onToggle, onEdit }) {
                     {task.description}
                 </TaskInfoText>
                 <TaskInfoText>
-                    {task.dueDate}
+                    {isRoutine ? task.routineDetailsResponse.routineEndDate : task.dueDate}
                 </TaskInfoText>
             </Box>
         )
@@ -113,7 +113,7 @@ function TaskItem({ task, onToggle, onEdit }) {
                                 </Box>
                             }
                         />
-                        {!isRoutine && <TaskInfo/>}
+                        <TaskInfo />
                     </Box>
                 </PrettyListItemButton>
                 <IconButton
