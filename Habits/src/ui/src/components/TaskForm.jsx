@@ -68,11 +68,10 @@ function TaskForm({ task, isOpen, onClose, onSave, onDelete }) {
             id: data.id,
             title: data.title,
             description: data.description,
-            dueDate: isRoutineTask ? "" : dueDateString,
+            dueDate: dueDateString,
             isCompleted: data.isCompleted,
             routineDetailsResponse: {
                 isRoutineTask: isRoutineTask,
-                routineEndDate: dueDateString
             }
         }
         // Add/Update task

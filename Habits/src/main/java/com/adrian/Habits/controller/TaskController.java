@@ -35,10 +35,10 @@ public class TaskController {
         ZoneId zoneid = ZoneId.of(timezone);
         LocalDate today = LocalDate.now(zoneid);
 
-        List<TaskResponse> todayTasks = taskService.getTaskByDueDate(today);
+        List<TaskResponse> todayTasks = taskService.getTodayTasks(today);
         List<TaskResponse> upcomingTasks = taskService.getUpcomingTasks(today);
         List<TaskResponse> overdueTasks = taskService.getOverduedTasks(today);
-        List<TaskResponse> allTasks = taskService.getAllTasks();
+        List<TaskResponse> allTasks = taskService.getAllTasks(today);
         List<TaskResponse> routineTasks = taskService.getRoutineTasks();
 
         TaskCount taskCount = TaskCount.builder()
@@ -84,7 +84,7 @@ public class TaskController {
 
     @GetMapping("/{dueDate}/get-by-dueDate")
     public ResponseEntity<List<TaskResponse>> getTaskByDueDate(@PathVariable LocalDate dueDate) {
-        List<TaskResponse> tasks = taskService.getTaskByDueDate(dueDate);
+        List<TaskResponse> tasks = taskService.getTodayTasks(dueDate);
 
         return (!tasks.isEmpty()) ? ResponseEntity.ok(tasks) : ResponseEntity.notFound().build();
     }

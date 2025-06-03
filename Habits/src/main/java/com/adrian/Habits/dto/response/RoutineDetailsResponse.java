@@ -11,5 +11,4 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RoutineDetailsResponse {
     private Boolean isRoutineTask;
-    private String routineEndDate;
 }

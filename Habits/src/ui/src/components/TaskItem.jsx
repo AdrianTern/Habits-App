@@ -59,7 +59,7 @@ function TaskItem({ task, onToggle, onEdit }) {
                     {task.description}
                 </TaskInfoText>
                 <TaskInfoText>
-                    {isRoutine ? task.routineDetailsResponse.routineEndDate : task.dueDate}
+                    {task.dueDate}
                 </TaskInfoText>
             </Box>
         )

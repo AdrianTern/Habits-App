@@ -10,17 +10,12 @@ import com.adrian.Habits.model.TaskEntity;
 
 public class TaskMapper {
     public static RoutineDetails toRoutineDetails(RoutineDetailsRequest request){
-        if (request != null) {
-            return new RoutineDetails(request.getIsRoutineTask(), request.getRoutineEndDate());
-        }
+        if (request != null) return new RoutineDetails(request.getIsRoutineTask());
         return null;
     }
 
     public static RoutineDetailsResponse toRoutineDetailsResponse(RoutineDetails routineDetails){
-        if (routineDetails != null) {
-            String endDate = routineDetails.getRoutineEndDate() != null ? routineDetails.getRoutineEndDate().toString() : null;
-            return new RoutineDetailsResponse(routineDetails.getIsRoutineTask(), endDate);
-        }
+        if (routineDetails != null) return new RoutineDetailsResponse(routineDetails.getIsRoutineTask());  
         return null;
     }
     

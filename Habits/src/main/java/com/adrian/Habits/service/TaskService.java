@@ -42,8 +42,8 @@ public class TaskService {
                              .toList();
     }
 
-    public List<TaskResponse> getTaskByDueDate(LocalDate dueDate){
-        return taskRepository.findByDueDateOrDueDateIsNull(dueDate)
+    public List<TaskResponse> getTodayTasks(LocalDate dueDate){
+        return taskRepository.findTodayTasks(dueDate)
                              .stream()
                              .map(TaskMapper::toTaskResponse)
                              .toList();
@@ -63,8 +63,8 @@ public class TaskService {
                              .toList();
     }
 
-    public List<TaskResponse> getAllTasks(){
-        return taskRepository.findAllTasks()
+    public List<TaskResponse> getAllTasks(LocalDate dueDate){
+        return taskRepository.findAllTasks( dueDate)
                             .stream()
                             .map(TaskMapper::toTaskResponse)
                             .toList();
