@@ -95,7 +95,7 @@ public class AppConfigService{
 
             System.out.println("Task clean up executed at: " + currenDateTimeString);
         }
-        else System.out.println("Task clean up is not required.");
+        else System.out.println("Task clean up is not required. Last executed at: " + cleanUpConfig.getConfigValue());
     }
 
     @Transactional
@@ -137,6 +137,6 @@ public class AppConfigService{
 
             System.out.println("Routine tasks resetted at: " + currenDateTimeString);
         }
-        else System.out.println("Routine tasks reset is not required.");
+        else System.out.println("Routine tasks reset is not required. Last executed at: " + resetRoutineConfig.getConfigValue());
      }
 }
