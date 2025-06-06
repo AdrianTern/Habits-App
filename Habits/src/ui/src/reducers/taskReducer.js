@@ -31,7 +31,7 @@ export const taskReducer = (state, action) => {
                 ...state, 
                 tasks: sortTasks(action.payload.taskResponse),
                 taskCount: {
-                    todayCount: action.payload ? action.payload.taskCount.todayCount : 0,
+                    todayCount: action.payload.taskCount.todayCount,
                     upcomingCount: action.payload.taskCount.upcomingCount,
                     overdueCount: action.payload.taskCount.overdueCount,
                     allCount: action.payload.taskCount.allCount,

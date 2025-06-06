@@ -60,10 +60,10 @@ public class TaskController {
                 tasksResponseWrapper.setTaskResponse(overdueTasks);
             } else if ("routine".equalsIgnoreCase(filter)) {
                 tasksResponseWrapper.setTaskResponse(routineTasks);
+            }else if("all".equalsIgnoreCase(filter)){
+                tasksResponseWrapper.setTaskResponse(allTasks);
             }
-        } else{
-            tasksResponseWrapper.setTaskResponse(allTasks);
-        }
+        } 
 
         return ResponseEntity.ok(tasksResponseWrapper);
     }

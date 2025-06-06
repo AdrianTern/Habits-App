@@ -34,7 +34,7 @@ function TaskChips({ onSelect, taskCount }){
         else if(key === 'routine') count = taskCount.routineCount;
 
         count = Math.min(count, maxCount);
-
+   
         if(count === maxCount) return `${maxCount}+`;
         else if(count === 0) return '';
         
