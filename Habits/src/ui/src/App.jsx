@@ -27,6 +27,7 @@ function App() {
   const fetchTasks = async(newFilter) => {
     try{
       const result = await api.getTasks(newFilter);
+
       dispatch({
         type: 'SET_TASKS',
         payload: result,
