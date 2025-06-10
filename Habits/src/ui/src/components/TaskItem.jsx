@@ -1,5 +1,4 @@
 import {
-    ListItem,
     ListItemButton,
     ListItemIcon,
     ListItemText,
@@ -13,13 +12,34 @@ import RadioButtonUncheckedRoundedIcon from '@mui/icons-material/RadioButtonUnch
 import RadioButtonCheckedRoundedIcon from '@mui/icons-material/RadioButtonCheckedRounded';
 import ErrorRoundedIcon from '@mui/icons-material/ErrorRounded';
 import RepeatRoundedIcon from '@mui/icons-material/RepeatRounded';
-import { styled, useTheme } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import { useState } from 'react';
 import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
 
-function TaskItem({ task, appSettings, onToggle, onEdit }) {
-    const theme = useTheme();
+const CompletionCheckbox = styled(Checkbox)(({ theme }) => ({
+    color: theme.palette.primary.main,
+}));
+
+const PrettyListItemButton = styled(ListItemButton)({
+    transition: 'all 0.5s ease',
+    '&:hover': {
+        transform: 'scale(1.02)',
+    },
+});
+
+const TaskInfoText = styled(Typography, {
+    shouldForwardProp: prop => prop !== '$isCompleted' && prop !== '$darkMode'
+})(({ theme, $darkMode, $isCompleted }) => ({
+    fontSize: '0.7rem',
+    [theme.breakpoints.up('sm')]: {
+        fontSize: '0.8rem'
+    },
+    color: $isCompleted ? theme.palette.custom.darkgrey : $darkMode? theme.palette.custom.lightgrey : theme.palette.custom.darkgrey,
+    textDecoration: $isCompleted ? 'line-through' : 'none',
+}));
+
+function TaskItem({ task, appSettings, onToggle, onEdit, darkMode }) {
     const [isCompleted, setIsCompleted] = useState(task.isCompleted);
     const isRoutine = task?.routineDetailsResponse?.isRoutineTask || false;
     const isOverdued = !isRoutine && !isCompleted && dayjs(task.dueDate).isBefore(dayjs(), 'day');
@@ -32,35 +52,13 @@ function TaskItem({ task, appSettings, onToggle, onEdit }) {
         onToggle(task);
     };
 
-    const BlackCheckbox = styled(Checkbox)({
-        color: 'black',
-        '&.Mui-checked': {
-            color: 'black',
-        }
-    });
-
-    const PrettyListItemButton = styled(ListItemButton)({
-        transition: 'all 0.5s ease',
-        '&:hover': {
-            transform: 'scale(1.02)',
-        },
-    });
-
-    const TaskInfoText = styled(Typography)({
-        fontSize: '0.7rem',
-        [theme.breakpoints.up('sm')]: {
-            fontSize: '0.8rem'
-        },
-        color: theme.palette.custom.darkgrey,
-    })
-
     const TaskInfo = () => {
         return (
             <Box>
-                <TaskInfoText>
+                <TaskInfoText $darkMode={darkMode} $isCompleted={isCompleted}>
                     {isShowDesc && task.description}
                 </TaskInfoText>
-                <TaskInfoText>
+                <TaskInfoText $darkMode={darkMode} $isCompleted={isCompleted}>
                     {isShowDate && task.dueDate}
                 </TaskInfoText>
             </Box>
@@ -76,14 +74,13 @@ function TaskItem({ task, appSettings, onToggle, onEdit }) {
             <Box display='flex'>
                 <PrettyListItemButton onClick={handleToggle} dense>
                     <ListItemIcon>
-                        <BlackCheckbox
+                        <CompletionCheckbox
                             className="task-iscomplete"
                             edge="start"
                             checked={isCompleted}
                             onClick={handleToggle}
                             icon={<RadioButtonUncheckedRoundedIcon />}
                             checkedIcon={<RadioButtonCheckedRoundedIcon />}
-                            color='black'
                             disableRipple
                             sx={{
                                 '& .MuiSvgIcon-root': {
@@ -96,7 +93,7 @@ function TaskItem({ task, appSettings, onToggle, onEdit }) {
                             className="task-title"
                             sx={{
                                 textDecoration: isCompleted ? 'line-through' : 'none',
-                                color: isCompleted ? 'gray' : 'black'
+                                color: isCompleted ? 'custom.darkgrey' : 'primary.main'
                             }}
                             primary={
                                 <Box display="flex">
@@ -124,7 +121,7 @@ function TaskItem({ task, appSettings, onToggle, onEdit }) {
                         size='medium'
                         onClick={onEdit}
                         sx={{
-                            color: 'black',
+                            color: 'primary.main',
                             visibility: isCompleted ? 'hidden' : 'visible',
                             marginRight: '0.5rem',
                             transition: 'all 0.3s ease',

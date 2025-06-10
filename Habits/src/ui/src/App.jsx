@@ -5,7 +5,10 @@ import * as api from './api/api';
 import { useReducer } from 'react';
 import { taskReducer } from './reducers/taskReducer';
 import { motion, AnimatePresence } from 'framer-motion';
-import { isTaskMatchFilter } from './utils/isTaskMatchFilter'; 
+import { isTaskMatchFilter } from './utils/isTaskMatchFilter';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import { lightTheme, darkTheme } from './utils/theme';
 
 import './App.css';
 import TaskChips from './components/TaskChips';
@@ -24,20 +27,21 @@ function App() {
     appSettings: {
       isShowTaskDesc: true,
       isShowTaskDate: true,
+      darkMode: false,
     }
   };
   const [state, dispatch] = useReducer(taskReducer, initialState);
-  const{ tasks, filter, taskCount, appSettings } = state;
+  const { tasks, filter, taskCount, appSettings } = state;
 
-  const fetchTasks = async(newFilter) => {
-    try{
+  const fetchTasks = async (newFilter) => {
+    try {
       const result = await api.getTasks(newFilter);
 
       dispatch({
         type: 'SET_TASKS',
         payload: result,
       })
-    } catch(error){
+    } catch (error) {
       console.error('Failed to fetch tasks', error);
     }
   }
@@ -57,7 +61,7 @@ function App() {
   }
 
   const dispatchTaskWithFilter = (actionType, task) => {
-    if(isTaskMatchFilter(actionType, filter)){
+    if (isTaskMatchFilter(actionType, filter)) {
       dispatch({
         type: actionType,
         payload: task,
@@ -66,29 +70,29 @@ function App() {
   }
 
   const handleAddTask = async (task) => {
-    try{
+    try {
       const newTask = await api.addTask(task);
       dispatchTaskWithFilter('ADD_TASK', newTask);
       fetchTasks(filter);
-    } catch(error){
-        console.error("Failed to add task", error);
+    } catch (error) {
+      console.error("Failed to add task", error);
     }
   }
 
   const handleUpdateTask = async (task) => {
-    try{
+    try {
       const updatedTask = await api.updateTask(task);
       dispatchTaskWithFilter('UPDATE_TASK', updatedTask);
       fetchTasks(filter);
-    } catch(error){
-        console.error("Failed to update task", error);
+    } catch (error) {
+      console.error("Failed to update task", error);
     }
     fetchTasks(filter);
   }
 
   // handleToggle function to toggle the completion status of a task
-  const handleToggle = async (task ) => {
-    try{
+  const handleToggle = async (task) => {
+    try {
       const updatedTask = await api.toggleCompletion(task);
       dispatchTaskWithFilter('TOGGLE_TASK', updatedTask);
       fetchTasks(filter);
@@ -100,70 +104,80 @@ function App() {
   }
 
   const handleDelete = async (taskId) => {
-    try{
+    try {
       await api.deleteTask(taskId);
       dispatch({
         type: 'DELETE_TASK',
         payload: taskId
       })
       fetchTasks(filter);
-    } catch(error){
+    } catch (error) {
       console.error('Failed to delete task', error)
     }
   }
 
   const handleTaskDialogSave = async (isCreate, task) => {
-    if(isCreate){
+    if (isCreate) {
       handleAddTask(task);
-    }else{
+    } else {
       handleUpdateTask(task);
     }
   }
 
   return (
-    <motion.div>
-      <AnimatePresence>
-        <MainAppBar key="main-app-bar" appSettings={appSettings} onChange={handleOnChangeAppSettings}/>
-        <Box 
-          className="App"
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '80vh',
-            margin: '0 auto'
-          }}
-        >
-          <Box>
-            <motion.div layout>
-              <Typography 
-                variant='h3' 
-                className='app-title' 
-                align='center'
-                gutterBottom >
+    <ThemeProvider theme={appSettings.darkMode ? darkTheme : lightTheme}>
+      <CssBaseline />
+      <motion.div>
+        <AnimatePresence>
+          <MainAppBar key="main-app-bar" appSettings={appSettings} onChange={handleOnChangeAppSettings} />
+          <Box
+            className="App"
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '80vh',
+              margin: '0 auto'
+            }}
+          >
+            <Box>
+              <motion.div layout>
+                <Typography
+                  variant='h3'
+                  className='app-title'
+                  align='center'
+                  gutterBottom >
                   habits.
-              </Typography>
-            </motion.div>
-            <TaskChips onSelect={handleSelectTaskChip} taskCount={taskCount} />
-            <Paper
-              component={motion.div}
-              layout
-              className="task-list-box"
-              elevation={24}
-              square={false}
-              sx={{
-                maxWidth: { xs: '90vw', sm: '70vw', md: '50vw'},
-                maxHeight: { xs: '70vh', sm: '80vh'},
-                boxSizing: 'border-box',
-                margin: '0 auto',
-                padding: '1rem',
-              }}>
-              <TaskList tasks={tasks} appSettings={appSettings} onToggle={handleToggle} onSave={handleTaskDialogSave} onDelete={handleDelete}/>
-            </Paper>
+                </Typography>
+              </motion.div>
+              <TaskChips onSelect={handleSelectTaskChip} taskCount={taskCount} />
+              <Paper
+                component={motion.div}
+                layout
+                className="task-list-box"
+                elevation={24}
+                square={false}
+                sx={{
+                  maxWidth: { xs: '90vw', sm: '70vw', md: '50vw' },
+                  maxHeight: { xs: '70vh', sm: '80vh' },
+                  boxSizing: 'border-box',
+                  margin: '0 auto',
+                  padding: '1rem',
+                  backgroundColor: 'secondary.main'
+                }}>
+                <TaskList 
+                  tasks={tasks} 
+                  appSettings={appSettings} 
+                  onToggle={handleToggle} 
+                  onSave={handleTaskDialogSave} 
+                  onDelete={handleDelete}
+                  darkMode={appSettings.darkMode} />
+              </Paper>
+            </Box>
           </Box>
-        </Box>
-      </AnimatePresence>
-    </motion.div>
+        </AnimatePresence>
+      </motion.div>
+    </ThemeProvider>
   );
 }
 
