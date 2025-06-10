@@ -5,7 +5,7 @@ import { useState } from 'react';
 import TaskForm from "./TaskForm";
 import { motion } from 'framer-motion';
 
-function TaskList({ tasks, onToggle, onSave, onDelete }) {
+function TaskList({ tasks, appSettings, onToggle, onSave, onDelete }) {
     const [openTaskDialog, setOpenTaskDialog] = useState(false);
     const [currentTask, setCurrentTask] = useState(null);
 
@@ -27,6 +27,7 @@ function TaskList({ tasks, onToggle, onSave, onDelete }) {
                             key={task.id}
                             task={task}
                             onToggle={onToggle}
+                            appSettings={appSettings}
                             onEdit={() => {
                                 setCurrentTask(task);
                                 handleOpenDialog();
