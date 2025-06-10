@@ -6,7 +6,6 @@ import {
     IconButton,
     SwipeableDrawer,
     Paper,
-    Switch,
     FormControlLabel,
     Checkbox,
 } from '@mui/material';
@@ -14,6 +13,7 @@ import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import RemoveCircleRoundedIcon from '@mui/icons-material/RemoveCircleRounded';
 import AddCircleRoundedIcon from '@mui/icons-material/AddCircleRounded';
 import RepeatRoundedIcon from '@mui/icons-material/RepeatRounded';
+import EventRoundedIcon from '@mui/icons-material/EventRounded';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -22,6 +22,35 @@ import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useForm, Controller } from 'react-hook-form';
 import { styled } from '@mui/material/styles';
+
+const FormButton = styled(IconButton)({
+    transition: 'all 0.3s ease',
+    '&:hover': {
+        transform: 'scale(1.30)',
+    }
+})
+
+const RoutineCheckBox = styled(Checkbox)(({ theme }) => ({
+    color: theme.palette.custom.grey,
+    '&.Mui-checked': {
+        color: theme.palette.custom.darkgreen,
+    }
+}));
+
+const DateCheckBox = styled(Checkbox)(({ theme }) => ({
+    color: theme.palette.custom.grey,
+    '&.Mui-checked': {
+        color: theme.palette.custom.darkgreen,
+    }
+}));
+
+const ButtonBox = styled(Box)(({ theme }) => ({
+    border: '1px solid',
+    borderColor: theme.palette.primary.main,
+    borderRadius: '1rem',
+    paddingRight: '1rem',
+    backgroundColor: theme.palette.primary.main,
+}));
 
 function TaskForm({ task, isOpen, onClose, onSave, onDelete }) {
     const isCreate = task == null;
@@ -86,27 +115,6 @@ function TaskForm({ task, isOpen, onClose, onSave, onDelete }) {
         onClose();
     }
 
-    const FormButton = styled(IconButton)({
-        transition: 'all 0.3s ease',
-        '&:hover': {
-            transform: 'scale(1.30)',
-        }
-    })
-
-    const RoutineCheckBox = styled(Checkbox)({
-        color: 'white',
-        '&.Mui-checked': {
-            color: 'green',
-        }
-    });
-
-    const ButtonBox = styled(Box)({
-        border: '1px solid #cac9c9',
-        borderRadius: '1rem',
-        paddingRight: '1rem',
-        backgroundColor: 'black',
-    })
-
     const renderTextField = (name, label, inputRef, required) => (
         <Controller
             name={name}
@@ -126,44 +134,6 @@ function TaskForm({ task, isOpen, onClose, onSave, onDelete }) {
         />
     )
 
-    const renderDateSwitch = () => (
-        <Controller
-            name="hasDueDate"
-            control={control}
-            render={({ field }) => (
-                <ButtonBox>
-                    <FormControlLabel
-                        sx={{color: 'white'}}
-                        control={
-                            <Switch
-                                checked={field.value}
-                                onChange={field.onChange}
-                                sx={{
-                                    '& .MuiSwitch-thumb': {
-                                        color: 'secondary.main',
-                                    },
-                                    '& .Mui-checked .MuiSwitch-thumb': {
-                                        color: 'secondary.main',
-                                    },
-                                    '& .MuiSwitch-switchBase + .MuiSwitch-track': {
-                                        backgroundColor: 'custom.lightgrey',
-                                        opacity: 1
-                                    },
-                                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                        backgroundColor: 'custom.darkred',
-                                        opacity: 1
-                                    }
-                                }}
-                            />
-                        }
-                        label="Date"
-                        labelPlacement='start'
-                    />
-                </ButtonBox>
-            )}
-        />
-    );
-
     const renderRoutineCheckBox = () => (
         <Controller
             name="isRoutineTask"
@@ -171,7 +141,7 @@ function TaskForm({ task, isOpen, onClose, onSave, onDelete }) {
             render={({ field }) => (
                 <ButtonBox>
                     <FormControlLabel
-                        sx={{color: 'white'}}
+                        sx={{color: 'secondary.main'}}
                         control={
                             <RoutineCheckBox 
                                 checked={field.value}
@@ -181,6 +151,30 @@ function TaskForm({ task, isOpen, onClose, onSave, onDelete }) {
                             />
                         }
                         label="Routine"
+                        labelPlacement='start'
+                    />
+                </ButtonBox>
+            )}
+        />
+    )
+
+    const renderDateCheckBox = () => (
+        <Controller 
+            name='hasDueDate'
+            control={control}
+            render={({ field }) => (
+                <ButtonBox>
+                    <FormControlLabel 
+                        sx={{color: 'secondary.main'}}
+                        control={
+                            <DateCheckBox 
+                                checked={field.value}
+                                onChange={field.onChange}
+                                icon={<EventRoundedIcon />}
+                                checkedIcon={<EventRoundedIcon />}
+                            />
+                        }
+                        label="Date"
                         labelPlacement='start'
                     />
                 </ButtonBox>
@@ -200,6 +194,13 @@ function TaskForm({ task, isOpen, onClose, onSave, onDelete }) {
                         sx={{ width: "10rem" }}
                         minDate={dayjs()}
                         onChange={(newDate) => field.onChange(newDate)}
+                        slotProps={{
+                            openPickerButton: {
+                                sx: {
+                                    color: 'primary.main',
+                                }
+                            }
+                        }}
                     />
                 </LocalizationProvider>
             )}
@@ -242,7 +243,7 @@ function TaskForm({ task, isOpen, onClose, onSave, onDelete }) {
                             <FormButton
                                 type='submit'
                                 aria-label='update-task'
-                                sx={{ color: 'black' }}
+                                sx={{ color: 'primary.main' }}
                             >
                                 {isCreate ? <AddCircleRoundedIcon fontSize='large' /> : <CheckCircleRoundedIcon fontSize='large' />}
                             </FormButton>
@@ -253,7 +254,7 @@ function TaskForm({ task, isOpen, onClose, onSave, onDelete }) {
                         </Stack>
                         <Box display='flex' marginTop='1rem' gap={1}>
                             {renderRoutineCheckBox()}
-                            {renderDateSwitch()}
+                            {renderDateCheckBox()}
                         </Box>
                         {hasDueDate &&
                             <Box display='flex' marginTop='1rem'>

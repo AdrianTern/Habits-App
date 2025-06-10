@@ -1,23 +1,6 @@
 import { createTheme, responsiveFontSizes } from '@mui/material/styles';
 
-const theme = createTheme({
-    palette: {
-      primary: {
-        main: "#000000",
-      },
-      secondary: {
-        main: "#fff",
-      },
-        custom: {
-            darkgrey: '#595858',
-            verydarkgrey : '#201e1e',
-            lightgrey: '#cac9c9',
-            red: '#e98a74',
-            darkred: '#c64f4f',
-            green: '#1ec06a',
-            darkgreen: '#25821f',
-        },
-    },
+const commonTheme = createTheme({
     typography:{
       fontFamily: 'Inter, sans-serif',
       h6: {
@@ -28,6 +11,64 @@ const theme = createTheme({
         fontWeight: 600,
       },
     },
+    palette: {
+      custom: {
+          grey : '#6e6d6d',
+          lightgrey: '#cac9c9',
+          darkgrey: '#595858',
+          darkred: '#c64f4f',
+          darkgreen: '#25821f',
+          lightmode: '#edd277',
+          darkmode: '#8f88cf',
+          black: '#000',
+          white: '#fff',
+          violet: '#8f88cf',
+      },
+  },
   });
 
-  export default responsiveFontSizes(theme);
+  export const lightTheme = responsiveFontSizes(createTheme({
+    ...commonTheme,
+    palette: {
+      ...commonTheme.palette,
+      mode: 'light',
+      primary: {
+        main: "#000",
+      },
+      secondary: {
+        main: '#fff',
+      },
+      text: {
+        primary: '#000',
+        secondary: 'rgba(0, 0, 0, 0.7)',
+        disabled: 'rgba(0, 0, 0, 0.5)',
+      },
+      background: {
+        default: '#fff',
+        paper: '#fff'
+      }
+    },
+  }));
+
+  export const darkTheme = responsiveFontSizes(createTheme({
+    ...commonTheme,
+    palette: {
+      ...commonTheme.palette,
+      mode: 'dark',
+      primary: {
+        main: "#fff",
+      },
+      secondary: {
+        main: '#000',
+      },
+      text: {
+        primary: '#ffffff',
+        secondary: 'rgba(255, 255, 255, 0.7)',
+        disabled: 'rgba(255, 255, 255, 0.5)',
+      },
+      background: {
+        default: '#121212',
+        paper: '#121212',
+      }
+    },
+  }));

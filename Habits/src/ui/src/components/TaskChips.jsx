@@ -63,10 +63,19 @@ function TaskChips({ onSelect, taskCount }){
                 <Chip 
                     key={taskGroup.key} 
                     label={`${taskGroup.label} ${taskBadgeCount(taskGroup.key)}`} 
+                    color='' // to force icon to use fallback color
                     icon={taskGroup.icon}
-                    color={ selectedGroupKey === taskGroup.key ? 'primary' : 'default' } 
                     onClick={(key) => handleOnSelect(taskGroup.key)}
-                    sx={{padding:0.5}}
+                    sx={{
+                        padding:0.5,
+                        color: selectedGroupKey === taskGroup.key ? 'custom.black' : 'custom.white',
+                        backgroundColor: selectedGroupKey === taskGroup.key ? 'custom.violet' : 'custom.black',
+                        '&:hover': {
+                            color: selectedGroupKey === taskGroup.key ? 'primary.main' : 'secondary.main',
+                            backgroundColor: 'custom.violet',
+                            opacity: 0.8 
+                        }
+                    }}
                 />
             ))}   
         </Box>

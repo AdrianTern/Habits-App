@@ -7,19 +7,40 @@ import {
     Menu,
     MenuItem,
     FormControlLabel,
-    Switch,
 } from '@mui/material';
 import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
 import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
 import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
+import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
+import NightsStayRoundedIcon from '@mui/icons-material/NightsStayRounded';
 import { useState } from 'react';
 import { styled } from '@mui/material/styles';
+
+const MenuCheckBox = styled(Checkbox)(({ theme }) => ({
+    color: theme.palette.custom.white,
+    '&.Mui-checked': {
+        color: theme.palette.custom.darkred,
+    }
+}));
+
+const ThemeCheckBox = styled(Checkbox)(({ theme }) => ({
+    color: theme.palette.custom.darkmode,
+    '&.Mui-checked': {
+        color: theme.palette.custom.lightmode,
+    },
+    transition: 'transform 0.3s ease-in-out',
+    '&:hover': {
+        transform: 'rotate(360deg)'
+    },
+
+}));
 
 function MainAppBar({ onChange, appSettings }) {
     const title = "{habits.}"
     const [anchorEl, setAnchorEl] = useState(null);
     const IS_SHOW_DESC = 'isShowTaskDesc';
     const IS_SHOW_DATE = 'isShowTaskDate';
+    const DARK_MODE = 'darkMode';
 
     const openMenu = (event) => {
         setAnchorEl(event.currentTarget);
@@ -35,17 +56,14 @@ function MainAppBar({ onChange, appSettings }) {
             [name]: !appSettings[name],
         })
     }
-    const MenuCheckBox = styled(Checkbox)(({ theme }) => ({
-        color: theme.palette.secondary.main,
-        '&.Mui-checked': {
-            color: theme.palette.custom.darkred,
-        }
-    }));
 
     return (
         <>
             <AppBar
                 position='static'
+                sx={{
+                    backgroundColor: 'custom.black'
+                }}
             >
                 <Toolbar>
                     <IconButton
@@ -69,6 +87,14 @@ function MainAppBar({ onChange, appSettings }) {
                         }}>
                         {title}
                     </Typography>
+                    <ThemeCheckBox 
+                        size='large'
+                        key={DARK_MODE}
+                        checked={appSettings.darkMode}
+                        onChange={handleOnChange(DARK_MODE)}
+                        icon={<NightsStayRoundedIcon />}
+                        checkedIcon={<LightModeRoundedIcon />}
+                    />
                 </Toolbar>
             </AppBar>
             <Menu
@@ -78,8 +104,8 @@ function MainAppBar({ onChange, appSettings }) {
                 slotProps={{
                     paper: {
                         sx: {
-                            backgroundColor: 'primary.main',
-                            color: 'secondary.main'
+                            backgroundColor: 'custom.black',
+                            color: 'custom.white'
                         }
                     }
                 }}
