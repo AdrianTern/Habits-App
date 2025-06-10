@@ -1,4 +1,5 @@
 import TaskList from './components/TaskList';
+import MainAppBar from './components/MainAppBar';
 import { Typography, Box, Paper } from '@mui/material';
 import * as api from './api/api';
 import { useReducer } from 'react';
@@ -20,9 +21,13 @@ function App() {
       allCount: 0,
       routineCount: 0,
     },
+    appSettings: {
+      isShowTaskDesc: true,
+      isShowTaskDate: true,
+    }
   };
   const [state, dispatch] = useReducer(taskReducer, initialState);
-  const{ tasks, filter, taskCount } = state;
+  const{ tasks, filter, taskCount, appSettings } = state;
 
   const fetchTasks = async(newFilter) => {
     try{
@@ -37,6 +42,12 @@ function App() {
     }
   }
 
+  const handleOnChangeAppSettings = (newSettings) => {
+    dispatch({
+      type: 'SET_APP_SETTINGS',
+      payload: newSettings,
+    })
+  }
   const handleSelectTaskChip = async (newFilter) => {
     dispatch({
       type: 'SET_FILTER',
@@ -112,6 +123,7 @@ function App() {
   return (
     <motion.div>
       <AnimatePresence>
+        <MainAppBar key="main-app-bar" appSettings={appSettings} onChange={handleOnChangeAppSettings}/>
         <Box 
           className="App"
           sx={{
@@ -146,7 +158,7 @@ function App() {
                 margin: '0 auto',
                 padding: '1rem',
               }}>
-              <TaskList tasks={tasks} onToggle={handleToggle} onSave={handleTaskDialogSave} onDelete={handleDelete}/>
+              <TaskList tasks={tasks} appSettings={appSettings} onToggle={handleToggle} onSave={handleTaskDialogSave} onDelete={handleDelete}/>
             </Paper>
           </Box>
         </Box>

@@ -18,12 +18,14 @@ import { useState } from 'react';
 import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
 
-function TaskItem({ task, onToggle, onEdit }) {
+function TaskItem({ task, appSettings, onToggle, onEdit }) {
     const theme = useTheme();
     const [isCompleted, setIsCompleted] = useState(task.isCompleted);
     const isRoutine = task?.routineDetailsResponse?.isRoutineTask || false;
     const isOverdued = !isRoutine && !isCompleted && dayjs(task.dueDate).isBefore(dayjs(), 'day');
-
+    const isShowDesc= appSettings.isShowTaskDesc;
+    const isShowDate = appSettings.isShowTaskDate;
+    const isShowTaskInfo = appSettings.isShowTaskDesc || appSettings.isShowTaskDate;
 
     const handleToggle = () => {
         setIsCompleted(!isCompleted);
@@ -56,10 +58,10 @@ function TaskItem({ task, onToggle, onEdit }) {
         return (
             <Box>
                 <TaskInfoText>
-                    {task.description}
+                    {isShowDesc && task.description}
                 </TaskInfoText>
                 <TaskInfoText>
-                    {task.dueDate}
+                    {isShowDate && task.dueDate}
                 </TaskInfoText>
             </Box>
         )
@@ -113,7 +115,7 @@ function TaskItem({ task, onToggle, onEdit }) {
                                 </Box>
                             }
                         />
-                        <TaskInfo />
+                        {isShowTaskInfo && <TaskInfo />}
                     </Box>
                 </PrettyListItemButton>
                 <IconButton

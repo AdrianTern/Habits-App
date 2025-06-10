@@ -40,6 +40,14 @@ export const taskReducer = (state, action) => {
             };
         case 'SET_FILTER':
             return {...state, filter: action.payload};
+        case 'SET_APP_SETTINGS':
+            return {
+                ...state, 
+                appSettings: {
+                    isShowTaskDesc: action.payload.isShowTaskDesc,
+                    isShowTaskDate: action.payload.isShowTaskDate,
+                }
+            };
         case 'ADD_TASK':
             return {...state, tasks: sortTasks([...state.tasks, action.payload])};
         case 'UPDATE_TASK':
