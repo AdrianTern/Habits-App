@@ -23,7 +23,7 @@ const CompletionCheckbox = styled(Checkbox)(({ theme }) => ({
     color: theme.palette.primary.main,
 }));
 
-const PrettyListItemButton = styled(ListItemButton)({
+const TaskListItemButton = styled(ListItemButton)({
     transition: 'all 0.5s ease',
     '&:hover': {
         transform: 'scale(1.02)',
@@ -37,11 +37,11 @@ const TaskInfoText = styled(Typography, {
     [theme.breakpoints.up('sm')]: {
         fontSize: '0.8rem'
     },
-    color: $isCompleted ? theme.palette.custom.darkgrey : $darkMode? theme.palette.custom.lightgrey : theme.palette.custom.darkgrey,
+    color: $isCompleted ? theme.palette.custom.darkgrey : $darkMode ? theme.palette.custom.lightgrey : theme.palette.custom.darkgrey,
     textDecoration: $isCompleted ? 'line-through' : 'none',
 }));
 
-function TaskItem({ task, onEdit}) {
+function TaskItem({ task, onEdit }) {
     const state = useSettingsState();
     const { handleToggleTask } = useTaskActions();
 
@@ -50,7 +50,7 @@ function TaskItem({ task, onEdit}) {
     const isRoutine = task?.routineDetailsResponse?.isRoutineTask || false;
     const isOverdued = !isRoutine && !isCompleted && dayjs(task.dueDate).isBefore(dayjs(), 'day');
 
-    const isShowDesc= state.isShowTaskDesc;
+    const isShowDesc = state.isShowTaskDesc;
     const isShowDate = state.isShowTaskDate;
     const darkMode = state.darkMode;
     const isShowTaskInfo = isShowDesc || isShowDate;
@@ -83,7 +83,7 @@ function TaskItem({ task, onEdit}) {
             className="task-item"
         >
             <Box display='flex'>
-                <PrettyListItemButton onClick={handleToggle} dense>
+                <TaskListItemButton onClick={handleToggle} dense>
                     <ListItemIcon>
                         <CompletionCheckbox
                             className="task-iscomplete"
@@ -125,22 +125,22 @@ function TaskItem({ task, onEdit}) {
                         />
                         {isShowTaskInfo && <TaskInfo />}
                     </Box>
-                </PrettyListItemButton>
+                </TaskListItemButton>
                 <IconButton
-                        edge="end"
-                        aria-label="edit"
-                        size='medium'
-                        onClick={onEdit}
-                        sx={{
-                            color: 'primary.main',
-                            visibility: isCompleted ? 'hidden' : 'visible',
-                            marginRight: '0.5rem',
-                            transition: 'all 0.3s ease',
-                                '&:hover': {
-                                    transform: 'scale(1.10)',
-                                },      
-                        }}>
-                        <EditNoteRoundedIcon fontSize='medium' />
+                    edge="end"
+                    aria-label="edit"
+                    size='medium'
+                    onClick={onEdit}
+                    sx={{
+                        color: 'primary.main',
+                        visibility: isCompleted ? 'hidden' : 'visible',
+                        marginRight: '0.5rem',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                            transform: 'scale(1.10)',
+                        },
+                    }}>
+                    <EditNoteRoundedIcon fontSize='medium' />
                 </IconButton>
             </Box>
         </motion.li>

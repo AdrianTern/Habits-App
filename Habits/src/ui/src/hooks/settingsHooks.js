@@ -18,12 +18,17 @@ export function useSettingsActions() {
     }
 
     const handleDarkMode = (newVal) => {
-        dispatch({ type: 'SET_DARKMODE', payload: newVal })
+        dispatch({ type: 'SET_DARKMODE', payload: newVal });
+    }
+
+    const handleOpenTaskForm = (newVal) => {
+        dispatch({ type: 'OPEN_TASK_FORM', payload: newVal });
     }
 
     return {
         handleChangeTaskDescVisibility,
         handleChangeTaskDateVisibility,
-        handleDarkMode
+        handleDarkMode,
+        handleOpenTaskForm
     };
 }
