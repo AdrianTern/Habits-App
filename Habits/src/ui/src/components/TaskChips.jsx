@@ -6,8 +6,9 @@ import AssignmentRoundedIcon from '@mui/icons-material/AssignmentRounded';
 import RepeatRoundedIcon from '@mui/icons-material/RepeatRounded';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useTaskActions, useTaskState } from '../hooks/taskHooks';
 
-function TaskChips({ onSelect, taskCount }){
+function TaskChips(){
     const taskGroups = [
         { key: 'all', label: "All tasks", icon: <AssignmentRoundedIcon /> },
         { key: 'today', label: "Today's tasks", icon: <TodayRoundedIcon />},
@@ -17,21 +18,24 @@ function TaskChips({ onSelect, taskCount }){
     ];
 
     const [selectedGroupKey, setSelectedGroupKey] = useState(taskGroups[0].key)
+    
+    const state = useTaskState();
+    const { handleChangeTaskChip } = useTaskActions();
 
     const handleOnSelect = (key) => {
         setSelectedGroupKey(key);
-        onSelect(key);
+        handleChangeTaskChip(key);
     }
 
     const taskBadgeCount = (key) => {
         let count = 0;
         const maxCount = 99;
 
-        if(key === 'all') count = taskCount.allCount;
-        else if(key === 'today') count = taskCount.todayCount;
-        else if(key === 'upcoming') count = taskCount.upcomingCount;
-        else if(key === 'overdue') count = taskCount.overdueCount;
-        else if(key === 'routine') count = taskCount.routineCount;
+        if(key === 'all') count = state.taskCount.allCount;
+        else if(key === 'today') count = state.taskCount.todayCount;
+        else if(key === 'upcoming') count = state.taskCount.upcomingCount;
+        else if(key === 'overdue') count = state.taskCount.overdueCount;
+        else if(key === 'routine') count = state.taskCount.routineCount;
 
         count = Math.min(count, maxCount);
    
@@ -42,13 +46,11 @@ function TaskChips({ onSelect, taskCount }){
     }
 
     useEffect(() => {
-        onSelect(selectedGroupKey);
+        handleChangeTaskChip(selectedGroupKey);
     }, [])
 
     return(
         <Box
-            component={motion.div}
-            layout
             gap={1}
             sx={{
                 display: 'flex',

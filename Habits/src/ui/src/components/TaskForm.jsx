@@ -22,6 +22,7 @@ import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useForm, Controller } from 'react-hook-form';
 import { styled } from '@mui/material/styles';
+import { useTaskActions } from "../hooks/taskHooks";
 
 const FormButton = styled(IconButton)({
     transition: 'all 0.3s ease',
@@ -52,9 +53,11 @@ const ButtonBox = styled(Box)(({ theme }) => ({
     backgroundColor: theme.palette.primary.main,
 }));
 
-function TaskForm({ task, isOpen, onClose, onSave, onDelete }) {
+function TaskForm({ task, isOpen, onClose }) {
     const isCreate = task == null;
     const dialogTitle = (isCreate ? "Add a new task" : "Edit task");
+
+    const { handleSaveTask, handleDeleteTask } = useTaskActions(); 
 
     const { handleSubmit, control, watch, reset }
         = useForm({
@@ -104,14 +107,14 @@ function TaskForm({ task, isOpen, onClose, onSave, onDelete }) {
             }
         }
         // Add/Update task
-        onSave(isCreate, newTask);
+        handleSaveTask(isCreate, newTask);
 
         // Close dialog
         onClose();
     }
 
     const handleOnDelete = () => {
-        onDelete(task.id);
+        handleDeleteTask(task.id);
         onClose();
     }
 
@@ -232,7 +235,7 @@ function TaskForm({ task, isOpen, onClose, onSave, onDelete }) {
                         <Box display="flex" justifyContent="space-between">
                             <FormButton
                                 aria-label='delete-task'
-                                sx={{ color: 'custom.red' }}
+                                sx={{ color: 'custom.darkred' }}
                                 onClick={handleOnDelete}
                             >
                                 {!isCreate && (<RemoveCircleRoundedIcon fontSize='large' />)}

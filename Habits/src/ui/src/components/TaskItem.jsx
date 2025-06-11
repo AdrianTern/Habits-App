@@ -16,6 +16,8 @@ import { styled } from '@mui/material/styles';
 import { useState } from 'react';
 import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
+import { useSettingsState } from '../hooks/settingsHooks';
+import { useTaskActions } from '../hooks/taskHooks';
 
 const CompletionCheckbox = styled(Checkbox)(({ theme }) => ({
     color: theme.palette.primary.main,
@@ -39,17 +41,23 @@ const TaskInfoText = styled(Typography, {
     textDecoration: $isCompleted ? 'line-through' : 'none',
 }));
 
-function TaskItem({ task, appSettings, onToggle, onEdit, darkMode }) {
+function TaskItem({ task, onEdit}) {
+    const state = useSettingsState();
+    const { handleToggleTask } = useTaskActions();
+
     const [isCompleted, setIsCompleted] = useState(task.isCompleted);
+
     const isRoutine = task?.routineDetailsResponse?.isRoutineTask || false;
     const isOverdued = !isRoutine && !isCompleted && dayjs(task.dueDate).isBefore(dayjs(), 'day');
-    const isShowDesc= appSettings.isShowTaskDesc;
-    const isShowDate = appSettings.isShowTaskDate;
-    const isShowTaskInfo = appSettings.isShowTaskDesc || appSettings.isShowTaskDate;
+
+    const isShowDesc= state.isShowTaskDesc;
+    const isShowDate = state.isShowTaskDate;
+    const darkMode = state.darkMode;
+    const isShowTaskInfo = isShowDesc || isShowDate;
 
     const handleToggle = () => {
         setIsCompleted(!isCompleted);
-        onToggle(task);
+        handleToggleTask(task);
     };
 
     const TaskInfo = () => {
@@ -68,6 +76,9 @@ function TaskItem({ task, appSettings, onToggle, onEdit, darkMode }) {
     return (
         <motion.li
             layout
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
             key={task.id}
             className="task-item"
         >

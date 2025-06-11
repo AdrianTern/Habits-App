@@ -13,8 +13,9 @@ import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
 import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
 import NightsStayRoundedIcon from '@mui/icons-material/NightsStayRounded';
-import { useState } from 'react';
 import { styled } from '@mui/material/styles';
+import { useSettingsState, useSettingsActions } from '../hooks/settingsHooks';
+import { useState } from 'react';
 
 const MenuCheckBox = styled(Checkbox)(({ theme }) => ({
     color: theme.palette.custom.white,
@@ -35,9 +36,13 @@ const ThemeCheckBox = styled(Checkbox)(({ theme }) => ({
 
 }));
 
-function MainAppBar({ onChange, appSettings }) {
+function MainAppBar() {
     const title = "{habits.}"
     const [anchorEl, setAnchorEl] = useState(null);
+
+    const state = useSettingsState();
+    const { handleChangeTaskDescVisibility, handleChangeTaskDateVisibility, handleDarkMode } = useSettingsActions();
+
     const IS_SHOW_DESC = 'isShowTaskDesc';
     const IS_SHOW_DATE = 'isShowTaskDate';
     const DARK_MODE = 'darkMode';
@@ -48,13 +53,6 @@ function MainAppBar({ onChange, appSettings }) {
 
     const closeMenu = () => {
         setAnchorEl(null);
-    }
-
-    const handleOnChange = (name) => () => {
-        onChange({
-            ...appSettings,
-            [name]: !appSettings[name],
-        })
     }
 
     return (
@@ -90,8 +88,8 @@ function MainAppBar({ onChange, appSettings }) {
                     <ThemeCheckBox 
                         size='large'
                         key={DARK_MODE}
-                        checked={appSettings.darkMode}
-                        onChange={handleOnChange(DARK_MODE)}
+                        checked={state.darkMode}
+                        onChange={() => handleDarkMode(!state.darkMode)}
                         icon={<NightsStayRoundedIcon />}
                         checkedIcon={<LightModeRoundedIcon />}
                     />
@@ -115,8 +113,8 @@ function MainAppBar({ onChange, appSettings }) {
                         control={
                             <MenuCheckBox
                                 key={IS_SHOW_DESC}
-                                checked={!appSettings.isShowTaskDesc}
-                                onChange={handleOnChange(IS_SHOW_DESC)}
+                                checked={!state.isShowTaskDesc}
+                                onChange={() => handleChangeTaskDescVisibility(!state.isShowTaskDesc)}
                                 icon={<VisibilityRoundedIcon/>}
                                 checkedIcon={<VisibilityOffRoundedIcon />}
                             />
@@ -129,8 +127,8 @@ function MainAppBar({ onChange, appSettings }) {
                         control={
                             <MenuCheckBox
                                 key={IS_SHOW_DATE}
-                                checked={!appSettings.isShowTaskDate}
-                                onChange={handleOnChange(IS_SHOW_DATE)}
+                                checked={!state.isShowTaskDate}
+                                onChange={() => handleChangeTaskDateVisibility(!state.isShowTaskDate)}
                                 icon={<VisibilityRoundedIcon />}
                                 checkedIcon={<VisibilityOffRoundedIcon />}
                             />
