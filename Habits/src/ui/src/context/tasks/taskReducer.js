@@ -7,28 +7,28 @@
 // 2. isRoutineTask: Routine task should always stay at the top
 // 3. dueDate: Task without due date comes first, then sort ascendingly
 const sortTasks = (tasks) => {
-    if(tasks){
-        return [...tasks].sort((a,b) => {
-            if(a.isCompleted !== b.isCompleted) return a.isCompleted ? 1 : -1;
-            if(a.routineDetailsResponse.isRoutineTask !== b.routineDetailsResponse.isRoutineTask) return a.routineDetailsResponse.isRoutineTask ? -1 : 1;
-            return compareDates(a,b);
+    if (tasks) {
+        return [...tasks].sort((a, b) => {
+            if (a.isCompleted !== b.isCompleted) return a.isCompleted ? 1 : -1;
+            if (a.routineDetailsResponse.isRoutineTask !== b.routineDetailsResponse.isRoutineTask) return a.routineDetailsResponse.isRoutineTask ? -1 : 1;
+            return compareDates(a, b);
         });
     }
-  }
+}
 
 const compareDates = (a, b) => {
-    if(!a.dueDate && !b.dueDate) return 0;
-    if(!a.dueDate) return -1;
-    if(!b.dueDate) return 1;
+    if (!a.dueDate && !b.dueDate) return 0;
+    if (!a.dueDate) return -1;
+    if (!b.dueDate) return 1;
 
     return new Date(a.dueDate) - new Date(b.dueDate);
 }
 
 export const taskReducer = (state, action) => {
-    switch(action.type) {
+    switch (action.type) {
         case 'SET_TASKS':
             return {
-                ...state, 
+                ...state,
                 tasks: sortTasks(action.payload.taskResponse),
                 taskCount: {
                     todayCount: action.payload.taskCount.todayCount,
@@ -41,12 +41,14 @@ export const taskReducer = (state, action) => {
         case 'SET_FILTER':
             return { ...state, filter: action.payload };
         case 'SET_CURRENT_TASK':
-            return{ ...state, currentTask: action.payload };
+            return { ...state, currentTask: action.payload };
+        case 'OPEN_TASK_FORM':
+            return { ...state, openTaskForm: action.payload }
         case 'ADD_TASK':
             return { ...state, tasks: sortTasks([...state.tasks, action.payload]) };
         case 'UPDATE_TASK':
             return {
-                ...state, 
+                ...state,
                 tasks: sortTasks(state.tasks.map(task =>
                     task.id === action.payload.id ? action.payload : task
                 ))
@@ -56,14 +58,14 @@ export const taskReducer = (state, action) => {
                 ...state,
                 tasks: sortTasks(state.tasks.map(task =>
                     task.id === action.payload.id ? { ...task, isCompleted: !task.isCompleted } : task
-                )) 
+                ))
             };
         case 'DELETE_TASK':
             return {
                 ...state,
-                tasks: sortTasks(state.tasks.filter( task => task.id !== action.payload ))
+                tasks: sortTasks(state.tasks.filter(task => task.id !== action.payload))
             };
         default:
-            return state;   
+            return state;
     }
 }

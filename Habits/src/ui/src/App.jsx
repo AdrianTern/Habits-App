@@ -2,17 +2,15 @@ import TaskList from './components/TaskList';
 import MainAppBar from './components/MainAppBar';
 import TaskChips from './components/TaskChips';
 import TaskForm from "./components/TaskForm";
-import { Typography, Box, Fab } from '@mui/material';
+import { Typography, Box, Fab, List } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { styled } from '@mui/material/styles';
 import { motion } from 'framer-motion';
-import { useSettingsActions } from './hooks/settingsHooks';
+import { useTaskActions } from './hooks/taskHooks';
 
 const MainBox = styled(Box)({
-  height: '80vh',
   margin: '0 auto',
   padding: '1rem',
-  marginTop: '20%'
 })
 
 const HeaderBox = styled(Box)({
@@ -20,7 +18,22 @@ const HeaderBox = styled(Box)({
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'center',
+  marginTop: '20%',
 })
+
+const ListBox = styled(Box)(({ theme }) => ({
+  width: '100%',
+  margin: '0 auto',
+
+  [theme.breakpoints.up('sm')]: {
+    width: '90%'
+  },
+
+  [theme.breakpoints.up('md')]: {
+    width: '80%'
+  }
+
+}));
 
 const AddButton = styled(Fab)(({ theme }) => ({
   color: theme.palette.secondary.main,
@@ -37,19 +50,21 @@ const AddButton = styled(Fab)(({ theme }) => ({
 }))
 
 function App() {
-  const { handleOpenTaskForm } = useSettingsActions();
+  const { handleOpenTaskForm } = useTaskActions();
 
   return (
     <>
       <MainAppBar key="main-app-bar" />
-      <MainBox component={motion.div} layout initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+      <MainBox>
         <HeaderBox>
           <Typography variant='h3' align='center' gutterBottom >
             habits.
           </Typography>
           <TaskChips />
         </HeaderBox>
-        <TaskList />
+        <ListBox>
+          <TaskList />
+        </ListBox>
       </MainBox>
       <TaskForm />
       <AddButton onClick={() => handleOpenTaskForm(true)}>

@@ -2,12 +2,10 @@ import TaskItem from "./TaskItem";
 import { Box, List, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useTaskActions, useTaskState } from "../hooks/taskHooks";
-import { useSettingsActions } from "../hooks/settingsHooks";
 
 function TaskList() {
     const state = useTaskState();
-    const { handleSetCurrentTask } = useTaskActions();
-    const { handleOpenTaskForm } = useSettingsActions();
+    const { handleSetCurrentTask, handleOpenTaskForm } = useTaskActions();
 
     const renderTaskItems = () => {
         const isEmpty = !state.tasks || state.tasks.length === 0;

@@ -1,6 +1,6 @@
 import { createContext } from "react";
 import { settingsReducer } from "./settingsReducer";
-import { useReducer } from "react";
+import { usePersistentReducer } from "../../hooks/usePersistentReducer";
 
 export const SettingsContext = createContext();
 
@@ -8,11 +8,10 @@ const initialState = {
   isShowTaskDesc: true,
   isShowTaskDate: true,
   darkMode: false,
-  openTaskForm: false,
 };
 
 export function SettingsStateProvider({ children }) {
-  const [state, dispatch] = useReducer(settingsReducer, initialState);
+  const [state, dispatch] = usePersistentReducer(settingsReducer, initialState, 'appSettings');
 
   return (
     <SettingsContext.Provider value={{state, dispatch}}>

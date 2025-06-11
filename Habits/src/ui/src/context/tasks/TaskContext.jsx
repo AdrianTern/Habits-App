@@ -14,6 +14,7 @@ const initialState = {
       routineCount: 0,
     },
     currentTask: null,
+    openTaskForm: false,
   };
 
 export function TaskStateProvider({ children }){
