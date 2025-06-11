@@ -1,10 +1,12 @@
 import TaskList from './components/TaskList';
 import MainAppBar from './components/MainAppBar';
-import { Typography, Box, Paper } from '@mui/material';
-import './App.css';
 import TaskChips from './components/TaskChips';
-import { motion } from 'framer-motion';
+import TaskForm from "./components/TaskForm";
+import { Typography, Box, Fab } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 import { styled } from '@mui/material/styles';
+import { motion } from 'framer-motion';
+import { useSettingsActions } from './hooks/settingsHooks';
 
 const MainBox = styled(Box)({
   height: '80vh',
@@ -20,22 +22,23 @@ const HeaderBox = styled(Box)({
   alignItems: 'center',
 })
 
-const ListBox = styled(Paper)(({ theme }) => ({
-  maxWidth: '90vw',
-  maxHeight: '70vh',
-  boxSizing: 'border-box',
-  margin: '0 auto',
-  marginBottom: '2rem',
-  padding: '1rem',
-  backgroundColor: theme.palette.secondary.main,
-
-  [theme.breakpoints.up('sm')]: {
-    maxWidth: '80vw',
-    maxHeight: '80vh',
-  },
+const AddButton = styled(Fab)(({ theme }) => ({
+  color: theme.palette.secondary.main,
+  backgroundColor: theme.palette.primary.main,
+  position: 'fixed',
+  bottom: '1rem',
+  right: '1rem',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    transform: 'scale(1.10)',
+    color: theme.palette.secondary.main,
+    backgroundColor: theme.palette.primary.main,
+  }
 }))
 
 function App() {
+  const { handleOpenTaskForm } = useSettingsActions();
+
   return (
     <>
       <MainAppBar key="main-app-bar" />
@@ -46,10 +49,12 @@ function App() {
           </Typography>
           <TaskChips />
         </HeaderBox>
-        <ListBox elevation={24} square={false}>
-          <TaskList />
-        </ListBox>
+        <TaskList />
       </MainBox>
+      <TaskForm />
+      <AddButton onClick={() => handleOpenTaskForm(true)}>
+        <AddIcon />
+      </AddButton>
     </>
   );
 }

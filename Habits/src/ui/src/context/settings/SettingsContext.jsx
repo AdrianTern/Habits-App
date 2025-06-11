@@ -8,6 +8,7 @@ const initialState = {
   isShowTaskDesc: true,
   isShowTaskDate: true,
   darkMode: false,
+  openTaskForm: false,
 };
 
 export function SettingsStateProvider({ children }) {

@@ -13,6 +13,7 @@ const initialState = {
       allCount: 0,
       routineCount: 0,
     },
+    currentTask: null,
   };
 
 export function TaskStateProvider({ children }){

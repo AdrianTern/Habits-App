@@ -1,23 +1,13 @@
 import TaskItem from "./TaskItem";
-import { Box, List, IconButton, Typography, duration } from '@mui/material';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { useState } from 'react';
-import TaskForm from "./TaskForm";
+import { Box, List, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
-import { useTaskState } from "../hooks/taskHooks";
+import { useTaskActions, useTaskState } from "../hooks/taskHooks";
+import { useSettingsActions } from "../hooks/settingsHooks";
 
 function TaskList() {
-    const [openTaskDialog, setOpenTaskDialog] = useState(false);
-    const [currentTask, setCurrentTask] = useState(null);
     const state = useTaskState();
-
-    const handleOpenDialog = () => {
-        setOpenTaskDialog(true);
-    };
-
-    const handleCloseDialog = () => {
-        setOpenTaskDialog(false);
-    }
+    const { handleSetCurrentTask } = useTaskActions();
+    const { handleOpenTaskForm } = useSettingsActions();
 
     const renderTaskItems = () => {
         const isEmpty = !state.tasks || state.tasks.length === 0;
@@ -29,8 +19,8 @@ function TaskList() {
                         key={task.id}
                         task={task}
                         onEdit={() => {
-                            setCurrentTask(task);
-                            handleOpenDialog();
+                            handleSetCurrentTask(task);
+                            handleOpenTaskForm(true);
                         }}
                     />
                 ))
@@ -67,31 +57,6 @@ function TaskList() {
                 }}>
                 {renderTaskItems()}
             </List>
-
-            <Box
-
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'center'
-                }}
-            >
-                <IconButton
-                    aria-label="add task"
-                    onClick={() => {
-                        setCurrentTask(null);
-                        handleOpenDialog();
-                    }}
-                    sx={{
-                        color: 'primary.main',
-                        transition: 'all 0.3s ease',
-                        '&:hover': {
-                            transform: 'scale(1.30)',
-                        }
-                    }}>
-                    <AddCircleIcon fontSize='large' />
-                </IconButton>
-            </Box>
-            <TaskForm task={currentTask} isOpen={openTaskDialog} onClose={handleCloseDialog} />
         </>
     );
 }

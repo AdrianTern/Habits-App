@@ -22,7 +22,8 @@ import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useForm, Controller } from 'react-hook-form';
 import { styled } from '@mui/material/styles';
-import { useTaskActions } from "../hooks/taskHooks";
+import { useTaskActions, useTaskState } from "../hooks/taskHooks";
+import { useSettingsState, useSettingsActions } from '../hooks/settingsHooks';
 
 const FormButton = styled(IconButton)({
     transition: 'all 0.3s ease',
@@ -53,11 +54,18 @@ const ButtonBox = styled(Box)(({ theme }) => ({
     backgroundColor: theme.palette.primary.main,
 }));
 
-function TaskForm({ task, isOpen, onClose }) {
+function TaskForm() {
+    const taskState = useTaskState();
+    const settingsState = useSettingsState();
+
+    const { handleSaveTask, handleDeleteTask } = useTaskActions(); 
+    const { handleOpenTaskForm } = useSettingsActions();
+
+    const task = taskState.currentTask;
+    const isOpen = settingsState.openTaskForm;
     const isCreate = task == null;
     const dialogTitle = (isCreate ? "Add a new task" : "Edit task");
 
-    const { handleSaveTask, handleDeleteTask } = useTaskActions(); 
 
     const { handleSubmit, control, watch, reset }
         = useForm({
@@ -94,6 +102,10 @@ function TaskForm({ task, isOpen, onClose }) {
         }
     }, [isOpen])
 
+    const handleClose = () => {
+        handleOpenTaskForm(false);
+    }
+
     const handleOnSave = async (data) => {
         const dueDateString = hasDueDate ? data.dueDate.format('YYYY-MM-DD') : '';
         const newTask = {
@@ -110,12 +122,12 @@ function TaskForm({ task, isOpen, onClose }) {
         handleSaveTask(isCreate, newTask);
 
         // Close dialog
-        onClose();
+        handleClose();
     }
 
     const handleOnDelete = () => {
         handleDeleteTask(task.id);
-        onClose();
+        handleClose();
     }
 
     const renderTextField = (name, label, inputRef, required) => (
@@ -215,7 +227,7 @@ function TaskForm({ task, isOpen, onClose }) {
             <SwipeableDrawer
                 anchor='bottom'
                 open={isOpen}
-                onClose={onClose}
+                onClose={handleClose}
             >
                 <Paper
                     component="form"

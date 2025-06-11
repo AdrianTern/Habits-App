@@ -39,9 +39,11 @@ export const taskReducer = (state, action) => {
                 }
             };
         case 'SET_FILTER':
-            return {...state, filter: action.payload};
+            return { ...state, filter: action.payload };
+        case 'SET_CURRENT_TASK':
+            return{ ...state, currentTask: action.payload };
         case 'ADD_TASK':
-            return {...state, tasks: sortTasks([...state.tasks, action.payload])};
+            return { ...state, tasks: sortTasks([...state.tasks, action.payload]) };
         case 'UPDATE_TASK':
             return {
                 ...state, 

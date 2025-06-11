@@ -97,6 +97,10 @@ export function useTaskActions() {
         }
     }
 
+    const handleSetCurrentTask = (task) => {
+        dispatch({ type: 'SET_CURRENT_TASK', payload: task });
+    }
+
     return {
         fetchTasks,
         handleChangeTaskChip,
@@ -105,6 +109,7 @@ export function useTaskActions() {
         handleUpdateTask,
         handleToggleTask,
         handleDeleteTask,
-        handleSaveTask
+        handleSaveTask,
+        handleSetCurrentTask,
     };
 }
