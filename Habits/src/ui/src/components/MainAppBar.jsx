@@ -58,7 +58,7 @@ function MainAppBar() {
     return (
         <>
             <AppBar
-                position='static'
+                position='fixed'
                 sx={{
                     backgroundColor: 'custom.black'
                 }}

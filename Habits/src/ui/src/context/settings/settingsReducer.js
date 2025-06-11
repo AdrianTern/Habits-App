@@ -6,8 +6,6 @@ export function settingsReducer(state, action){
             return{ ...state, isShowTaskDate: action.payload };
         case 'SET_DARKMODE':
             return{ ...state, darkMode: action.payload };
-        case 'OPEN_TASK_FORM':
-            return{ ...state, openTaskForm: action.payload }
         default:
             return state;
     }

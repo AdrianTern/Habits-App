@@ -101,6 +101,10 @@ export function useTaskActions() {
         dispatch({ type: 'SET_CURRENT_TASK', payload: task });
     }
 
+    const handleOpenTaskForm = (newVal) => {
+        dispatch({ type: 'OPEN_TASK_FORM', payload: newVal });
+    }
+
     return {
         fetchTasks,
         handleChangeTaskChip,
@@ -111,5 +115,6 @@ export function useTaskActions() {
         handleDeleteTask,
         handleSaveTask,
         handleSetCurrentTask,
+        handleOpenTaskForm
     };
 }

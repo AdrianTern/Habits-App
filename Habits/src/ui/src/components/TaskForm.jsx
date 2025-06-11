@@ -23,7 +23,6 @@ import { motion } from 'framer-motion';
 import { useForm, Controller } from 'react-hook-form';
 import { styled } from '@mui/material/styles';
 import { useTaskActions, useTaskState } from "../hooks/taskHooks";
-import { useSettingsState, useSettingsActions } from '../hooks/settingsHooks';
 
 const FormButton = styled(IconButton)({
     transition: 'all 0.3s ease',
@@ -56,13 +55,10 @@ const ButtonBox = styled(Box)(({ theme }) => ({
 
 function TaskForm() {
     const taskState = useTaskState();
-    const settingsState = useSettingsState();
-
-    const { handleSaveTask, handleDeleteTask } = useTaskActions(); 
-    const { handleOpenTaskForm } = useSettingsActions();
+    const { handleSaveTask, handleDeleteTask, handleOpenTaskForm } = useTaskActions(); 
 
     const task = taskState.currentTask;
-    const isOpen = settingsState.openTaskForm;
+    const isOpen = taskState.openTaskForm;
     const isCreate = task == null;
     const dialogTitle = (isCreate ? "Add a new task" : "Edit task");
 
