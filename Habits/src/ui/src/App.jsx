@@ -1,183 +1,56 @@
 import TaskList from './components/TaskList';
 import MainAppBar from './components/MainAppBar';
 import { Typography, Box, Paper } from '@mui/material';
-import * as api from './api/api';
-import { useReducer } from 'react';
-import { taskReducer } from './reducers/taskReducer';
-import { motion, AnimatePresence } from 'framer-motion';
-import { isTaskMatchFilter } from './utils/isTaskMatchFilter';
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import { lightTheme, darkTheme } from './utils/theme';
-
 import './App.css';
 import TaskChips from './components/TaskChips';
+import { motion } from 'framer-motion';
+import { styled } from '@mui/material/styles';
+
+const MainBox = styled(Box)({
+  height: '80vh',
+  margin: '0 auto',
+  padding: '1rem',
+  marginTop: '20%'
+})
+
+const HeaderBox = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+})
+
+const ListBox = styled(Paper)(({ theme }) => ({
+  maxWidth: '90vw',
+  maxHeight: '70vh',
+  boxSizing: 'border-box',
+  margin: '0 auto',
+  marginBottom: '2rem',
+  padding: '1rem',
+  backgroundColor: theme.palette.secondary.main,
+
+  [theme.breakpoints.up('sm')]: {
+    maxWidth: '80vw',
+    maxHeight: '80vh',
+  },
+}))
+
 function App() {
-  // useReducer to manage the state of tasks
-  const initialState = {
-    tasks: [],
-    filter: 'today',
-    taskCount: {
-      todayCount: 0,
-      upcomingCount: 0,
-      overdueCount: 0,
-      allCount: 0,
-      routineCount: 0,
-    },
-    appSettings: {
-      isShowTaskDesc: true,
-      isShowTaskDate: true,
-      darkMode: false,
-    }
-  };
-  const [state, dispatch] = useReducer(taskReducer, initialState);
-  const { tasks, filter, taskCount, appSettings } = state;
-
-  const fetchTasks = async (newFilter) => {
-    try {
-      const result = await api.getTasks(newFilter);
-
-      dispatch({
-        type: 'SET_TASKS',
-        payload: result,
-      })
-    } catch (error) {
-      console.error('Failed to fetch tasks', error);
-    }
-  }
-
-  const handleOnChangeAppSettings = (newSettings) => {
-    dispatch({
-      type: 'SET_APP_SETTINGS',
-      payload: newSettings,
-    })
-  }
-  const handleSelectTaskChip = async (newFilter) => {
-    dispatch({
-      type: 'SET_FILTER',
-      payload: newFilter,
-    })
-    fetchTasks(newFilter);
-  }
-
-  const dispatchTaskWithFilter = (actionType, task) => {
-    if (isTaskMatchFilter(actionType, filter)) {
-      dispatch({
-        type: actionType,
-        payload: task,
-      })
-    }
-  }
-
-  const handleAddTask = async (task) => {
-    try {
-      const newTask = await api.addTask(task);
-      dispatchTaskWithFilter('ADD_TASK', newTask);
-      fetchTasks(filter);
-    } catch (error) {
-      console.error("Failed to add task", error);
-    }
-  }
-
-  const handleUpdateTask = async (task) => {
-    try {
-      const updatedTask = await api.updateTask(task);
-      dispatchTaskWithFilter('UPDATE_TASK', updatedTask);
-      fetchTasks(filter);
-    } catch (error) {
-      console.error("Failed to update task", error);
-    }
-    fetchTasks(filter);
-  }
-
-  // handleToggle function to toggle the completion status of a task
-  const handleToggle = async (task) => {
-    try {
-      const updatedTask = await api.toggleCompletion(task);
-      dispatchTaskWithFilter('TOGGLE_TASK', updatedTask);
-      fetchTasks(filter);
-    }
-    catch (error) {
-      console.error('Error toggling task:', error);
-    }
-    fetchTasks(filter);
-  }
-
-  const handleDelete = async (taskId) => {
-    try {
-      await api.deleteTask(taskId);
-      dispatch({
-        type: 'DELETE_TASK',
-        payload: taskId
-      })
-      fetchTasks(filter);
-    } catch (error) {
-      console.error('Failed to delete task', error)
-    }
-  }
-
-  const handleTaskDialogSave = async (isCreate, task) => {
-    if (isCreate) {
-      handleAddTask(task);
-    } else {
-      handleUpdateTask(task);
-    }
-  }
-
   return (
-    <ThemeProvider theme={appSettings.darkMode ? darkTheme : lightTheme}>
-      <CssBaseline />
-      <motion.div>
-        <AnimatePresence>
-          <MainAppBar key="main-app-bar" appSettings={appSettings} onChange={handleOnChangeAppSettings} />
-          <Box
-            className="App"
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '80vh',
-              margin: '0 auto'
-            }}
-          >
-            <Box>
-              <motion.div layout>
-                <Typography
-                  variant='h3'
-                  className='app-title'
-                  align='center'
-                  gutterBottom >
-                  habits.
-                </Typography>
-              </motion.div>
-              <TaskChips onSelect={handleSelectTaskChip} taskCount={taskCount} />
-              <Paper
-                component={motion.div}
-                layout
-                className="task-list-box"
-                elevation={24}
-                square={false}
-                sx={{
-                  maxWidth: { xs: '90vw', sm: '70vw', md: '50vw' },
-                  maxHeight: { xs: '70vh', sm: '80vh' },
-                  boxSizing: 'border-box',
-                  margin: '0 auto',
-                  padding: '1rem',
-                  backgroundColor: 'secondary.main'
-                }}>
-                <TaskList 
-                  tasks={tasks} 
-                  appSettings={appSettings} 
-                  onToggle={handleToggle} 
-                  onSave={handleTaskDialogSave} 
-                  onDelete={handleDelete}
-                  darkMode={appSettings.darkMode} />
-              </Paper>
-            </Box>
-          </Box>
-        </AnimatePresence>
-      </motion.div>
-    </ThemeProvider>
+    <>
+      <MainAppBar key="main-app-bar" />
+      <MainBox component={motion.div} layout initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+        <HeaderBox>
+          <Typography variant='h3' align='center' gutterBottom >
+            habits.
+          </Typography>
+          <TaskChips />
+        </HeaderBox>
+        <ListBox elevation={24} square={false}>
+          <TaskList />
+        </ListBox>
+      </MainBox>
+    </>
   );
 }
 

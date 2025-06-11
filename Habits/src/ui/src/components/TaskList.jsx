@@ -4,10 +4,12 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { useState } from 'react';
 import TaskForm from "./TaskForm";
 import { motion } from 'framer-motion';
+import { useTaskState } from "../hooks/taskHooks";
 
-function TaskList({ tasks, appSettings, onToggle, onSave, onDelete, darkMode }) {
+function TaskList() {
     const [openTaskDialog, setOpenTaskDialog] = useState(false);
     const [currentTask, setCurrentTask] = useState(null);
+    const state = useTaskState();
 
     const handleOpenDialog = () => {
         setOpenTaskDialog(true);
@@ -17,26 +19,23 @@ function TaskList({ tasks, appSettings, onToggle, onSave, onDelete, darkMode }) 
         setOpenTaskDialog(false);
     }
 
-    const Items = () => {
-        const isEmpty = !tasks || tasks.length === 0;
+    const renderTaskItems = () => {
+        const isEmpty = !state.tasks || state.tasks.length === 0;
 
-        if(!isEmpty){
+        if (!isEmpty) {
             return (
-                tasks.map(task => (
-                        <TaskItem
-                            key={task.id}
-                            task={task}
-                            onToggle={onToggle}
-                            appSettings={appSettings}
-                            onEdit={() => {
-                                setCurrentTask(task);
-                                handleOpenDialog();
-                            }}
-                            darkMode={darkMode}
-                        />
+                state.tasks.map(task => (
+                    <TaskItem
+                        key={task.id}
+                        task={task}
+                        onEdit={() => {
+                            setCurrentTask(task);
+                            handleOpenDialog();
+                        }}
+                    />
                 ))
-            ) 
-        } else{
+            )
+        } else {
             return (
                 <Box
                     key={isEmpty}
@@ -48,7 +47,7 @@ function TaskList({ tasks, appSettings, onToggle, onSave, onDelete, darkMode }) 
                         alignItems: 'center',
                     }}
                 >
-                    <Typography variant="h6" sx={{color: 'custom.darkgrey'}}>
+                    <Typography variant="h6" sx={{ color: 'custom.darkgrey' }}>
                         You have 0 tasks!
                     </Typography>
                 </Box>
@@ -56,25 +55,24 @@ function TaskList({ tasks, appSettings, onToggle, onSave, onDelete, darkMode }) 
         }
     }
     return (
-        <Box>
+        <>
             <List
                 component={motion.ul}
                 layout
-                className="task-list"
                 sx={{
                     maxHeight: { xs: '60vh', sm: '100vh' },
                     maxWidth: { xs: '90vw', sm: '100vw' },
                     overflowY: { xs: 'auto', sm: 'hidden' },
                     overflowX: { xs: 'auto', sm: 'hidden' },
                 }}>
-                {Items()}
+                {renderTaskItems()}
             </List>
-            <Box 
-                component={motion.div}
-                layout
-                sx={{ 
-                    display: 'flex', 
-                    justifyContent: 'center' 
+
+            <Box
+
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'center'
                 }}
             >
                 <IconButton
@@ -93,8 +91,8 @@ function TaskList({ tasks, appSettings, onToggle, onSave, onDelete, darkMode }) 
                     <AddCircleIcon fontSize='large' />
                 </IconButton>
             </Box>
-            <TaskForm task={currentTask} isOpen={openTaskDialog} onClose={handleCloseDialog} onSave={onSave} onDelete={onDelete} />
-        </Box>
+            <TaskForm task={currentTask} isOpen={openTaskDialog} onClose={handleCloseDialog} />
+        </>
     );
 }
 
