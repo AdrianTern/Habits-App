@@ -44,8 +44,12 @@ const commonTheme = createTheme({
         disabled: 'rgba(0, 0, 0, 0.5)',
       },
       background: {
-        default: '#fff',
-        paper: '#fff'
+        default: '#fdfdfd',
+        paper: '#fdfdfd '
+      },
+      custom: {
+        ...commonTheme.palette.custom,
+        borderColor: '#cac9c9',
       }
     },
   }));
@@ -69,6 +73,10 @@ const commonTheme = createTheme({
       background: {
         default: '#121212',
         paper: '#121212',
+      },
+      custom: {
+        ...commonTheme.palette.custom,
+        borderColor: '#121212',
       }
     },
   }));
