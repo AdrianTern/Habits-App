@@ -1,6 +1,6 @@
 import { Box, Chip, } from '@mui/material';
 import TodayRoundedIcon from '@mui/icons-material/TodayRounded';
-import WatchLaterRoundedIcon from '@mui/icons-material/WatchLaterRounded';
+import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
 import ErrorRoundedIcon from '@mui/icons-material/ErrorRounded';
 import AssignmentRoundedIcon from '@mui/icons-material/AssignmentRounded';
 import RepeatRoundedIcon from '@mui/icons-material/RepeatRounded';
@@ -9,10 +9,10 @@ import { useTaskActions, useTaskState } from '../hooks/taskHooks';
 
 function TaskChips() {
     const taskGroups = [
-        { key: 'all', label: "All tasks", icon: <AssignmentRoundedIcon /> },
-        { key: 'today', label: "Today's tasks", icon: <TodayRoundedIcon /> },
-        { key: 'upcoming', label: "Upcoming tasks", icon: <WatchLaterRoundedIcon /> },
-        { key: 'overdue', label: "Overdue tasks", icon: <ErrorRoundedIcon /> },
+        { key: 'all', label: "All", icon: <AssignmentRoundedIcon /> },
+        { key: 'today', label: "Today", icon: <TodayRoundedIcon /> },
+        { key: 'upcoming', label: "Upcoming", icon: <CalendarMonthRoundedIcon /> },
+        { key: 'overdue', label: "Overdue", icon: <ErrorRoundedIcon /> },
         { key: 'routine', label: "Routines", icon: <RepeatRoundedIcon /> },
     ];
 

@@ -4,20 +4,25 @@ import {
     Toolbar,
     Typography,
     IconButton,
-    Menu,
-    MenuItem,
-    FormControlLabel,
+    Drawer,
+    Box,
+    List,
+    ListSubheader,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
 } from '@mui/material';
-import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
 import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
 import NightsStayRoundedIcon from '@mui/icons-material/NightsStayRounded';
+import ArrowRight from '@mui/icons-material/ArrowRight';
 import { styled } from '@mui/material/styles';
 import { useSettingsState, useSettingsActions } from '../hooks/settingsHooks';
 import { useState } from 'react';
 
-const MenuCheckBox = styled(Checkbox)(({ theme }) => ({
+const VisibilityCheckBox = styled(Checkbox)(({ theme }) => ({
     color: theme.palette.custom.white,
     '&.Mui-checked': {
         color: theme.palette.custom.darkred,
@@ -36,9 +41,52 @@ const ThemeCheckBox = styled(Checkbox)(({ theme }) => ({
 
 }));
 
+const MenuButton = styled(IconButton)(({ theme }) => ({
+    color: theme.palette.custom.white,
+    '& svg': {
+        transition: '0.2s',
+    },
+    '&:hover': {
+        '& svg:first-of-type': {
+            transform: 'translateX(-8px)',
+        },
+        '& svg:last-of-type': {
+            right: 0,
+            opacity: 1,
+        }
+    },
+}))
+
+const MainDrawer = styled(Drawer)(({ theme }) => ({
+    '& .MuiDrawer-paper': {
+        backgroundColor: theme.palette.custom.black,
+        color: theme.palette.custom.white,
+    },
+}));
+
+const DrawerBox = styled(Box)(({ theme }) => ({
+    width: '50vw',
+
+    [theme.breakpoints.up('sm')]: {
+        width: '30vw',
+    },
+
+    [theme.breakpoints.up('lg')]: {
+        width: '20vw',
+    },
+
+}));
+
+const Footer = styled(Box)({
+    position: 'absolute',
+    bottom: 10,
+    left: 10,
+    width: '90%',
+})
+
 function MainAppBar() {
     const title = "{habits.}"
-    const [anchorEl, setAnchorEl] = useState(null);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     const state = useSettingsState();
     const { handleChangeTaskDescVisibility, handleChangeTaskDateVisibility, handleDarkMode } = useSettingsActions();
@@ -47,13 +95,83 @@ function MainAppBar() {
     const IS_SHOW_DATE = 'isShowTaskDate';
     const DARK_MODE = 'darkMode';
 
-    const openMenu = (event) => {
-        setAnchorEl(event.currentTarget);
+    const toggleDrawer = (newVal) => () => {
+        setIsDrawerOpen(newVal);
     }
 
-    const closeMenu = () => {
-        setAnchorEl(null);
+    const handleToggleTaskDesc = () => {
+        handleChangeTaskDescVisibility(!state.isShowTaskDesc);
     }
+
+    const handleToggleTaskDate = () => {
+        handleChangeTaskDateVisibility(!state.isShowTaskDate);
+    }
+
+    const MenuHeader = () => {
+        const menuTitle = '{h.}'
+        return (
+            <Box ml={1} mt={1}>
+                <Typography variant='h4' gutterBottom color='custom.violet' letterSpacing={1} >
+                    {menuTitle}
+                </Typography>
+            </Box>
+        );
+    }
+
+    const MenuFooter = () => {
+        const footerText = "© {habits.} developed by AdrianTern"
+        return (
+            <Footer>
+                <Typography variant='caption' gutterBottom color='custom.lightgrey'>
+                    {footerText}
+                </Typography>
+            </Footer>
+        );
+    }
+
+    const MenuList = () => {
+        return (
+            <Box>
+                <List dense subheader={<ListSubheader sx={{ backgroundColor: 'inherit', color: 'custom.lightgrey' }}>Task visibility</ListSubheader>} >
+                    <ListItemButton key={IS_SHOW_DESC} onClick={handleToggleTaskDesc} >
+                        <ListItemIcon>
+                            <VisibilityCheckBox
+                                key={IS_SHOW_DESC}
+                                checked={!state.isShowTaskDesc}
+                                onChange={handleToggleTaskDesc}
+                                icon={<VisibilityRoundedIcon />}
+                                checkedIcon={<VisibilityOffRoundedIcon />}
+                            />
+                        </ListItemIcon>
+                        <ListItemText>
+                            <Typography variant='body2'> Show description</Typography>
+                        </ListItemText>
+                    </ListItemButton>
+                    <ListItemButton key={IS_SHOW_DATE} onClick={handleToggleTaskDate}>
+                        <ListItemIcon>
+                            <VisibilityCheckBox
+                                key={IS_SHOW_DATE}
+                                checked={!state.isShowTaskDate}
+                                onChange={handleToggleTaskDate}
+                                icon={<VisibilityRoundedIcon />}
+                                checkedIcon={<VisibilityOffRoundedIcon />}
+                            />
+                        </ListItemIcon>
+                        <ListItemText>
+                            <Typography variant='body2'> Show date</Typography>
+                        </ListItemText>
+                    </ListItemButton>
+                </List>
+            </Box>
+        );
+    }
+    const DrawerList = (
+        <DrawerBox role="presentation">
+            <MenuHeader />
+            <MenuList />
+            <MenuFooter />
+        </DrawerBox>
+    )
 
     return (
         <>
@@ -64,28 +182,19 @@ function MainAppBar() {
                 }}
             >
                 <Toolbar>
-                    <IconButton
+                    <MenuButton
                         size='medium'
                         edge='start'
                         aria-label='menu'
-                        onClick={openMenu}
-                        sx={{
-                            color: 'white',
-                            mr: 2
-                        }}
+                        onClick={toggleDrawer(true)}
                     >
-                        <TuneRoundedIcon />
-                    </IconButton>
-                    <Typography
-                        variant='h6'
-                        component='div'
-                        sx={{
-                            flexGrow: 1,
-                            letterSpacing: 1,
-                        }}>
+                        <MenuRoundedIcon />
+                        <ArrowRight sx={{ position: 'absolute', right: 4, opacity: 0 }} />
+                    </MenuButton>
+                    <Typography variant='h6' sx={{ flexGrow: 1, letterSpacing: 1 }}>
                         {title}
                     </Typography>
-                    <ThemeCheckBox 
+                    <ThemeCheckBox
                         size='large'
                         key={DARK_MODE}
                         checked={state.darkMode}
@@ -95,48 +204,9 @@ function MainAppBar() {
                     />
                 </Toolbar>
             </AppBar>
-            <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={closeMenu}
-                slotProps={{
-                    paper: {
-                        sx: {
-                            backgroundColor: 'custom.black',
-                            color: 'custom.white'
-                        }
-                    }
-                }}
-            >
-                <MenuItem>
-                    <FormControlLabel
-                        control={
-                            <MenuCheckBox
-                                key={IS_SHOW_DESC}
-                                checked={!state.isShowTaskDesc}
-                                onChange={() => handleChangeTaskDescVisibility(!state.isShowTaskDesc)}
-                                icon={<VisibilityRoundedIcon/>}
-                                checkedIcon={<VisibilityOffRoundedIcon />}
-                            />
-                        }
-                        label="Show description"
-                    />
-                </MenuItem>
-                <MenuItem>
-                    <FormControlLabel
-                        control={
-                            <MenuCheckBox
-                                key={IS_SHOW_DATE}
-                                checked={!state.isShowTaskDate}
-                                onChange={() => handleChangeTaskDateVisibility(!state.isShowTaskDate)}
-                                icon={<VisibilityRoundedIcon />}
-                                checkedIcon={<VisibilityOffRoundedIcon />}
-                            />
-                        }
-                        label="Show due date"
-                    />
-                </MenuItem>
-            </Menu>
+            <MainDrawer open={isDrawerOpen} onClose={toggleDrawer(false)} >
+                {DrawerList}
+            </MainDrawer>
         </>
     )
 }

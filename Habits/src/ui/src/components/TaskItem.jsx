@@ -7,7 +7,7 @@ import {
     Typography,
     Box,
 } from '@mui/material';
-import EditNoteRoundedIcon from '@mui/icons-material/EditNoteRounded';
+import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import RadioButtonUncheckedRoundedIcon from '@mui/icons-material/RadioButtonUncheckedRounded';
 import RadioButtonCheckedRoundedIcon from '@mui/icons-material/RadioButtonCheckedRounded';
 import ErrorRoundedIcon from '@mui/icons-material/ErrorRounded';
@@ -137,10 +137,10 @@ function TaskItem({ task, onEdit }) {
                         marginRight: '0.5rem',
                         transition: 'all 0.3s ease',
                         '&:hover': {
-                            transform: 'scale(1.10)',
+                            transform: 'scale(1.30)',
                         },
                     }}>
-                    <EditNoteRoundedIcon fontSize='medium' />
+                    <MoreVertRoundedIcon fontSize='medium' />
                 </IconButton>
             </Box>
         </motion.li>

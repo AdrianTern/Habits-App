@@ -1,47 +1,56 @@
 import TaskItem from "./TaskItem";
-import { Box, List, Typography } from '@mui/material';
+import { Box, List, Typography, Button } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import { motion } from 'framer-motion';
 import { useTaskActions, useTaskState } from "../hooks/taskHooks";
+
+const CenterBox = styled(Box)({
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: '20%',
+})
 
 function TaskList() {
     const state = useTaskState();
     const { handleSetCurrentTask, handleOpenTaskForm } = useTaskActions();
+    const isEmpty = !state.tasks || state.tasks.length === 0;
 
-    const renderTaskItems = () => {
-        const isEmpty = !state.tasks || state.tasks.length === 0;
-
-        if (!isEmpty) {
-            return (
-                state.tasks.map(task => (
-                    <TaskItem
-                        key={task.id}
-                        task={task}
-                        onEdit={() => {
-                            handleSetCurrentTask(task);
-                            handleOpenTaskForm(true);
-                        }}
-                    />
-                ))
-            )
-        } else {
-            return (
-                <Box
-                    key={isEmpty}
-                    component={motion.div}
-                    layout
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
+    const TaskItems = () => {
+        return (
+            state.tasks.map(task => (
+                <TaskItem
+                    key={task.id}
+                    task={task}
+                    onEdit={() => {
+                        handleSetCurrentTask(task);
+                        handleOpenTaskForm(true);
                     }}
-                >
-                    <Typography variant="h6" sx={{ color: 'custom.darkgrey' }}>
-                        You have 0 tasks!
-                    </Typography>
-                </Box>
-            )
-        }
+                />
+            ))
+        )
     }
+
+    const EmptyTaskBox = () => {
+        return (
+            <CenterBox>
+                <Typography variant="h5" sx={{ color: 'custom.darkgrey' }} gutterBottom>
+                    No task found
+                </Typography>
+                <Button
+                    variant="contained"
+                    size="small"
+                    startIcon={<AddRoundedIcon />}
+                    onClick={() => handleOpenTaskForm(true)}
+                >
+                    Add new task
+                </Button>
+            </CenterBox>
+        )
+    }
+    
     return (
         <>
             <List
@@ -53,7 +62,7 @@ function TaskList() {
                     overflowY: { xs: 'auto', sm: 'hidden' },
                     overflowX: { xs: 'auto', sm: 'hidden' },
                 }}>
-                {renderTaskItems()}
+                {isEmpty ? <EmptyTaskBox /> : <TaskItems />}
             </List>
         </>
     );
