@@ -6,6 +6,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import com.adrian.Habits.model.TaskEntity;
 
+// Builder class to combine specifications, to be used as query in service layer
 public class TaskSpecificationBuilder {
 
     private Specification<TaskEntity> spec;
@@ -30,7 +31,7 @@ public class TaskSpecificationBuilder {
         }
         return this;
     }
-    
+
     // Select tasks with the following criteria:
     // NOT routine task
     // AND (dueDate = null OR dueDate > today)
