@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+// Entity class for Task
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

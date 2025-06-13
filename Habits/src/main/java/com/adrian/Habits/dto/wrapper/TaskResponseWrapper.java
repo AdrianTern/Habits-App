@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+// A wrapper class to wrap TaskResponse and TaskCount into a single JSON response to client
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

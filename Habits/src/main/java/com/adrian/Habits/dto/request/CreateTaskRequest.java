@@ -7,7 +7,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+// API request to create a task, sent from client to create a TaskEntity
 @Data
 @Builder
 public class CreateTaskRequest {

@@ -14,11 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-
+// Controller class that handles the endpoints for CRUD actions
 @RestController
 @RequestMapping("/api/tasks")
 public class TaskController {
@@ -29,66 +27,41 @@ public class TaskController {
         this.taskService = taskService;
     }
 
+    // Endpoint to get tasks according to selected filter from client
     @GetMapping
-    public ResponseEntity<TaskResponseWrapper> getAllTask(@RequestParam(required = false) String filter,
-                                                         @RequestParam(required = false, defaultValue = "Etc/UTC") String timezone){
+    public ResponseEntity<TaskResponseWrapper> getTasks(@RequestParam String filter,
+            @RequestParam(required = false, defaultValue = "Etc/UTC") String timezone) {
         ZoneId zoneid = ZoneId.of(timezone);
         LocalDate today = LocalDate.now(zoneid);
 
-        List<TaskResponse> todayTasks = taskService.getTodayTasks(today);
-        List<TaskResponse> upcomingTasks = taskService.getUpcomingTasks(today);
-        List<TaskResponse> overdueTasks = taskService.getOverduedTasks(today);
-        List<TaskResponse> allTasks = taskService.getAllTasks(today);
-        List<TaskResponse> routineTasks = taskService.getRoutineTasks();
-
         TaskCount taskCount = TaskCount.builder()
-                                    .todayCount(todayTasks.size())
-                                    .upcomingCount(upcomingTasks.size())
-                                    .overdueCount(overdueTasks.size())
-                                    .allCount(allTasks.size())
-                                    .routineCount(routineTasks.size())
-                                    .build();
-                                    
+                .todayCount(taskService.getTodayTaskCount(today))
+                .upcomingCount(taskService.getUpcomingTasksCount(today))
+                .overdueCount(taskService.getOverdueTasksCount(today))
+                .allCount(taskService.getAllTasksCount())
+                .routineCount(taskService.getRoutineTasksCount())
+                .build();
+
         TaskResponseWrapper tasksResponseWrapper = TaskResponseWrapper.builder().taskCount(taskCount).build();
 
-        if(filter!=null){
+        if (filter != null) {
             if ("today".equalsIgnoreCase(filter)) {
-                tasksResponseWrapper.setTaskResponse(todayTasks);
-            } else if("upcoming".equalsIgnoreCase(filter)) {
-                tasksResponseWrapper.setTaskResponse(upcomingTasks);
-            } else if("overdue".equalsIgnoreCase(filter)){
-                tasksResponseWrapper.setTaskResponse(overdueTasks);
+                tasksResponseWrapper.setTaskResponse(taskService.getTodayTasks(today));
+            } else if ("upcoming".equalsIgnoreCase(filter)) {
+                tasksResponseWrapper.setTaskResponse(taskService.getUpcomingTasks(today));
+            } else if ("overdue".equalsIgnoreCase(filter)) {
+                tasksResponseWrapper.setTaskResponse(taskService.getOverdueTasks(today));
+            } else if ("all".equalsIgnoreCase(filter)) {
+                tasksResponseWrapper.setTaskResponse(taskService.getAllTasks());
             } else if ("routine".equalsIgnoreCase(filter)) {
-                tasksResponseWrapper.setTaskResponse(routineTasks);
-            }else if("all".equalsIgnoreCase(filter)){
-                tasksResponseWrapper.setTaskResponse(allTasks);
+                tasksResponseWrapper.setTaskResponse(taskService.getRoutineTasks());
             }
-        } 
+        }
 
         return ResponseEntity.ok(tasksResponseWrapper);
     }
 
-    @GetMapping("/{id}/get-by-id")
-    public ResponseEntity<TaskResponse> getTaskById(@PathVariable Long id) {
-        TaskResponse task = taskService.getTaskById(id);
-
-        return (task != null) ? ResponseEntity.ok(task) : ResponseEntity.notFound().build();
-    }
-
-    @GetMapping("/{title}/get-by-title")
-    public ResponseEntity<List<TaskResponse>> getTaskByTitle(@PathVariable String title) {
-        List<TaskResponse> tasks = taskService.getTaskByTitle(title);
-
-        return (!tasks.isEmpty()) ? ResponseEntity.ok(tasks) : ResponseEntity.notFound().build();
-    }
-
-    @GetMapping("/{dueDate}/get-by-dueDate")
-    public ResponseEntity<List<TaskResponse>> getTaskByDueDate(@PathVariable LocalDate dueDate) {
-        List<TaskResponse> tasks = taskService.getTodayTasks(dueDate);
-
-        return (!tasks.isEmpty()) ? ResponseEntity.ok(tasks) : ResponseEntity.notFound().build();
-    }
-
+    // Endpoint to create a new task
     @PostMapping
     public ResponseEntity<TaskResponse> createTask(@Valid @RequestBody CreateTaskRequest request) {
         TaskResponse task = taskService.createTask(request);
@@ -96,6 +69,7 @@ public class TaskController {
         return (task != null) ? new ResponseEntity<>(task, HttpStatus.CREATED) : ResponseEntity.badRequest().build();
     }
 
+    // Endpoint to update a task
     @PutMapping("/{id}")
     public ResponseEntity<TaskResponse> updateTask(@PathVariable Long id, @RequestBody UpdateTaskRequest request) {
         TaskResponse task = taskService.updateTask(id, request);
@@ -103,6 +77,7 @@ public class TaskController {
         return (task != null) ? ResponseEntity.ok(task) : ResponseEntity.badRequest().build();
     }
 
+    // Endpoint to toggle completion of a task
     @PatchMapping("/{id}")
     public ResponseEntity<TaskResponse> toggleTask(@PathVariable Long id) {
         TaskResponse task = taskService.toggleIsComplete(id);
@@ -110,6 +85,7 @@ public class TaskController {
         return (task != null) ? ResponseEntity.ok(task) : ResponseEntity.badRequest().build();
     }
 
+    // Endpoint to delete a task
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);
@@ -117,6 +93,7 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
+    // Endpoint to delete all tasks
     @DeleteMapping
     public ResponseEntity<Void> deleteTask() {
         taskService.deleteAllTask();

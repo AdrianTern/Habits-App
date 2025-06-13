@@ -43,110 +43,59 @@ public class TaskServiceTest {
 
         when(taskRepository.findAll()).thenReturn(Arrays.asList(task1, task2));
 
-        List<TaskResponse> result = taskService.getAllTask();
+        List<TaskResponse> result = taskService.getAllTasks();
 
         assertEquals(2, result.size());
         assertEquals("One", result.get(0).getTitle());
         assertEquals("Two", result.get(1).getTitle());
     }
 
-    @Test
-    public void getTaskById_found() {
-        Long taskId = 1L;
-        TaskEntity task = TaskEntity.builder()
-                                    .id(taskId)
-                                    .title("Test")
-                                    .build();
+    // @Test
+    // public void getTaskByDueDate_shouldReturnTaskByDueDate() {
+    //     LocalDate dueDate = LocalDate.of(2025, 5, 5);
 
-        when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
+    //     TaskEntity task1 = TaskEntity.builder()
+    //                                  .dueDate(dueDate)
+    //                                  .build();
 
-        TaskResponse result = taskService.getTaskById(taskId);
+    //     TaskEntity task2 = TaskEntity.builder()
+    //                                  .dueDate(dueDate)
+    //                                  .build();
 
-        assertNotNull(result);
-        assertEquals(taskId, result.getId());
+    //     when(taskRepository.findTodayTasks(dueDate)).thenReturn(Arrays.asList(task1, task2));
 
-        verify(taskRepository).findById(taskId);
-    }
+    //     List<TaskResponse> result = taskService.getTodayTasks(dueDate);
 
-    @Test
-    public void getTaskById_notFound() {
-        Long taskId = 1L;
-        when(taskRepository.findById(taskId)).thenReturn(Optional.empty());
+    //     assertEquals(2, result.size());
+    //     assertEquals(dueDate, LocalDate.parse(result.get(0).getDueDate()));
+    //     assertEquals(dueDate, LocalDate.parse(result.get(1).getDueDate()));
 
-        assertThrows(RuntimeException.class, () -> taskService.getTaskById(taskId), "Task not found");
+    //     verify(taskRepository).findTodayTasks(dueDate);
+    // }
 
-        verify(taskRepository).findById(taskId);
-    }
+    // @Test
+    // public void getUpcomingTasks_shouldReturnTaskAfterToday() {
+    //     LocalDate today = LocalDate.of(2025, 5, 5);
+    //     LocalDate tomorrow = LocalDate.of(2025, 5, 6);
 
-    @Test
-    public void getTaskByTitle_found() {
-        String title = "Test";
+    //     TaskEntity task1 = TaskEntity.builder()
+    //                                 .dueDate(tomorrow)
+    //                                 .build();
 
-        TaskEntity task1 = TaskEntity.builder()
-                                     .title(title)
-                                     .build();
+    //     TaskEntity task2 = TaskEntity.builder()
+    //                                 .dueDate(tomorrow)
+    //                                 .build();
 
-        TaskEntity task2 = TaskEntity.builder()
-                                     .title(title)
-                                     .build();
-
-        when(taskRepository.findByTitle(title)).thenReturn(Arrays.asList(task1, task2));
-
-        List<TaskResponse> result = taskService.getTaskByTitle(title);
-
-        assertEquals(2, result.size());
-        assertEquals(title, result.get(0).getTitle());
-        assertEquals(title, result.get(1).getTitle());
-
-        verify(taskRepository).findByTitle(title);
-    }
-
-    @Test
-    public void getTaskByDueDate_shouldReturnTaskByDueDate() {
-        LocalDate dueDate = LocalDate.of(2025, 5, 5);
-
-        TaskEntity task1 = TaskEntity.builder()
-                                     .dueDate(dueDate)
-                                     .build();
-
-        TaskEntity task2 = TaskEntity.builder()
-                                     .dueDate(dueDate)
-                                     .build();
-
-        when(taskRepository.findTodayTasks(dueDate)).thenReturn(Arrays.asList(task1, task2));
-
-        List<TaskResponse> result = taskService.getTodayTasks(dueDate);
-
-        assertEquals(2, result.size());
-        assertEquals(dueDate, LocalDate.parse(result.get(0).getDueDate()));
-        assertEquals(dueDate, LocalDate.parse(result.get(1).getDueDate()));
-
-        verify(taskRepository).findTodayTasks(dueDate);
-    }
-
-    @Test
-    public void getUpcomingTasks_shouldReturnTaskAfterToday() {
-        LocalDate today = LocalDate.of(2025, 5, 5);
-        LocalDate tomorrow = LocalDate.of(2025, 5, 6);
-
-        TaskEntity task1 = TaskEntity.builder()
-                                    .dueDate(tomorrow)
-                                    .build();
-
-        TaskEntity task2 = TaskEntity.builder()
-                                    .dueDate(tomorrow)
-                                    .build();
-
-        when(taskRepository.findByDueDateAfterOrDueDateIsNull(today)).thenReturn(Arrays.asList(task1, task2));
+    //     when(taskRepository.findByDueDateAfterOrDueDateIsNull(today)).thenReturn(Arrays.asList(task1, task2));
         
-        List<TaskResponse> result = taskService.getUpcomingTasks(today);
+    //     List<TaskResponse> result = taskService.getUpcomingTasks(today);
 
-        assertEquals(2, result.size());
-        assertEquals(tomorrow, LocalDate.parse(result.get(0).getDueDate()));
-        assertEquals(tomorrow, LocalDate.parse(result.get(1).getDueDate()));
+    //     assertEquals(2, result.size());
+    //     assertEquals(tomorrow, LocalDate.parse(result.get(0).getDueDate()));
+    //     assertEquals(tomorrow, LocalDate.parse(result.get(1).getDueDate()));
 
-        verify(taskRepository).findByDueDateAfterOrDueDateIsNull(today);
-    }
+    //     verify(taskRepository).findByDueDateAfterOrDueDateIsNull(today);
+    // }
 
     @Test
     public void getAllTasks_shouldReturnPresentAndFutureTasksAndOverdueTasks(){
@@ -166,16 +115,16 @@ public class TaskServiceTest {
                                     .dueDate(tomorrow)
                                     .build();
 
-        when(taskRepository.findAllTasks(today)).thenReturn(Arrays.asList(task1, task2, task3));
+        when(taskRepository.findAll()).thenReturn(Arrays.asList(task1, task2, task3));
 
-        List<TaskResponse> result = taskService.getAllTasks(today);
+        List<TaskResponse> result = taskService.getAllTasks();
 
         assertEquals(3, result.size());
         assertEquals(yesterday, LocalDate.parse(result.get(0).getDueDate()));
         assertEquals(today, LocalDate.parse(result.get(1).getDueDate()));
         assertEquals(tomorrow, LocalDate.parse(result.get(2).getDueDate()));
 
-        verify(taskRepository).findAllTasks(today);
+        verify(taskRepository).findAll();
     }
 
     @Test

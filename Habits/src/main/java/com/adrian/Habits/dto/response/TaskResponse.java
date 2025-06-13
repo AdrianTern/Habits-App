@@ -4,8 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-
+// Response file for Task, to be used to communicate with client
 @Builder
 @Data
 @NoArgsConstructor

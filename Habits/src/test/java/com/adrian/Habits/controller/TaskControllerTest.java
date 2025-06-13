@@ -34,22 +34,6 @@ public class TaskControllerTest {
     private TaskService taskService;
 
     @Test
-    public void getTaskById() throws Exception{
-        Long taskId = 1L;
-        TaskResponse task = TaskResponse.builder()
-                                        .id(taskId)
-                                        .title("Test")
-                                        .build();
-
-        when(taskService.getTaskById(taskId)).thenReturn(task);
-
-        mockMvc.perform(get("/api/tasks/1/get-by-id"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(taskId))
-                .andExpect(jsonPath("$.title").value("Test"));
-    }
-
-    @Test
     public void createTask() throws Exception{
         CreateTaskRequest request = CreateTaskRequest.builder()
                 .title("Test")

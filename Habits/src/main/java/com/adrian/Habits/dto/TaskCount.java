@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+// Class to store the number of tasks for each type of tasks, to be wrapped and send to client 
 @Getter
 @Setter
 @AllArgsConstructor

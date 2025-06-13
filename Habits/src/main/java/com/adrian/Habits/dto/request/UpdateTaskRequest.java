@@ -7,7 +7,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+// API request to update a task, sent from client to update a TaskEntity
 @Data
 @Builder
 public class UpdateTaskRequest {

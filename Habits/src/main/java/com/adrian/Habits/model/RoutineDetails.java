@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+// Embedded class for routine details. To be embedded to TaskEntity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
