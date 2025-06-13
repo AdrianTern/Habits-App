@@ -16,13 +16,17 @@ import com.adrian.Habits.repository.AppConfigRepository;
 import com.adrian.Habits.repository.TaskRepository;
 
 import jakarta.transaction.Transactional;
-
+// Service class to handle scheduled daemons and onStartUp
+// 1. Clean up completed tasks
+// 2. Reset completed routine tasks and delete expired routines
 @Service
 public class AppConfigService{
     private final AppConfigRepository appConfigRepository;
     private final TaskRepository taskRepository;
+
     private final String cleanUpConfigKey = "cleanup_config";
     private final String resetRoutineConfigKey = "resetRoutine_config";
+    
     private final LocalDateTime currenDateTime = LocalDateTime.now();
     private final LocalDate currentDate = currenDateTime.toLocalDate();
     private final String currenDateTimeString = currenDateTime.toString();
@@ -32,13 +36,15 @@ public class AppConfigService{
         this.taskRepository = taskRepository;
     }
 
+    // Scheduled method that runs daily every midnight 12AM
     @Scheduled(cron = "0 0 0 * * ?")
     @Transactional
-    public void scheduledCleanup(){
-        System.out.println("Executing scheduled cleanup at: " + LocalDateTime.now().toString());
+    public void dailyRun(){
+        System.out.println("Executing scheduled daily run at: " + LocalDateTime.now().toString());
         runAppConfigActions(true);
     }
 
+    // Method that runs on application start up
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void onApplicationStartUp(){
@@ -46,6 +52,7 @@ public class AppConfigService{
         runAppConfigActions(false);
     }
 
+    // Method that runs all config actions
     @Transactional
     public void runAppConfigActions(Boolean isScheduled){
         // Reset routine tasks
@@ -63,6 +70,7 @@ public class AppConfigService{
         }
     }
 
+    // Clean up completed tasks
     @Transactional
     public void cleanUpCompletedTasks(Boolean isScheduled){
         Boolean isRunRequired = isScheduled;
@@ -98,6 +106,7 @@ public class AppConfigService{
         else System.out.println("Task clean up is not required. Last executed at: " + cleanUpConfig.getConfigValue());
     }
 
+    // Reset completed routine tasks and delete expired routines
     @Transactional
     public void resetRoutineTasks(Boolean isScheduled){
 

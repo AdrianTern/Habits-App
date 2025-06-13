@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+// Response file for RoutineDetails, to be used to communicate with client
 @Data
 @Builder
 @AllArgsConstructor
