@@ -1,6 +1,8 @@
 import { useReducer, useEffect } from "react";
 
+// Custom hook to store/load states from browser local storage
 export function usePersistentReducer( reducer, defaultState, storageKey ){
+    // Retrieve state value from local storage
     const loadState = () => {
         try{
             const serialized = localStorage.getItem(storageKey);
@@ -14,6 +16,7 @@ export function usePersistentReducer( reducer, defaultState, storageKey ){
 
     const [state, dispatch] = useReducer(reducer, loadState());
 
+    // Updates state value to local storage
     useEffect(() => {
         try{
             const serialized = JSON.stringify(state);

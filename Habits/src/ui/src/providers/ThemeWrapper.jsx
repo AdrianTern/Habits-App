@@ -4,6 +4,7 @@ import { useSettingsState } from '../hooks/settingsHooks';
 import { AnimatePresence } from 'framer-motion';
 import { lightTheme, darkTheme } from '../utils/theme';
 
+// A provider for themes related components
 export function ThemeWrapper({ children }) {
     const settingsState = useSettingsState();
 

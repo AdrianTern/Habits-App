@@ -1,4 +1,4 @@
-package com.adrian.specification;
+package com.adrian.Habits.specification;
 
 import java.time.LocalDate;
 

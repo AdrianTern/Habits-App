@@ -19,9 +19,10 @@ import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
 import NightsStayRoundedIcon from '@mui/icons-material/NightsStayRounded';
 import ArrowRight from '@mui/icons-material/ArrowRight';
 import { styled } from '@mui/material/styles';
-import { useSettingsState, useSettingsActions } from '../hooks/settingsHooks';
+import { useSettingsState, useSettings } from '../hooks/settingsHooks';
 import { useState } from 'react';
 
+// Styled checkbox for visibility settings menu
 const VisibilityCheckBox = styled(Checkbox)(({ theme }) => ({
     color: theme.palette.custom.white,
     '&.Mui-checked': {
@@ -29,7 +30,8 @@ const VisibilityCheckBox = styled(Checkbox)(({ theme }) => ({
     }
 }));
 
-const ThemeCheckBox = styled(Checkbox)(({ theme }) => ({
+// Styled checkbox to toggle light/dark mode
+const ThemeModeCheckBox = styled(Checkbox)(({ theme }) => ({
     color: theme.palette.custom.darkmode,
     '&.Mui-checked': {
         color: theme.palette.custom.lightmode,
@@ -41,6 +43,7 @@ const ThemeCheckBox = styled(Checkbox)(({ theme }) => ({
 
 }));
 
+// Styled button to open side drawer
 const MenuButton = styled(IconButton)(({ theme }) => ({
     color: theme.palette.custom.white,
     '& svg': {
@@ -57,13 +60,15 @@ const MenuButton = styled(IconButton)(({ theme }) => ({
     },
 }))
 
-const MainDrawer = styled(Drawer)(({ theme }) => ({
+// Styled drawer to indicate side drawer
+const SideDrawer = styled(Drawer)(({ theme }) => ({
     '& .MuiDrawer-paper': {
         backgroundColor: theme.palette.custom.black,
         color: theme.palette.custom.white,
     },
 }));
 
+// Styled container for the drawer
 const DrawerBox = styled(Box)(({ theme }) => ({
     width: '50vw',
 
@@ -77,7 +82,8 @@ const DrawerBox = styled(Box)(({ theme }) => ({
 
 }));
 
-const Footer = styled(Box)({
+// Styled container for footer in drawer
+const FooterBox = styled(Box)({
     position: 'absolute',
     bottom: 10,
     left: 10,
@@ -85,58 +91,54 @@ const Footer = styled(Box)({
 })
 
 function MainAppBar() {
-    const title = "{habits.}"
+    // State to toggle drawer
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
+    // Get settings states and relevant actions
     const state = useSettingsState();
-    const { handleChangeTaskDescVisibility, handleChangeTaskDateVisibility, handleDarkMode } = useSettingsActions();
+    const { handleChangeTaskDescVisibility, handleChangeTaskDateVisibility, handleDarkMode } = useSettings();
 
+    // Hard-coded string
     const IS_SHOW_DESC = 'isShowTaskDesc';
     const IS_SHOW_DATE = 'isShowTaskDate';
-    const DARK_MODE = 'darkMode';
+    const title = "{habits.}"
 
+    // Handler to open/close drawer
     const toggleDrawer = (newVal) => () => {
         setIsDrawerOpen(newVal);
     }
 
+    // Handler to show/hide task description
     const handleToggleTaskDesc = () => {
         handleChangeTaskDescVisibility(!state.isShowTaskDesc);
     }
 
+    // Handler to show/hide task date
     const handleToggleTaskDate = () => {
         handleChangeTaskDateVisibility(!state.isShowTaskDate);
     }
 
-    const MenuHeader = () => {
-        const menuTitle = '{h.}'
+    // Returns header component in the side drawer
+    const DrawerHeader = () => {
+        const title = '{h.}'
         return (
             <Box ml={1} mt={1}>
                 <Typography variant='h4' gutterBottom color='custom.violet' letterSpacing={1} >
-                    {menuTitle}
+                    {title}
                 </Typography>
             </Box>
         );
     }
 
-    const MenuFooter = () => {
-        const footerText = "© {habits.} developed by AdrianTern"
-        return (
-            <Footer>
-                <Typography variant='caption' gutterBottom color='custom.lightgrey'>
-                    {footerText}
-                </Typography>
-            </Footer>
-        );
-    }
-
-    const MenuList = () => {
+    // Returns body component in the side drawer
+    const DrawerBody = () => {
         return (
             <Box>
                 <List dense subheader={<ListSubheader sx={{ backgroundColor: 'inherit', color: 'custom.lightgrey' }}>Task visibility</ListSubheader>} >
                     <ListItemButton key={IS_SHOW_DESC} onClick={handleToggleTaskDesc} >
                         <ListItemIcon>
                             <VisibilityCheckBox
-                                key={IS_SHOW_DESC}
+                                aria-label='show/hide task description'
                                 checked={!state.isShowTaskDesc}
                                 onChange={handleToggleTaskDesc}
                                 icon={<VisibilityRoundedIcon />}
@@ -150,7 +152,7 @@ function MainAppBar() {
                     <ListItemButton key={IS_SHOW_DATE} onClick={handleToggleTaskDate}>
                         <ListItemIcon>
                             <VisibilityCheckBox
-                                key={IS_SHOW_DATE}
+                                aria-label='show/hide task date'
                                 checked={!state.isShowTaskDate}
                                 onChange={handleToggleTaskDate}
                                 icon={<VisibilityRoundedIcon />}
@@ -165,27 +167,36 @@ function MainAppBar() {
             </Box>
         );
     }
-    const DrawerList = (
+    
+    // Returns footer component in the side drawer
+    const DrawerFooter = () => {
+        const footerText = '© {habits.} developed by AdrianTern';
+        return (
+            <FooterBox>
+                <Typography variant='caption' gutterBottom color='custom.lightgrey'>
+                    {footerText}
+                </Typography>
+            </FooterBox>
+        );
+    }
+
+    // Components in the side drawer
+    const DrawerComps = (
         <DrawerBox role="presentation">
-            <MenuHeader />
-            <MenuList />
-            <MenuFooter />
+            <DrawerHeader />
+            <DrawerBody />
+            <DrawerFooter />
         </DrawerBox>
     )
 
     return (
         <>
-            <AppBar
-                position='fixed'
-                sx={{
-                    backgroundColor: 'custom.black'
-                }}
-            >
+            <AppBar position='fixed' sx={{ backgroundColor: 'custom.black' }}>
                 <Toolbar>
                     <MenuButton
                         size='medium'
                         edge='start'
-                        aria-label='menu'
+                        aria-label='app menu'
                         onClick={toggleDrawer(true)}
                     >
                         <MenuRoundedIcon />
@@ -194,9 +205,9 @@ function MainAppBar() {
                     <Typography variant='h6' sx={{ flexGrow: 1, letterSpacing: 1 }}>
                         {title}
                     </Typography>
-                    <ThemeCheckBox
+                    <ThemeModeCheckBox
+                        aria-label='toggle light/dark mode'
                         size='large'
-                        key={DARK_MODE}
                         checked={state.darkMode}
                         onChange={() => handleDarkMode(!state.darkMode)}
                         icon={<NightsStayRoundedIcon />}
@@ -204,9 +215,9 @@ function MainAppBar() {
                     />
                 </Toolbar>
             </AppBar>
-            <MainDrawer open={isDrawerOpen} onClose={toggleDrawer(false)} >
-                {DrawerList}
-            </MainDrawer>
+            <SideDrawer open={isDrawerOpen} onClose={toggleDrawer(false)} >
+                {DrawerComps}
+            </SideDrawer>
         </>
     )
 }

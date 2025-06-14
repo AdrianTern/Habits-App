@@ -5,13 +5,15 @@ import TaskForm from "./components/TaskForm";
 import { Typography, Box, Fab, Paper } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { styled } from '@mui/material/styles';
-import { useTaskActions } from './hooks/taskHooks';
+import { useTasks } from './hooks/taskHooks';
 
+// Styled container for main body
 const MainBox = styled(Box)({
   margin: '0 auto',
   padding: '1rem',
 })
 
+// Styled container for the header
 const HeaderBox = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
@@ -20,6 +22,7 @@ const HeaderBox = styled(Box)({
   marginTop: '15%',
 })
 
+// Styled container for task list
 const ListBox = styled(Paper)(({ theme }) => ({
   width: '90vw',
   height: '50vh',
@@ -37,9 +40,10 @@ const ListBox = styled(Paper)(({ theme }) => ({
 
 }));
 
+// Styled button to add new task
 const AddButton = styled(Fab)(({ theme }) => ({
   color: theme.palette.secondary.main,
-  backgroundColor: theme.palette.primary.main,
+  backgroundColor: theme.palette.custom.violet,
   position: 'fixed',
   bottom: '1rem',
   right: '1rem',
@@ -47,16 +51,23 @@ const AddButton = styled(Fab)(({ theme }) => ({
   '&:hover': {
     transform: 'scale(1.10)',
     color: theme.palette.secondary.main,
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.custom.violet,
   }
 }))
 
 function App() {
-  const { handleOpenTaskForm } = useTaskActions();
+  // Get relevant task actions
+  const { setCurrentTask, openTaskForm } = useTasks();
+
+  // Handler to open task form on click of AddButton
+  const handleAddButton = () => {
+    setCurrentTask(null);
+    openTaskForm(true);
+  }
 
   return (
     <>
-      <MainAppBar key="main-app-bar" />
+      <MainAppBar />
       <MainBox>
         <HeaderBox>
           <Typography variant='h3' align='center' gutterBottom >
@@ -69,7 +80,7 @@ function App() {
         </ListBox>
       </MainBox>
       <TaskForm />
-      <AddButton onClick={() => handleOpenTaskForm(true)}>
+      <AddButton aria-label='add new task' onClick={handleAddButton}>
         <AddIcon />
       </AddButton>
     </>

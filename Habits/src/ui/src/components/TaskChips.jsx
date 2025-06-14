@@ -4,10 +4,53 @@ import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
 import ErrorRoundedIcon from '@mui/icons-material/ErrorRounded';
 import AssignmentRoundedIcon from '@mui/icons-material/AssignmentRounded';
 import RepeatRoundedIcon from '@mui/icons-material/RepeatRounded';
-import { useState, useEffect } from 'react';
-import { useTaskActions, useTaskState } from '../hooks/taskHooks';
+import { useTasks, useTaskState } from '../hooks/taskHooks';
+import { styled } from '@mui/material/styles';
+
+// Styled chip for task chip
+const TaskChip = styled(Chip, {
+    shouldForwardProp: prop => prop !== '$isSelected'
+})(({ theme, $isSelected }) => ({
+    borderRadius: '20px',
+    backdropFilter: 'blur(8px)',
+    WebkitBackdropFilter: 'blur(8px)', // for Safari
+    border: '1px solid ',
+    borderColor: $isSelected ? theme.palette.custom.violet : theme.palette.custom.black,
+    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
+    transition: 'all 0.3s ease',
+    padding: 0.2,
+    color: $isSelected ? theme.palette.custom.black : theme.palette.custom.white,
+    backgroundColor: $isSelected ? theme.palette.custom.violet : theme.palette.custom.black,
+    '&:hover': {
+        color: theme.palette.custom.white,
+        backgroundColor: theme.palette.custom.violet,
+        transform: 'translateY(-2px)',
+        boxShadow: '0 6px 14px rgba(0, 0, 0, 0.4)',
+        borderColor: theme.palette.custom.violet,
+    }
+}))
+
+// Styled container to hold chips
+const ChipBox = styled(Box)(({ theme }) => ({
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: '1.5rem',
+    flexWrap: 'wrap',
+    maxWidth: '100vw',
+
+    [theme.breakpoints.up('sm')]: {
+        maxwidth: '70vw',
+    },
+
+    [theme.breakpoints.up('md')]: {
+        maxwidth: '50vw',
+    },
+
+}));
 
 function TaskChips() {
+    // Array of chips indicating task filter
     const taskGroups = [
         { key: 'all', label: "All", icon: <AssignmentRoundedIcon /> },
         { key: 'today', label: "Today", icon: <TodayRoundedIcon /> },
@@ -16,27 +59,20 @@ function TaskChips() {
         { key: 'routine', label: "Routines", icon: <RepeatRoundedIcon /> },
     ];
 
-    const [selectedGroupKey, setSelectedGroupKey] = useState(taskGroups[0].key)
-
+    // Get task state and relevant task actions
     const state = useTaskState();
-    const { handleChangeTaskChip } = useTaskActions();
+    const { taskCount, selectFilter} = useTasks();
 
+    // Handler on select of task chip, changes task filter
     const handleOnSelect = (key) => {
-        setSelectedGroupKey(key);
-        handleChangeTaskChip(key);
+        selectFilter(key);
     }
 
-    const taskBadgeCount = (key) => {
-        let count = 0;
+    // Function to return the number of tasks of the selected task, to be included in the task chip
+    const getTaskCount = (key) => {
         const maxCount = 99;
-
-        if (key === 'all') count = state.taskCount.allCount;
-        else if (key === 'today') count = state.taskCount.todayCount;
-        else if (key === 'upcoming') count = state.taskCount.upcomingCount;
-        else if (key === 'overdue') count = state.taskCount.overdueCount;
-        else if (key === 'routine') count = state.taskCount.routineCount;
-
-        count = Math.min(count, maxCount);
+        const countKey = `${key}Count`;
+        const count = Math.min(taskCount?.[countKey] ?? 0, maxCount);
 
         if (count === maxCount) return `${maxCount}+`;
         else if (count === 0) return '';
@@ -44,41 +80,19 @@ function TaskChips() {
         return count;
     }
 
-    useEffect(() => {
-        handleChangeTaskChip(selectedGroupKey);
-    }, [])
-
     return (
-        <Box
-            gap={1}
-            sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginBottom: '1.5rem',
-                flexWrap: 'wrap',
-                maxWidth: { xs: '100vw', sm: '70vw', md: '50vw' },
-            }}
-        >
+        <ChipBox gap={1} aria-label='chips to change task filter'>
             {taskGroups.map(taskGroup => (
-                <Chip
+                <TaskChip
                     key={taskGroup.key}
-                    label={`${taskGroup.label} ${taskBadgeCount(taskGroup.key)}`}
+                    label={`${taskGroup.label} ${getTaskCount(taskGroup.key)}`}
                     color='' // to force icon to use fallback color
                     icon={taskGroup.icon}
                     onClick={() => handleOnSelect(taskGroup.key)}
-                    sx={{
-                        padding: 0.2,
-                        color: selectedGroupKey === taskGroup.key ? 'custom.black' : 'custom.white',
-                        backgroundColor: selectedGroupKey === taskGroup.key ? 'custom.violet' : 'custom.black',
-                        '&:hover': {
-                            color: selectedGroupKey === taskGroup.key ? 'primary.main' : 'secondary.main',
-                            backgroundColor: 'custom.violet',
-                        }
-                    }}
+                    $isSelected={state.filter === taskGroup.key}
                 />
             ))}
-        </Box>
+        </ChipBox>
     )
 }
 
