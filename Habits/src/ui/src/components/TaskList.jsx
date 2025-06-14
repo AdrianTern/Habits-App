@@ -1,68 +1,83 @@
 import TaskItem from "./TaskItem";
-import { Box, List, Typography, Button } from '@mui/material';
+import { Box, List, Typography, Button, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
-import { motion } from 'framer-motion';
-import { useTaskActions, useTaskState } from "../hooks/taskHooks";
+import { useTasks } from "../hooks/taskHooks";
 
+// Styled container to align child in the middle
 const CenterBox = styled(Box)({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: '20%',
 })
 
+// Styled button to add new task from the list
+const AddButton = styled(Button)(({ theme }) => ({
+    borderRadius: '20px',
+    paddingLeft: '10px',
+    paddingRight: '10px',
+    backgroundColor: theme.palette.custom.violet,
+}));
+
 function TaskList() {
-    const state = useTaskState();
-    const { handleSetCurrentTask, handleOpenTaskForm } = useTaskActions();
-    const isEmpty = !state.tasks || state.tasks.length === 0;
+    // Get relevant task actions
+    const { tasks, tasksLoading, errorFetching, tasksErrorObj, setCurrentTask, openTaskForm } = useTasks();
 
-    const TaskItems = () => {
-        return (
-            state.tasks.map(task => (
-                <TaskItem
-                    key={task.id}
-                    task={task}
-                    onEdit={() => {
-                        handleSetCurrentTask(task);
-                        handleOpenTaskForm(true);
-                    }}
-                />
-            ))
-        )
+    // Handler to edit a task
+    const handleOnEdit = (task) => () => {
+        setCurrentTask(task)
+        openTaskForm(true)
     }
 
-    const EmptyTaskBox = () => {
-        return (
-            <CenterBox>
-                <Typography variant="h5" sx={{ color: 'custom.darkgrey' }} gutterBottom>
-                    No task found
-                </Typography>
-                <Button
-                    variant="contained"
-                    size="small"
-                    startIcon={<AddRoundedIcon />}
-                    onClick={() => handleOpenTaskForm(true)}
-                >
-                    Add new task
-                </Button>
-            </CenterBox>
-        )
+    // Function to render list of task items, or a fallback page when there is no task available
+    const renderTaskItems = () => {
+        const isEmpty = !tasks || tasks.length === 0;
+
+        if(tasksLoading){
+            return (
+                <CenterBox>
+                    <CircularProgress color="inherit" />
+                </CenterBox>
+            )
+        }
+
+        if (!isEmpty) {
+            return (
+                tasks.map(task => (
+                    <TaskItem key={task.id} task={task} onEdit={handleOnEdit(task)}/>
+                ))
+            )
+        } else {
+            return (
+                <CenterBox>
+                    <Typography variant="h5" sx={{ color: 'custom.darkgrey' }} gutterBottom>
+                        {errorFetching ? tasksErrorObj : 'No task found'}
+                    </Typography>
+                    {!errorFetching && <AddButton
+                        aria-label="add new task"
+                        variant="contained"
+                        size="small"
+                        startIcon={<AddRoundedIcon />}
+                        onClick={() => openTaskForm(true)}
+                    >
+                        Add new task
+                    </AddButton>}
+                </CenterBox>
+            )
+        }
     }
-    
+
     return (
         <>
             <List
-                component={motion.ul}
-                layout
                 sx={{
                     maxHeight: { xs: '60vh', sm: '100vh' },
                     maxWidth: { xs: '90vw', sm: '100vw' },
                     overflowY: { xs: 'auto', sm: 'hidden' },
                     overflowX: { xs: 'auto', sm: 'hidden' },
                 }}>
-                {isEmpty ? <EmptyTaskBox /> : <TaskItems />}
+                {renderTaskItems()}
             </List>
         </>
     );

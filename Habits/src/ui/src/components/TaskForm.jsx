@@ -22,8 +22,9 @@ import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useForm, Controller } from 'react-hook-form';
 import { styled } from '@mui/material/styles';
-import { useTaskActions, useTaskState } from "../hooks/taskHooks";
+import { useTasks, useTaskState } from "../hooks/taskHooks";
 
+// Styled button to be used in the form
 const FormButton = styled(IconButton)({
     transition: 'all 0.3s ease',
     '&:hover': {
@@ -31,6 +32,7 @@ const FormButton = styled(IconButton)({
     }
 })
 
+// Styled checkbox to indicate routine task
 const RoutineCheckBox = styled(Checkbox)(({ theme }) => ({
     color: theme.palette.custom.grey,
     '&.Mui-checked': {
@@ -38,6 +40,7 @@ const RoutineCheckBox = styled(Checkbox)(({ theme }) => ({
     }
 }));
 
+// Styled checkbox to indicate a task should have a due date
 const DateCheckBox = styled(Checkbox)(({ theme }) => ({
     color: theme.palette.custom.grey,
     '&.Mui-checked': {
@@ -45,6 +48,7 @@ const DateCheckBox = styled(Checkbox)(({ theme }) => ({
     }
 }));
 
+// Styled container for routine/date checkbox
 const ButtonBox = styled(Box)(({ theme }) => ({
     border: '1px solid',
     borderColor: theme.palette.primary.main,
@@ -54,15 +58,16 @@ const ButtonBox = styled(Box)(({ theme }) => ({
 }));
 
 function TaskForm() {
-    const taskState = useTaskState();
-    const { handleSaveTask, handleDeleteTask, handleOpenTaskForm } = useTaskActions(); 
+    // Get state from task context and relevant task actions
+    const state = useTaskState();
+    const { saveTask, deleteTask, openTaskForm } = useTasks(); 
 
-    const task = taskState.currentTask;
-    const isOpen = taskState.openTaskForm;
+    const task = state.currentTask;
+    const isOpen = state.openTaskForm;
     const isCreate = task == null;
     const dialogTitle = (isCreate ? "Add a new task" : "Edit task");
 
-
+    // useForm hook to manage state of form inputs
     const { handleSubmit, control, watch, reset }
         = useForm({
             defaultValues: {
@@ -79,7 +84,8 @@ function TaskForm() {
     const isRoutineTask = watch('isRoutineTask');
     const titleRef = useRef(null);
     const descRef = useRef(null);
-
+    
+    // Re-initialize form input states on change of task 
     useEffect(() => {
         reset({
             id: task?.id || "",
@@ -90,18 +96,21 @@ function TaskForm() {
             hasDueDate: task?.dueDate ? true : false,
             isRoutineTask: task?.routineDetailsResponse?.isRoutineTask || false,
         })
-    }, [isCreate, task, isOpen]);
+    }, [task]);
 
+    // Focus on title input when form is opened
     useEffect(() => {
         if (isOpen && titleRef.current) {
             titleRef.current.focus();
         }
     }, [isOpen])
 
+    // Handler for closing form
     const handleClose = () => {
-        handleOpenTaskForm(false);
+        openTaskForm(false);
     }
 
+    // Handler to submit form data
     const handleOnSave = async (data) => {
         const dueDateString = hasDueDate ? data.dueDate.format('YYYY-MM-DD') : '';
         const newTask = {
@@ -115,17 +124,19 @@ function TaskForm() {
             }
         }
         // Add/Update task
-        handleSaveTask(isCreate, newTask);
+        saveTask(isCreate, newTask);
 
-        // Close dialog
+        // Close form
         handleClose();
     }
 
+    // Handler to delete task
     const handleOnDelete = () => {
-        handleDeleteTask(task.id);
+        deleteTask(task.id);
         handleClose();
     }
 
+    // Function to render text input field
     const renderTextField = (name, label, inputRef, required) => (
         <Controller
             name={name}
@@ -137,6 +148,7 @@ function TaskForm() {
                     id={name}
                     name={name}
                     label={label}
+                    aria-label={label}
                     variant='outlined'
                     value={field.value}
                     onChange={field.onChange}
@@ -145,6 +157,7 @@ function TaskForm() {
         />
     )
 
+    // Function to render RoutineCheckBox
     const renderRoutineCheckBox = () => (
         <Controller
             name="isRoutineTask"
@@ -155,6 +168,7 @@ function TaskForm() {
                         sx={{color: 'secondary.main'}}
                         control={
                             <RoutineCheckBox 
+                                aria-label='set task as routine'
                                 checked={field.value}
                                 onChange={field.onChange}
                                 icon={<RepeatRoundedIcon/>}
@@ -169,6 +183,7 @@ function TaskForm() {
         />
     )
 
+    // Function to render DateCheckBox
     const renderDateCheckBox = () => (
         <Controller 
             name='hasDueDate'
@@ -179,6 +194,7 @@ function TaskForm() {
                         sx={{color: 'secondary.main'}}
                         control={
                             <DateCheckBox 
+                                aria-label='set task with due date'
                                 checked={field.value}
                                 onChange={field.onChange}
                                 icon={<EventRoundedIcon />}
@@ -193,6 +209,7 @@ function TaskForm() {
         />
     )
 
+    // Function to render DatePicker to set due date
     const renderDatePicker = () => (
         <Controller
             name="dueDate"
@@ -242,7 +259,7 @@ function TaskForm() {
                     >
                         <Box display="flex" justifyContent="space-between">
                             <FormButton
-                                aria-label='delete-task'
+                                aria-label='delete task'
                                 sx={{ color: 'custom.darkred' }}
                                 onClick={handleOnDelete}
                             >
@@ -253,7 +270,7 @@ function TaskForm() {
                             </Typography>
                             <FormButton
                                 type='submit'
-                                aria-label='update-task'
+                                aria-label='save task'
                                 sx={{ color: 'primary.main' }}
                             >
                                 {isCreate ? <AddCircleRoundedIcon fontSize='large' /> : <CheckCircleRoundedIcon fontSize='large' />}
@@ -268,7 +285,7 @@ function TaskForm() {
                             {renderDateCheckBox()}
                         </Box>
                         {hasDueDate &&
-                            <Box display='flex' marginTop='1rem'>
+                            <Box display='flex' marginTop='1.3rem'>
                                 {renderDatePicker()}
                             </Box>
                         }

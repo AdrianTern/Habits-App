@@ -6,7 +6,7 @@ import com.adrian.Habits.dto.response.TaskResponse;
 import com.adrian.Habits.mapper.TaskMapper;
 import com.adrian.Habits.model.TaskEntity;
 import com.adrian.Habits.repository.TaskRepository;
-import com.adrian.specification.TaskSpecificationBuilder;
+import com.adrian.Habits.specification.TaskSpecificationBuilder;
 
 import org.springframework.stereotype.Service;
 

@@ -1,20 +1,26 @@
+// Functions for api calls
+
 const BASE_URL = '/api/tasks';
+const clientTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-// Get all tasks
+// Get tasks
 export const getTasks = async (filter = null) => {
-    const clientTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    let url = BASE_URL;
-
-    if(filter){
-        url = `${BASE_URL}?filter=${filter}&timezone=${clientTimeZone}`;
-    }
+    const url = `${BASE_URL}?filter=${filter}&timezone=${clientTimeZone}`;
     const response = await fetch(url);
 
-    if(!response.ok){
-        throw new Error('Failed to fetch tasks');
-    }
+    if(!response.ok) throw new Error('Failed to fetch tasks');
+    else if(response.status === 204) return [];  // Returns empty if no content
 
-    if(response.status === 204) return [];
+    return response.json();
+}
+
+// Get task count
+export const getTaskCount = async () => {
+    const url = `${BASE_URL}/taskCount?timeZone=${clientTimeZone}`;
+    const response = await fetch(url);
+
+    if(!response.ok) throw new Error('Failed to fetch task count');
+    else if(response.status === 204) return []; // Returns empty if no content
 
     return response.json();
 }
@@ -29,9 +35,7 @@ export const addTask = async (task) => {
         body: JSON.stringify(task),
     });
 
-    if(!response.status === 201) {
-        throw new Error('Failed to add task');
-    }
+    if(!response.status === 201) throw new Error('Failed to add task');
 
     return response.json();
 }
@@ -46,9 +50,7 @@ export const updateTask = async (task) => {
         body: JSON.stringify(task),
     });
 
-    if(!response.ok){
-        throw new Error('Failed to update task');
-    }
+    if(!response.status === 201) throw new Error('Failed to update task');
 
     return response.json();
 }
@@ -65,9 +67,7 @@ export const toggleCompletion = async (task) => {
         }),
     });
 
-    if(!response.ok){
-        throw new Error('Failed to toggle task completion');
-    }
+    if(!response.ok) throw new Error('Failed to toggle task completion');
 
     return response.json();
 }
@@ -78,9 +78,7 @@ export const deleteTask = async (taskId) => {
         method: 'DELETE',  
     })
 
-    if(!response.status === 204){
-        throw new Error('Failed to delete task');
-    }
+    if(!response.status === 204) throw new Error('Failed to delete task');
 
     return taskId;
 }

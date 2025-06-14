@@ -1,3 +1,4 @@
+// Reducer to configure each settings state
 export function settingsReducer(state, action){
     switch(action.type){
         case 'SET_DESC_VISIBILITY':

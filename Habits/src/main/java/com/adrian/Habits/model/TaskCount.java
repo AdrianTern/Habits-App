@@ -1,4 +1,4 @@
-package com.adrian.Habits.dto;
+package com.adrian.Habits.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

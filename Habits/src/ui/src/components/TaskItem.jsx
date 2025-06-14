@@ -17,12 +17,17 @@ import { useState } from 'react';
 import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
 import { useSettingsState } from '../hooks/settingsHooks';
-import { useTaskActions } from '../hooks/taskHooks';
+import { useTasks } from '../hooks/taskHooks';
 
+// Styled checkbox to toggle the task completion
 const CompletionCheckbox = styled(Checkbox)(({ theme }) => ({
     color: theme.palette.primary.main,
+    '& .MuiSvgIcon-root': {
+        fontSize: { xs: '1rem', sm: '1.5rem' },
+    }
 }));
 
+// Styled list item for each task item
 const TaskListItemButton = styled(ListItemButton)({
     transition: 'all 0.5s ease',
     '&:hover': {
@@ -30,6 +35,7 @@ const TaskListItemButton = styled(ListItemButton)({
     },
 });
 
+// Styled text to display task description and task date
 const TaskInfoText = styled(Typography, {
     shouldForwardProp: prop => prop !== '$isCompleted' && prop !== '$darkMode'
 })(({ theme, $darkMode, $isCompleted }) => ({
@@ -41,10 +47,25 @@ const TaskInfoText = styled(Typography, {
     textDecoration: $isCompleted ? 'line-through' : 'none',
 }));
 
-function TaskItem({ task, onEdit }) {
-    const state = useSettingsState();
-    const { handleToggleTask } = useTaskActions();
+// Styled button to edit a task
+const EditButton = styled(IconButton, {
+    shouldForwardProp: prop => prop !== '$isCompleted'
+})(({ theme, $isCompleted }) => ({
+    color: theme.palette.primary.main,
+    visibility: $isCompleted ? 'hidden' : 'visible',
+    marginRight: '0.5rem',
+    transition: 'all 0.3s ease',
+    '&:hover': {
+        transform: 'scale(1.30)',
+    },
+}));
 
+function TaskItem({ task, onEdit }) {
+    // Get settings state and relevant task actions
+    const state = useSettingsState();
+    const { toggleTask } = useTasks();
+
+    // State to indicate task completion
     const [isCompleted, setIsCompleted] = useState(task.isCompleted);
 
     const isRoutine = task?.routineDetailsResponse?.isRoutineTask || false;
@@ -55,11 +76,13 @@ function TaskItem({ task, onEdit }) {
     const darkMode = state.darkMode;
     const isShowTaskInfo = isShowDesc || isShowDate;
 
+    // Handler to toggle task completion
     const handleToggle = () => {
         setIsCompleted(!isCompleted);
-        handleToggleTask(task);
+        toggleTask(task);
     };
 
+    // Returns task info block
     const TaskInfo = () => {
         return (
             <Box>
@@ -78,26 +101,20 @@ function TaskItem({ task, onEdit }) {
             layout
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.2 }}
             key={task.id}
-            className="task-item"
         >
             <Box display='flex'>
                 <TaskListItemButton onClick={handleToggle} dense>
                     <ListItemIcon>
                         <CompletionCheckbox
-                            className="task-iscomplete"
+                            aria-label='toggle task completion'
                             edge="start"
                             checked={isCompleted}
                             onClick={handleToggle}
                             icon={<RadioButtonUncheckedRoundedIcon />}
                             checkedIcon={<RadioButtonCheckedRoundedIcon />}
-                            disableRipple
-                            sx={{
-                                '& .MuiSvgIcon-root': {
-                                    fontSize: { xs: '1rem', sm: '1.5rem' },
-                                }
-                            }} />
+                            disableRipple />
                     </ListItemIcon>
                     <Box>
                         <ListItemText
@@ -111,10 +128,7 @@ function TaskItem({ task, onEdit }) {
                                     <Typography
                                         variant='h6'
                                         noWrap='false'
-                                        sx={{
-                                            fontSize: { xs: '0.9rem', sm: '1rem' },
-                                            mr: 1
-                                        }}
+                                        sx={{ fontSize: { xs: '0.9rem', sm: '1rem' }, mr: 1 }}
                                     >
                                         {task.title}
                                     </Typography >
@@ -126,22 +140,13 @@ function TaskItem({ task, onEdit }) {
                         {isShowTaskInfo && <TaskInfo />}
                     </Box>
                 </TaskListItemButton>
-                <IconButton
+                <EditButton
                     edge="end"
-                    aria-label="edit"
+                    aria-label="edit task"
                     size='medium'
-                    onClick={onEdit}
-                    sx={{
-                        color: 'primary.main',
-                        visibility: isCompleted ? 'hidden' : 'visible',
-                        marginRight: '0.5rem',
-                        transition: 'all 0.3s ease',
-                        '&:hover': {
-                            transform: 'scale(1.30)',
-                        },
-                    }}>
+                    onClick={onEdit}>
                     <MoreVertRoundedIcon fontSize='medium' />
-                </IconButton>
+                </EditButton>
             </Box>
         </motion.li>
     );

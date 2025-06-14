@@ -1,5 +1,7 @@
 import { createTheme, responsiveFontSizes } from '@mui/material/styles';
 
+// Theme file for styling
+
 const commonTheme = createTheme({
     typography:{
       fontFamily: 'Inter, sans-serif',
@@ -71,12 +73,12 @@ const commonTheme = createTheme({
         disabled: 'rgba(255, 255, 255, 0.5)',
       },
       background: {
-        default: '#121212',
-        paper: '#121212',
+        default: '#1e1e1e',
+        paper: '#1e1e1e',
       },
       custom: {
         ...commonTheme.palette.custom,
-        borderColor: '#121212',
+        borderColor: '#1e1e1e',
       }
     },
   }));
