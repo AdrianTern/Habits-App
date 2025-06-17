@@ -3,6 +3,7 @@ package com.adrian.Habits.service;
 import com.adrian.Habits.dto.request.CreateTaskRequest;
 import com.adrian.Habits.dto.request.UpdateTaskRequest;
 import com.adrian.Habits.dto.response.TaskResponse;
+import com.adrian.Habits.exception.TaskNotFoundException;
 import com.adrian.Habits.mapper.TaskMapper;
 import com.adrian.Habits.model.TaskEntity;
 import com.adrian.Habits.repository.TaskRepository;
@@ -97,9 +98,9 @@ public class TaskService {
     }
 
     // Update task
-    public TaskResponse updateTask(Long id,UpdateTaskRequest updateTaskRequest){
+    public TaskResponse updateTask(Long id, UpdateTaskRequest updateTaskRequest){
         TaskEntity task = taskRepository.findById(id)
-                                        .orElseThrow(() -> new RuntimeException("Task not found"));
+                                        .orElseThrow(() -> new TaskNotFoundException("Task not found"));
 
         TaskMapper.updateTaskEntity(task, updateTaskRequest);
         TaskEntity saved = taskRepository.save(task);
@@ -110,7 +111,7 @@ public class TaskService {
     // Toggle isComplete (patch)
     public TaskResponse toggleIsComplete(Long id){
         TaskEntity task = taskRepository.findById(id)
-                                        .orElseThrow(() -> new RuntimeException("Task not found"));
+                                        .orElseThrow(() -> new TaskNotFoundException("Task not found"));
         task.setIsCompleted(!task.getIsCompleted());
         TaskEntity saved = taskRepository.save(task);
 
@@ -120,7 +121,7 @@ public class TaskService {
     // Delete task
     public void deleteTask(Long id){
         TaskEntity task = taskRepository.findById(id)
-                                        .orElseThrow(() -> new RuntimeException("Task not found"));
+                                        .orElseThrow(() -> new TaskNotFoundException("Task not found"));
 
         taskRepository.delete(task);
     }

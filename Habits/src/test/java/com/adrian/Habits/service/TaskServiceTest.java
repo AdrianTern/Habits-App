@@ -1,226 +1,205 @@
 package com.adrian.Habits.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.adrian.Habits.dto.request.CreateTaskRequest;
 import com.adrian.Habits.dto.request.UpdateTaskRequest;
 import com.adrian.Habits.dto.response.TaskResponse;
-import com.adrian.Habits.model.TaskEntity;
+import com.adrian.Habits.exception.TaskNotFoundException;
 import com.adrian.Habits.repository.TaskRepository;
+import com.adrian.Habits.utils.MockMethods;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-@ExtendWith(MockitoExtension.class)
+// Integration tests for TaskService
+@SpringBootTest
+@Transactional
 public class TaskServiceTest {
 
-    @Mock
-    private TaskRepository taskRepository;
-
-    @InjectMocks
+    @Autowired
     private TaskService taskService;
 
+    @Autowired
+    private TaskRepository taskRepository;
+
+    private final Long taskId = 1L;
+    private final String title = "mock";
+    private final LocalDate today = LocalDate.of(2025, 5, 5);
+    private final LocalDate tomorrow = today.plusDays(1);
+    private final String exceptionMsg = "Task not found";
+
     @Test
-    public void getAllTasks_shouldReturnAllTasksFromRepo() {
-        TaskEntity task1 = TaskEntity.builder()
-                                     .title("One")
-                                     .build();
+    public void getAllTasks_shouldReturnAllTasks() {
+        MockMethods.mockAllTasks(taskRepository, today);
+        MockMethods.assertOnAllTasks(taskService.getAllTasks());
+    }
 
-        TaskEntity task2 = TaskEntity.builder()
-                                     .title("Two")
-                                     .build();
-
-        when(taskRepository.findAll()).thenReturn(Arrays.asList(task1, task2));
-
+    @Test
+    public void getAllTasks_whenNoTasksExists_shouldReturnEmpty() {
         List<TaskResponse> result = taskService.getAllTasks();
-
-        assertEquals(2, result.size());
-        assertEquals("One", result.get(0).getTitle());
-        assertEquals("Two", result.get(1).getTitle());
-    }
-
-    // @Test
-    // public void getTaskByDueDate_shouldReturnTaskByDueDate() {
-    //     LocalDate dueDate = LocalDate.of(2025, 5, 5);
-
-    //     TaskEntity task1 = TaskEntity.builder()
-    //                                  .dueDate(dueDate)
-    //                                  .build();
-
-    //     TaskEntity task2 = TaskEntity.builder()
-    //                                  .dueDate(dueDate)
-    //                                  .build();
-
-    //     when(taskRepository.findTodayTasks(dueDate)).thenReturn(Arrays.asList(task1, task2));
-
-    //     List<TaskResponse> result = taskService.getTodayTasks(dueDate);
-
-    //     assertEquals(2, result.size());
-    //     assertEquals(dueDate, LocalDate.parse(result.get(0).getDueDate()));
-    //     assertEquals(dueDate, LocalDate.parse(result.get(1).getDueDate()));
-
-    //     verify(taskRepository).findTodayTasks(dueDate);
-    // }
-
-    // @Test
-    // public void getUpcomingTasks_shouldReturnTaskAfterToday() {
-    //     LocalDate today = LocalDate.of(2025, 5, 5);
-    //     LocalDate tomorrow = LocalDate.of(2025, 5, 6);
-
-    //     TaskEntity task1 = TaskEntity.builder()
-    //                                 .dueDate(tomorrow)
-    //                                 .build();
-
-    //     TaskEntity task2 = TaskEntity.builder()
-    //                                 .dueDate(tomorrow)
-    //                                 .build();
-
-    //     when(taskRepository.findByDueDateAfterOrDueDateIsNull(today)).thenReturn(Arrays.asList(task1, task2));
-        
-    //     List<TaskResponse> result = taskService.getUpcomingTasks(today);
-
-    //     assertEquals(2, result.size());
-    //     assertEquals(tomorrow, LocalDate.parse(result.get(0).getDueDate()));
-    //     assertEquals(tomorrow, LocalDate.parse(result.get(1).getDueDate()));
-
-    //     verify(taskRepository).findByDueDateAfterOrDueDateIsNull(today);
-    // }
-
-    @Test
-    public void getAllTasks_shouldReturnPresentAndFutureTasksAndOverdueTasks(){
-        LocalDate yesterday = LocalDate.of(2024, 5, 4);
-        LocalDate today = LocalDate.of(2025, 5, 5);
-        LocalDate tomorrow = LocalDate.of(2025, 5, 6);
-
-        TaskEntity task1 = TaskEntity.builder()
-                                    .dueDate(yesterday)
-                                    .build();
-
-        TaskEntity task2 = TaskEntity.builder()
-                                    .dueDate(today)
-                                    .build();
-
-        TaskEntity task3 = TaskEntity.builder()
-                                    .dueDate(tomorrow)
-                                    .build();
-
-        when(taskRepository.findAll()).thenReturn(Arrays.asList(task1, task2, task3));
-
-        List<TaskResponse> result = taskService.getAllTasks();
-
-        assertEquals(3, result.size());
-        assertEquals(yesterday, LocalDate.parse(result.get(0).getDueDate()));
-        assertEquals(today, LocalDate.parse(result.get(1).getDueDate()));
-        assertEquals(tomorrow, LocalDate.parse(result.get(2).getDueDate()));
-
-        verify(taskRepository).findAll();
+        assertTrue(result.isEmpty());
     }
 
     @Test
-    public void createTask_shouldSaveAndReturnTask() {
-        CreateTaskRequest request = CreateTaskRequest.builder()
-                                                        .title("Test")
-                                                        .description("Test")
-                                                        .dueDate(LocalDate.now())
-                                                        .build();
+    public void getTodayTasks_shouldReturnTodayTasks() {
+         MockMethods.mockTodayTasks(taskRepository, today); 
+         MockMethods.assertOnTodayTasks(taskService.getTodayTasks(today), today);
+    }
 
-        TaskEntity task = TaskEntity.builder()
-                                        .title(request.getTitle())
-                                        .description(request.getDescription())
-                                        .dueDate(request.getDueDate())
-                                        .build();
+    @Test
+    public void getUpcomingTasks_shouldReturnUpcomingTasks() {
+        MockMethods.mockUpcomingTasks(taskRepository, today);
+        MockMethods.assertOnUpcomingTasks(taskService.getUpcomingTasks(today), today);
+    }
 
-        when(taskRepository.save(any(TaskEntity.class))).thenReturn(task);
+    @Test
+    public void getOverdueTasks_shouldReturnOverdueTasks() {
+        MockMethods.mockOverdueTasks(taskRepository, today);
+        MockMethods.assertOnOverdueTasks(taskService.getOverdueTasks(today), today);
+    }
 
-        TaskResponse result = taskService.createTask(request);
+    @Test
+    public void getRoutineTasks_shouldReturnRoutineTasks() {
+        MockMethods.mockRoutineTasks(taskRepository);
+        MockMethods.assertOnRoutineTasks(taskService.getRoutineTasks());
+    }
+
+    @Test
+    public void countAllTasks_shouldReturnNumberOfAllTasks() {
+        MockMethods.mockAllTasks(taskRepository, today);
+        long result = taskService.getAllTasksCount();
+        assertEquals(2, result);
+    }
+
+    @Test
+    public void countTodayTasks_shouldReturnNumberOfTodayTasks() {
+        MockMethods.mockTodayTasks(taskRepository, today);       
+        long result = taskService.getTodayTaskCount(today);
+        assertEquals(3, result);
+    }
+
+    @Test
+    public void countUpcomingTasks_shouldReturnNumberOfUpcomingTasks() {
+        MockMethods.mockUpcomingTasks(taskRepository, today);
+        long result = taskService.getUpcomingTasksCount(today);
+        assertEquals(2, result);
+    }
+
+    @Test
+    public void countOverdueTasks_shouldReturnNumberOfOverdueTasks() {
+        MockMethods.mockOverdueTasks(taskRepository, today);
+        long result = taskService.getOverdueTasksCount(today);
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void countRoutineTasks_shouldReturnNumberOfRoutineTasks() {
+        MockMethods.mockRoutineTasks(taskRepository);
+        long result = taskService.getRoutineTasksCount();
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void createTask_shouldCreateTaskSuccessfully() {
+        TaskResponse result = taskService.createTask(CreateTaskRequest.builder()
+                                                                    .title(title)
+                                                                    .dueDate(today)
+                                                                    .routineDetailsRequest(MockMethods.mockRoutineDetailsRequest(false))
+                                                                    .build());
+        assertNotNull(result);
+        assertEquals(title, result.getTitle());
+        assertEquals(today.toString(), result.getDueDate());
+        assertEquals(false, result.getRoutineDetailsResponse().getIsRoutineTask());
+    }
+
+    @Test
+    public void updateTask_shouldUpdateTaskSuccessfully() {
+        TaskResponse task = taskService.createTask(CreateTaskRequest.builder()
+                                                                    .dueDate(today)
+                                                                    .routineDetailsRequest(MockMethods.mockRoutineDetailsRequest(false))
+                                                                    .build());
+        TaskResponse result = taskService.updateTask(task.getId(), UpdateTaskRequest.builder().dueDate(tomorrow).build());
 
         assertNotNull(result);
-        assertEquals(task.getId(), result.getId());
-        assertEquals(task.getTitle(), result.getTitle());
-        assertEquals(task.getDescription(), result.getDescription());
-        assertEquals(task.getDueDate().toString(), result.getDueDate());
-        assertEquals(task.getIsCompleted(), result.getIsCompleted());
-
-        verify(taskRepository).save(any(TaskEntity.class));
-
+        assertEquals(tomorrow.toString(), result.getDueDate());
     }
 
     @Test
-    public void updateTask_shouldSaveAndUpdateTask() {
-        Long taskId = 1L;
-        TaskEntity existingTask = TaskEntity.builder()
-                                                .id(taskId)
-                                                .title("Test1")
-                                                .build();
+    public void updateTask_whenTaskIdIsInvalid_shouldThrowException() {
+        TaskNotFoundException exception = assertThrows(TaskNotFoundException.class, () -> {
+            taskService.updateTask(taskId, UpdateTaskRequest.builder().dueDate(tomorrow).build());
+        });
 
-        UpdateTaskRequest request = UpdateTaskRequest.builder()
-                                                        .title("Test2")
-                                                        .build();
+        assertEquals(exceptionMsg, exception.getMessage());
+    }
 
-        when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTask));
-        when(taskRepository.save(any(TaskEntity.class))).thenReturn(existingTask);
-
-        TaskResponse result = taskService.updateTask(taskId, request);
+    @Test
+    public void toggleTask_shouldToggleIsCompleted() {
+        TaskResponse task = taskService.createTask(CreateTaskRequest.builder()
+                                                                    .dueDate(today)
+                                                                    .routineDetailsRequest(MockMethods.mockRoutineDetailsRequest(false))
+                                                                    .build());
+        TaskResponse result = taskService.toggleIsComplete(task.getId());
 
         assertNotNull(result);
-        assertEquals("Test2", result.getTitle());
-
-        verify(taskRepository).findById(taskId);
-        verify(taskRepository).save(any(TaskEntity.class));
+        assertEquals(!task.getIsCompleted(), result.getIsCompleted());
     }
 
     @Test
-    public void toggleIsComplete_shouldSaveAndUpdateTask() {
-        Long taskId = 1L;
-        TaskEntity task = TaskEntity.builder()
-                                        .id(taskId)
-                                        .title("Test")
-                                        .isCompleted(false)
-                                        .build();
+    public void toggleTask_whenTaskIdIsInvalid_shouldThrowException() {
+        TaskNotFoundException exception = assertThrows(TaskNotFoundException.class, () -> {
+            taskService.toggleIsComplete(taskId);
+        });
 
-        when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
-        when(taskRepository.save(any(TaskEntity.class))).thenReturn(task);
-
-        TaskResponse result = taskService.toggleIsComplete(taskId);
-
-        assertNotNull(result);
-        assertEquals(true, result.getIsCompleted());
-
-        verify(taskRepository).findById(taskId);
-        verify(taskRepository).save(any(TaskEntity.class));
+        assertEquals(exceptionMsg, exception.getMessage());
     }
 
     @Test
-    public void deleteTaskById_shouldDeleteTask() {
-        Long taskId = 1L;
-        TaskEntity task = TaskEntity.builder()
-                                        .id(taskId)
-                                        .title("Test")
-                                        .build();
+    public void deleteTask_shouldDeleteTaskSuccessfully() {
+        TaskResponse task = taskService.createTask(CreateTaskRequest.builder()
+                                                                    .dueDate(today)
+                                                                    .routineDetailsRequest(MockMethods.mockRoutineDetailsRequest(false))
+                                                                    .build());
+        taskService.deleteTask(task.getId());
 
-        when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
+        long result = taskService.getAllTasksCount();
 
-        taskService.deleteTask(taskId);
-
-        verify(taskRepository).findById(taskId);
-        verify(taskRepository).delete(task);
+        assertEquals(0, result);
     }
 
     @Test
-    public void deleteAllTask_shouldDeleteAll() {
+    public void deleteTask_whenTaskIdIsInvalid_shouldThrowException() {
+        TaskNotFoundException exception = assertThrows(TaskNotFoundException.class, () -> {
+            taskService.deleteTask(taskId);
+        });
+
+        assertEquals(exceptionMsg, exception.getMessage());
+    }
+
+    @Test
+    public void deleteAllTask_shouldDeleteAllTaskSuccessfully() {
+        taskService.createTask(CreateTaskRequest.builder()
+                                                .dueDate(today)
+                                                .routineDetailsRequest(MockMethods.mockRoutineDetailsRequest(false))
+                                                .build());
+        taskService.createTask(CreateTaskRequest.builder()
+                                                .dueDate(today)
+                                                .routineDetailsRequest(MockMethods.mockRoutineDetailsRequest(false))
+                                                .build());
+
         taskService.deleteAllTask();
 
-        verify(taskRepository).deleteAll();
+        long result = taskService.getAllTasksCount();
+
+        assertEquals(0, result);
     }
 }

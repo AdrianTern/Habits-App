@@ -15,31 +15,58 @@ import com.adrian.Habits.model.TaskEntity;
 import com.adrian.Habits.repository.AppConfigRepository;
 import com.adrian.Habits.repository.TaskRepository;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
+
 // Service class to handle scheduled daemons and onStartUp
 // 1. Clean up completed tasks
 // 2. Reset completed routine tasks and delete expired routines
 @Service
-public class AppConfigService{
+public class AppConfigService {
     private final AppConfigRepository appConfigRepository;
     private final TaskRepository taskRepository;
 
     private final String cleanUpConfigKey = "cleanup_config";
     private final String resetRoutineConfigKey = "resetRoutine_config";
-    
+
     private final LocalDateTime currenDateTime = LocalDateTime.now();
     private final LocalDate currentDate = currenDateTime.toLocalDate();
     private final String currenDateTimeString = currenDateTime.toString();
 
-    public AppConfigService(AppConfigRepository appConfigRepository, TaskRepository taskRepository){
+    public AppConfigService(AppConfigRepository appConfigRepository, TaskRepository taskRepository) {
         this.appConfigRepository = appConfigRepository;
         this.taskRepository = taskRepository;
+    }
+
+    // Find/Create cleanUpConfig
+    public AppConfig getCleanUpConfig() {
+        // Get the app config row
+        AppConfig cleanUpConfig = appConfigRepository.findById(cleanUpConfigKey).orElse(null);
+
+        // Create a new row if the row does not exists and save to repo
+        if (cleanUpConfig == null) {
+            cleanUpConfig = AppConfig.builder().configKey(cleanUpConfigKey).build();
+            appConfigRepository.save(cleanUpConfig);
+        }
+        return cleanUpConfig;
+    }
+
+    // Find/Create resetRoutineConfig
+    public AppConfig getResetRoutineConfig() {
+        // Get the app config row
+        AppConfig resetRoutineConfig = appConfigRepository.findById(resetRoutineConfigKey).orElse(null);
+
+        // Create a new row if the row does not exists and save to repo
+        if (resetRoutineConfig == null) {
+            resetRoutineConfig = AppConfig.builder().configKey(resetRoutineConfigKey).build();
+            appConfigRepository.save(resetRoutineConfig);
+        }
+        return resetRoutineConfig;
     }
 
     // Scheduled method that runs daily every midnight 12AM
     @Scheduled(cron = "0 0 0 * * ?")
     @Transactional
-    public void dailyRun(){
+    public void dailyRun() {
         System.out.println("Executing scheduled daily run at: " + LocalDateTime.now().toString());
         runAppConfigActions(true);
     }
@@ -47,105 +74,102 @@ public class AppConfigService{
     // Method that runs on application start up
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
-    public void onApplicationStartUp(){
+    public void onApplicationStartUp() {
         System.out.println("Executing onApplicationStartUp: ");
         runAppConfigActions(false);
     }
 
     // Method that runs all config actions
     @Transactional
-    public void runAppConfigActions(Boolean isScheduled){
+    public void runAppConfigActions(Boolean isScheduled) {
         // Reset routine tasks
-        try{
-            resetRoutineTasks(isScheduled);
-        }catch(Exception e){
+        try {
+            if (isScheduled) {
+                resetRoutineTasks(getResetRoutineConfig());
+            } else {
+                resetRoutineTasks_onApplicationStartup(getResetRoutineConfig());
+            }
+        } catch (Exception e) {
             System.err.println("Failed to reset routine tasks: " + e.getMessage());
         }
 
         // Clean up completed tasks
-        try{
-            cleanUpCompletedTasks(isScheduled);
-        }catch(Exception e){
-            System.err.println("Failed to clean up completed tasks: " +e.getMessage());
+        try {
+            if (isScheduled) {
+                cleanUpCompletedTasks(getCleanUpConfig());
+            } else {
+                cleanUpCompletedTasks_onApplicationStartup(getCleanUpConfig());
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to clean up completed tasks: " + e.getMessage());
         }
     }
 
     // Clean up completed tasks
     @Transactional
-    public void cleanUpCompletedTasks(Boolean isScheduled){
-        Boolean isRunRequired = isScheduled;
-        Boolean isNewConfig = false;
+    public void cleanUpCompletedTasks(AppConfig cleanUpConfig) {
+        // Delete all completed tasks
+        taskRepository.deleteByIsCompleted(true);
 
-        // Get the app config row
-        AppConfig cleanUpConfig = appConfigRepository.findById(cleanUpConfigKey).orElse(null);
+        // Save the new run time
+        cleanUpConfig.setConfigValue(currenDateTimeString);
 
-        // Create a new row if the row does not exists and save to repo
-        if (cleanUpConfig == null) {
-            cleanUpConfig = new AppConfig(cleanUpConfigKey, currenDateTimeString);
-            appConfigRepository.save(cleanUpConfig);
-            isRunRequired = true;
-            isNewConfig = true;
-        }
+        System.out.println("Task clean up executed at: " + currenDateTimeString);
+    }
 
-        // Check if run is needed on startup
-        if (!isScheduled && !isNewConfig) { 
-            // Run the cleanup if the difference between lastCleanup and current datetime >= 24
+    // Clean up completed tasks on application startup
+    @Transactional
+    public void cleanUpCompletedTasks_onApplicationStartup(AppConfig cleanUpConfig) {
+        if (cleanUpConfig != null) {
+             // Run the cleanup if the difference between lastCleanup and current datetime >= 24
             LocalDateTime lastExecutedTime = LocalDateTime.parse(cleanUpConfig.getConfigValue());
-            isRunRequired = Duration.between(lastExecutedTime, currenDateTime).compareTo(Duration.ofHours(24)) >= 0;
+            Boolean isRunRequired = Duration.between(lastExecutedTime, currenDateTime)
+                    .compareTo(Duration.ofHours(24)) >= 0;
+
+            if (isRunRequired) {
+                cleanUpCompletedTasks(cleanUpConfig);
+            } else
+                System.out
+                        .println("Task clean up is not required. Last executed at: " + cleanUpConfig.getConfigValue());
         }
-
-        if (isRunRequired ) {            
-            // Delete all completed tasks
-            taskRepository.deleteByIsCompleted(true);
-
-            // Save the new run time
-            if(!isNewConfig) cleanUpConfig.setConfigValue(currenDateTimeString);
-
-            System.out.println("Task clean up executed at: " + currenDateTimeString);
-        }
-        else System.out.println("Task clean up is not required. Last executed at: " + cleanUpConfig.getConfigValue());
     }
 
     // Reset completed routine tasks and delete expired routines
     @Transactional
-    public void resetRoutineTasks(Boolean isScheduled){
+    public void resetRoutineTasks(AppConfig resetRoutineConfig) {
+        // Get all routine tasks and check if the routine is still valid till today
+        // Delete the routine if it is expired, else reset isCompleted
+        List<TaskEntity> routineTasks = taskRepository.findByRoutineDetailsIsRoutineTaskTrue();
+        routineTasks.forEach(routine -> {
+            LocalDate endDate = routine.getDueDate();
+            if (endDate != null && endDate.isBefore(currentDate))
+                taskRepository.delete(routine);
+            else
+                routine.setIsCompleted(false);
+        });
 
-        Boolean isRunRequired = isScheduled;
-        Boolean isNewConfig = false;
-        
-        //Get the app config row
-        AppConfig resetRoutineConfig = appConfigRepository.findById(resetRoutineConfigKey).orElse(null);
- 
-        // Create a new row if the row does not exists and save to repo
-        if (resetRoutineConfig == null) {
-            resetRoutineConfig = new AppConfig(resetRoutineConfigKey, currenDateTimeString);
-            appConfigRepository.save(resetRoutineConfig);
-            isRunRequired = true;
-            isNewConfig = true;
-        }
+        // Save the new run time
+        resetRoutineConfig.setConfigValue(currenDateTimeString);
 
-        // Check if run is needed on startup
-        if (!isScheduled && !isNewConfig) {
-            // Run the cleanup if the difference between lastCleanup and current datetime >= 24
+        System.out.println("Routine tasks resetted at: " + currenDateTimeString);
+    }
+
+    // Reset completed routine tasks and delete expired routines on application
+    // startup
+    @Transactional
+    public void resetRoutineTasks_onApplicationStartup(AppConfig resetRoutineConfig) {
+        if (resetRoutineConfig != null) {
+             // Run the cleanup if the difference between lastCleanup and current datetime >= 24
             LocalDateTime lastExecutedTime = LocalDateTime.parse(resetRoutineConfig.getConfigValue());
-            isRunRequired = Duration.between(lastExecutedTime, currenDateTime).compareTo(Duration.ofHours(24)) >= 0;
+            Boolean isRunRequired = Duration.between(lastExecutedTime, currenDateTime)
+                    .compareTo(Duration.ofHours(24)) >= 0;
+
+            if (isRunRequired) {
+                resetRoutineTasks(resetRoutineConfig);
+            } else
+                System.out.println(
+                        "Routine tasks reset is not required. Last executed at: "
+                                + resetRoutineConfig.getConfigValue());
         }
-
-        if (isRunRequired) {
-            // Get all routine tasks and check if the routine is still valid till today
-            // Delete the routine if it is expired, else reset isCompleted
-            List<TaskEntity> routineTasks = taskRepository.findByRoutineDetailsIsRoutineTaskTrue();
-            routineTasks.forEach(routine -> {
-                LocalDate endDate = routine.getDueDate();
-                if (endDate != null && endDate.isBefore(currentDate)) taskRepository.delete(routine);
-                else routine.setIsCompleted(false);
-            });
-
-            // Save the new run time
-            if (!isNewConfig) resetRoutineConfig.setConfigValue(currenDateTimeString);
-
-            System.out.println("Routine tasks resetted at: " + currenDateTimeString);
-        }
-        else System.out.println("Routine tasks reset is not required. Last executed at: " + resetRoutineConfig.getConfigValue());
-     }
+    }
 }

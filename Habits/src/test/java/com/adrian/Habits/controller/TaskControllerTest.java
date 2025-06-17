@@ -3,135 +3,307 @@ package com.adrian.Habits.controller;
 import com.adrian.Habits.dto.request.CreateTaskRequest;
 import com.adrian.Habits.dto.request.UpdateTaskRequest;
 import com.adrian.Habits.dto.response.TaskResponse;
-import com.adrian.Habits.service.TaskService;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.adrian.Habits.model.TaskEntity;
+import com.adrian.Habits.repository.TaskRepository;
+import com.adrian.Habits.utils.MockMethods;
+import com.adrian.Habits.utils.MockTaskBuilder;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.List;
 
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(TaskController.class)
-@ExtendWith(MockitoExtension.class)
+// Integration tests for TaskController
+@SpringBootTest
+@AutoConfigureMockMvc
+@Transactional
 public class TaskControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean
-    private TaskService taskService;
+    @Autowired
+    private TaskRepository taskRepository;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private final String BASE_URL = "/api/tasks";
+    private final String TIMEZONE = "Asia/Kuala_Lumpur";
+    private final String title = "mock";
+
+    // Test configuration to provide fix date
+    @TestConfiguration
+    static class FixedClockConfig {
+        @Bean
+        public Clock fixedClock() {
+            return Clock.fixed(LocalDate.of(2025, 5, 5)
+                    .atStartOfDay(ZoneId.of("Asia/Kuala_Lumpur"))
+                    .toInstant(),
+                    ZoneId.of("Asia/Kuala_Lumpur"));
+        }
+    }
+
+    public LocalDate getToday() {
+        return LocalDate.now(ZoneId.of(TIMEZONE));
+    }
+
+    public String getFetchTaskURL(String filter) {
+        return BASE_URL + "?filter=" + filter + "&timezone=" + TIMEZONE;
+    }
+
+    // Convert JSON string into list of TaskResponse
+    public <T> T parseJson(String json, TypeReference<T> typeRef) {
+        try {
+            return objectMapper.readValue(json, typeRef);
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
+    }
 
     @Test
-    public void createTask() throws Exception{
+    public void getTasks_shouldReturnAllTask() throws Exception {
+        MockMethods.mockAllTasks(taskRepository, getToday());
+
+        MvcResult result = mockMvc.perform(get(getFetchTaskURL("all")))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+
+        List<TaskResponse> tasks = parseJson(content, new TypeReference<>() {});
+
+        MockMethods.assertOnAllTasks(tasks);
+    }
+
+    @Test
+    public void getTasks_shouldReturnTodayTask() throws Exception {
+       MockMethods.mockTodayTasks(taskRepository, getToday());
+
+        MvcResult result = mockMvc.perform(get(getFetchTaskURL("today")))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+
+        List<TaskResponse> tasks = parseJson(content, new TypeReference<>() {});
+
+        MockMethods.assertOnTodayTasks(tasks, getToday());
+    }
+
+    @Test
+    public void getTasks_shouldReturnUpcomingTask() throws Exception {
+        MockMethods.mockUpcomingTasks(taskRepository, getToday());
+
+        MvcResult result = mockMvc.perform(get(getFetchTaskURL("upcoming")))
+                                .andExpect(status().isOk())
+                                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+
+        List<TaskResponse> tasks = parseJson(content, new TypeReference<>() {});
+
+        MockMethods.assertOnUpcomingTasks(tasks, getToday());
+    }
+
+    @Test
+    public void getTasks_shouldReturnOverdueTask() throws Exception {
+        MockMethods.mockOverdueTasks(taskRepository, getToday());
+
+        MvcResult result = mockMvc.perform(get(getFetchTaskURL("overdue")))
+                                .andExpect(status().isOk())
+                                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+
+        List<TaskResponse> tasks = parseJson(content, new TypeReference<>() {});
+
+        MockMethods.assertOnOverdueTasks(tasks, getToday());
+    }
+
+    @Test
+    public void getTasks_shouldReturnRoutineTask() throws Exception {
+       MockMethods.mockRoutineTasks(taskRepository);
+
+        MvcResult result = mockMvc.perform(get(getFetchTaskURL("routine")))
+                                .andExpect(status().isOk())
+                                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+
+        List<TaskResponse> tasks = parseJson(content, new TypeReference<>() {});
+
+        MockMethods.assertOnRoutineTasks(tasks);
+    }
+
+    @Test
+    public void getTasks_whenFilterIsInvalid_shouldReturnAllTasks() throws Exception {
+       MockMethods.mockAllTasks(taskRepository, getToday());
+
+        // Set filter as blank
+        MvcResult result = mockMvc.perform(get(getFetchTaskURL("")))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+
+        List<TaskResponse> tasks = parseJson(content, new TypeReference<>() {});
+
+        MockMethods.assertOnAllTasks(tasks);
+    }
+
+    @Test
+    public void getTaskCount_shouldReturnCountForEachTaskFilter() throws Exception {
+        // Create task with due date = today (today)
+        taskRepository.save(new MockTaskBuilder().withDueDate(getToday()).build());
+        // Create task with future due date (upcoming)
+        taskRepository.save(new MockTaskBuilder().withDueDate(getToday().plusDays(1)).build());
+        // Create incomplete task with previous due date (overdue)
+        taskRepository.save(new MockTaskBuilder().withDueDate(getToday().minusDays(1)).build());
+        // Create routine task with no due date (routine) (today)
+        taskRepository.save(new MockTaskBuilder().withDueDate(null).withIsRoutineTask(true).build());
+        taskRepository.flush();
+
+        mockMvc.perform(get(BASE_URL + "/taskCount"))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.allCount").value(4))
+                        .andExpect(jsonPath("$.todayCount").value(2))
+                        .andExpect(jsonPath("$.upcomingCount").value(1))
+                        .andExpect(jsonPath("$.overdueCount").value(1))
+                        .andExpect(jsonPath("$.routineCount").value(1));
+    }
+
+    @Test
+    public void createTask_shouldCreateTaskSuccessfully() throws Exception {
+        // Create request to create task
         CreateTaskRequest request = CreateTaskRequest.builder()
-                .title("Test")
-                .description("Test")
-                .dueDate(LocalDate.of(2025,5,5))
-                .build();
+                                    .title(title)
+                                    .dueDate(getToday())
+                                    .routineDetailsRequest(MockMethods.mockRoutineDetailsRequest(false))
+                                    .build();
 
-        TaskResponse task = TaskResponse.builder()
-                                        .id(1L)
-                                        .title(request.getTitle())
-                                        .description(request.getDescription())
-                                        .dueDate(request.getDueDate().toString())
-                                        .build();
+        String json = objectMapper.writeValueAsString(request);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        String jsonRequest = objectMapper.writeValueAsString(request);
-
-        when(taskService.createTask(any(CreateTaskRequest.class))).thenReturn(task);
-
-        mockMvc.perform(post("/api/tasks")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonRequest))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.title").value("Test"))
-                .andExpect(jsonPath("$.description").value("Test"))
-                .andExpect(jsonPath("$.dueDate").value("2025-05-05"));
-
-        verify(taskService).createTask(any(CreateTaskRequest.class));
+        // Check task is created with the right title and due date
+        mockMvc.perform(post(BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.title").value(title))
+            .andExpect(jsonPath("$.dueDate").value(getToday().toString()));
     }
 
     @Test
-    public void updateTask() throws Exception{
-        TaskResponse task = TaskResponse.builder()
-                                        .id(1L)
-                                        .title("Test1")
-                                        .description("Test1")
-                                        .dueDate("2025-05-05")
-                                        .build();
+    public void updateTask_shouldUpdateTaskSuccessfully() throws Exception {
+        // Create task with due date = today
+        TaskEntity task = new MockTaskBuilder().withDueDate(getToday()).build();
+        taskRepository.save(task);
+        taskRepository.flush();
 
+        // Create request to update due date to tomorrow and set task as a routine task
         UpdateTaskRequest request = UpdateTaskRequest.builder()
-                                                        .title("Test2")
-                                                        .description("Test2")
-                                                        .dueDate(LocalDate.of(2025,5,6))
-                                                        .isCompleted(true)
-                                                        .build();
+                                    .title(title)
+                                    .dueDate(getToday().plusDays(1))
+                                    .routineDetailsRequest(MockMethods.mockRoutineDetailsRequest(true))
+                                    .build();
 
-        task.setTitle(request.getTitle());
-        task.setDescription(request.getDescription());
-        task.setDueDate(request.getDueDate().toString());
-        task.setIsCompleted(request.getIsCompleted());
+        String json = objectMapper.writeValueAsString(request);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        String jsonRequest = objectMapper.writeValueAsString(request);
-
-        when(taskService.updateTask(eq(1L), any(UpdateTaskRequest.class))).thenReturn(task);
-
-        mockMvc.perform(put("/api/tasks/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonRequest))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("Test2"))
-                .andExpect(jsonPath("$.description").value("Test2"))
-                .andExpect(jsonPath("$.dueDate").value("2025-05-06"));
-
-        verify(taskService).updateTask(eq(1L), any(UpdateTaskRequest.class));
+        // Check title remains the same
+        // And due date = tomorrow
+        // And isRoutineTask = true
+        mockMvc.perform(put(BASE_URL + "/" + task.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.title").value(title))
+            .andExpect(jsonPath("$.dueDate").value(getToday().plusDays(1).toString()))
+            .andExpect(jsonPath("$.routineDetailsResponse.isRoutineTask").value(true));
     }
 
     @Test
-    public void toggleTask() throws Exception{
-        TaskResponse task = TaskResponse.builder()
-                                        .id(1L)
-                                        .title("Test")
-                                        .isCompleted(false)
-                                        .build();
+    public void updateTask_whenTaskIsNull_shouldReturnBadRequest() throws Exception {
+        // Create request to update due date to tomorrow and set task as a routine task
+        UpdateTaskRequest request = UpdateTaskRequest.builder()
+                                    .title(title)
+                                    .dueDate(getToday().plusDays(1))
+                                    .routineDetailsRequest(MockMethods.mockRoutineDetailsRequest(true))
+                                    .build();
 
-        task.setIsCompleted(!task.getIsCompleted());
+        String json = objectMapper.writeValueAsString(request);
 
-        when(taskService.toggleIsComplete(1L)).thenReturn(task);
-
-        mockMvc.perform(patch("/api/tasks/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.isCompleted").value(true));
-
-        verify(taskService).toggleIsComplete(1L);
+        // Verify bad request is returned due to no task exists
+        mockMvc.perform(put(BASE_URL + "/" + 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+            .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void deleteTask() throws Exception{
-        Long taskId = 1L;
+    public void toggleTask_shouldToggleTaskSuccessfully() throws Exception {
+        // Create incomplete task
+        TaskEntity task = new MockTaskBuilder().withDueDate(getToday()).withIsCompleted(false).build();
+        taskRepository.save(task);
+        taskRepository.flush();
 
-        doNothing().when(taskService).deleteTask(taskId);
+        // Check isCompleted is set to true
+        mockMvc.perform(patch(BASE_URL + "/" + task.getId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.isCompleted").value(true));
+    }
 
-        mockMvc.perform(delete("/api/tasks/1"))
-                .andExpect(status().isNoContent());
+    @Test
+    public void toggleTask_whenTaskIsNull_shouldReturnBadRequest() throws Exception {
+        // Verify bad request is returned due to no task exists
+        mockMvc.perform(patch(BASE_URL + "/" + 1L))
+            .andExpect(status().isBadRequest());
+    }
 
-        verify(taskService).deleteTask(taskId);
+    @Test
+    public void deleteTask_shouldDeleteTaskSuccessfully() throws Exception {
+        // Create task
+        TaskEntity task = new MockTaskBuilder().withDueDate(getToday()).build();
+        taskRepository.save(task);
+        taskRepository.flush();
+
+        // Check task is deleted
+        mockMvc.perform(delete(BASE_URL + "/" + task.getId()))
+            .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void deleteTask_whenTaskIsNull_shouldReturnBadRequest() throws Exception {
+        // Verify bad request is returned due to no task exists
+        mockMvc.perform(delete(BASE_URL + "/" + 1L))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void deleteAllTasks_shouldDeleteAllTasksSuccessfully() throws Exception {
+        // Create tasks
+        taskRepository.save(new MockTaskBuilder().withDueDate(getToday()).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(getToday()).build());
+        taskRepository.flush();
+
+        // Check tasks are deleted
+        mockMvc.perform(delete(BASE_URL))
+            .andExpect(status().isNoContent());
     }
 }
