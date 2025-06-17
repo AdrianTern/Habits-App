@@ -3,6 +3,7 @@ package com.adrian.Habits.controller;
 import com.adrian.Habits.dto.request.CreateTaskRequest;
 import com.adrian.Habits.dto.request.UpdateTaskRequest;
 import com.adrian.Habits.dto.response.TaskResponse;
+import com.adrian.Habits.exception.TaskNotFoundException;
 import com.adrian.Habits.model.TaskCount;
 import com.adrian.Habits.service.TaskService;
 import jakarta.validation.Valid;
@@ -15,9 +16,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 // Controller class that handles the endpoints for CRUD actions
 @RestController
 @RequestMapping("/api/tasks")
@@ -29,6 +27,11 @@ public class TaskController {
         this.taskService = taskService;
     }
 
+    @ExceptionHandler(TaskNotFoundException.class)
+    public ResponseEntity<String> handleTaskNotFoundException(TaskNotFoundException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
     // Endpoint to get tasks according to selected filter from client
     @GetMapping
     public ResponseEntity<List<TaskResponse>> getTasks(@RequestParam String filter,
@@ -37,11 +40,16 @@ public class TaskController {
         LocalDate today = LocalDate.now(zoneid);
 
         if (filter != null) {
-            if("today".equalsIgnoreCase(filter)) return ResponseEntity.ok(taskService.getTodayTasks(today));
-            else if("upcoming".equalsIgnoreCase(filter)) return ResponseEntity.ok(taskService.getUpcomingTasks(today));
-            else if("overdue".equalsIgnoreCase(filter)) return ResponseEntity.ok(taskService.getOverdueTasks(today));
-            else if("all".equalsIgnoreCase(filter)) return ResponseEntity.ok(taskService.getAllTasks());
-            else if("routine".equalsIgnoreCase(filter)) return ResponseEntity.ok(taskService.getRoutineTasks());
+            if ("today".equalsIgnoreCase(filter))
+                return ResponseEntity.ok(taskService.getTodayTasks(today));
+            else if ("upcoming".equalsIgnoreCase(filter))
+                return ResponseEntity.ok(taskService.getUpcomingTasks(today));
+            else if ("overdue".equalsIgnoreCase(filter))
+                return ResponseEntity.ok(taskService.getOverdueTasks(today));
+            else if ("all".equalsIgnoreCase(filter))
+                return ResponseEntity.ok(taskService.getAllTasks());
+            else if ("routine".equalsIgnoreCase(filter))
+                return ResponseEntity.ok(taskService.getRoutineTasks());
         }
 
         return ResponseEntity.ok(taskService.getAllTasks());
@@ -69,7 +77,7 @@ public class TaskController {
     public ResponseEntity<TaskResponse> createTask(@Valid @RequestBody CreateTaskRequest request) {
         TaskResponse task = taskService.createTask(request);
 
-        return (task != null) ? new ResponseEntity<>(task, HttpStatus.CREATED) : ResponseEntity.badRequest().build();
+        return new ResponseEntity<>(task, HttpStatus.CREATED);
     }
 
     // Endpoint to update a task
@@ -77,7 +85,7 @@ public class TaskController {
     public ResponseEntity<TaskResponse> updateTask(@PathVariable Long id, @RequestBody UpdateTaskRequest request) {
         TaskResponse task = taskService.updateTask(id, request);
 
-        return (task != null) ? ResponseEntity.ok(task) : ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(task);
     }
 
     // Endpoint to toggle completion of a task
@@ -85,7 +93,7 @@ public class TaskController {
     public ResponseEntity<TaskResponse> toggleTask(@PathVariable Long id) {
         TaskResponse task = taskService.toggleIsComplete(id);
 
-        return (task != null) ? ResponseEntity.ok(task) : ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(task);
     }
 
     // Endpoint to delete a task
