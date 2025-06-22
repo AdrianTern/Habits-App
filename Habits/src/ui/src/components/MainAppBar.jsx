@@ -83,7 +83,7 @@ const DrawerBox = styled(Box)(({ theme }) => ({
 }));
 
 // Styled container for footer in drawer
-const FooterBox = styled(Box)({
+const FooterBox = styled(Box)({ 
     position: 'absolute',
     bottom: 10,
     left: 10,

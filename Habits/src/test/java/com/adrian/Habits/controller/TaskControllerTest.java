@@ -1,5 +1,6 @@
 package com.adrian.Habits.controller;
 
+import com.adrian.Habits.configuration.FixedClockConfig;
 import com.adrian.Habits.dto.request.CreateTaskRequest;
 import com.adrian.Habits.dto.request.UpdateTaskRequest;
 import com.adrian.Habits.dto.response.TaskResponse;
@@ -14,8 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -32,8 +31,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 // Integration tests for TaskController
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 @Transactional
+@Import(FixedClockConfig.class)
 public class TaskControllerTest {
 
     @Autowired
@@ -45,38 +45,26 @@ public class TaskControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private Clock clock;
+
     private final String BASE_URL = "/api/tasks";
     private final String TIMEZONE = "Asia/Kuala_Lumpur";
     private final String title = "mock";
 
-    // Test configuration to provide fix date
-    @TestConfiguration
-    static class FixedClockConfig {
-        @Bean
-        public Clock fixedClock() {
-            return Clock.fixed(LocalDate.of(2025, 5, 5)
-                    .atStartOfDay(ZoneId.of("Asia/Kuala_Lumpur"))
-                    .toInstant(),
-                    ZoneId.of("Asia/Kuala_Lumpur"));
-        }
-    }
-
     public LocalDate getToday() {
-        return LocalDate.now(ZoneId.of(TIMEZONE));
+        return LocalDate.now(clock);
     }
 
     public String getFetchTaskURL(String filter) {
-        return BASE_URL + "?filter=" + filter + "&timezone=" + TIMEZONE;
+        return BASE_URL + "?filter=" + filter + "&timeZone=" + TIMEZONE;
     }
 
-    // Convert JSON string into list of TaskResponse
-    public <T> T parseJson(String json, TypeReference<T> typeRef) {
-        try {
-            return objectMapper.readValue(json, typeRef);
-        } catch (Exception e) {
-            throw new RuntimeException();
-        }
+    public String getTaskCountURL() {
+        return BASE_URL + "/taskCount" + "?timeZone=" + TIMEZONE;
     }
+
+    
 
     @Test
     public void getTasks_shouldReturnAllTask() throws Exception {
@@ -88,14 +76,14 @@ public class TaskControllerTest {
 
         String content = result.getResponse().getContentAsString();
 
-        List<TaskResponse> tasks = parseJson(content, new TypeReference<>() {});
+        List<TaskResponse> tasks = MockMethods.parseJson(objectMapper, content, new TypeReference<>() {});
 
         MockMethods.assertOnAllTasks(tasks);
     }
 
     @Test
     public void getTasks_shouldReturnTodayTask() throws Exception {
-       MockMethods.mockTodayTasks(taskRepository, getToday());
+        MockMethods.mockTodayTasks(taskRepository, getToday());
 
         MvcResult result = mockMvc.perform(get(getFetchTaskURL("today")))
                 .andExpect(status().isOk())
@@ -103,7 +91,7 @@ public class TaskControllerTest {
 
         String content = result.getResponse().getContentAsString();
 
-        List<TaskResponse> tasks = parseJson(content, new TypeReference<>() {});
+        List<TaskResponse> tasks = MockMethods.parseJson(objectMapper, content, new TypeReference<>() {});
 
         MockMethods.assertOnTodayTasks(tasks, getToday());
     }
@@ -118,7 +106,7 @@ public class TaskControllerTest {
 
         String content = result.getResponse().getContentAsString();
 
-        List<TaskResponse> tasks = parseJson(content, new TypeReference<>() {});
+        List<TaskResponse> tasks = MockMethods.parseJson(objectMapper, content, new TypeReference<>() {});
 
         MockMethods.assertOnUpcomingTasks(tasks, getToday());
     }
@@ -133,7 +121,7 @@ public class TaskControllerTest {
 
         String content = result.getResponse().getContentAsString();
 
-        List<TaskResponse> tasks = parseJson(content, new TypeReference<>() {});
+        List<TaskResponse> tasks = MockMethods.parseJson(objectMapper, content, new TypeReference<>() {});
 
         MockMethods.assertOnOverdueTasks(tasks, getToday());
     }
@@ -148,7 +136,7 @@ public class TaskControllerTest {
 
         String content = result.getResponse().getContentAsString();
 
-        List<TaskResponse> tasks = parseJson(content, new TypeReference<>() {});
+        List<TaskResponse> tasks = MockMethods.parseJson(objectMapper, content, new TypeReference<>() {});
 
         MockMethods.assertOnRoutineTasks(tasks);
     }
@@ -164,7 +152,7 @@ public class TaskControllerTest {
 
         String content = result.getResponse().getContentAsString();
 
-        List<TaskResponse> tasks = parseJson(content, new TypeReference<>() {});
+        List<TaskResponse> tasks = MockMethods.parseJson(objectMapper, content, new TypeReference<>() {});
 
         MockMethods.assertOnAllTasks(tasks);
     }
@@ -181,7 +169,7 @@ public class TaskControllerTest {
         taskRepository.save(new MockTaskBuilder().withDueDate(null).withIsRoutineTask(true).build());
         taskRepository.flush();
 
-        mockMvc.perform(get(BASE_URL + "/taskCount"))
+        mockMvc.perform(get(getTaskCountURL()))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.allCount").value(4))
                         .andExpect(jsonPath("$.todayCount").value(2))

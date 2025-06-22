@@ -9,6 +9,9 @@ import java.util.List;
 import com.adrian.Habits.dto.request.RoutineDetailsRequest;
 import com.adrian.Habits.model.RoutineDetails;
 import com.adrian.Habits.repository.TaskRepository;
+import com.adrian.Habits.repository.UserRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.adrian.Habits.dto.response.TaskResponse;
 
 // Collection of methods used in test cases
@@ -30,20 +33,29 @@ public class MockMethods {
         taskRepository.flush();
     }
 
+    // Convert JSON string into type
+    public static <T> T parseJson(ObjectMapper objectMapper, String json, TypeReference<T> typeRef) {
+        try {
+            return objectMapper.readValue(json, typeRef);
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
+    }
+
     // Create today tasks
     public static void mockTodayTasks(TaskRepository taskRepository, LocalDate dueDate) {
          // Create task without due date (TRUE)
-         taskRepository.save(new MockTaskBuilder().withDueDate(null).build());
+         taskRepository.save(new MockTaskBuilder().withTitle("no due date").withDueDate(null).build());
          // Create task with due date = today (TRUE)
-         taskRepository.save(new MockTaskBuilder().withDueDate(dueDate).build());
+         taskRepository.save(new MockTaskBuilder().withTitle("due date is tdoay").withDueDate(dueDate).build());
          // Create routine task with future due date (TRUE)
-         taskRepository.save(new MockTaskBuilder().withDueDate(dueDate.plusDays(1)).withIsRoutineTask(true).build());
+         taskRepository.save(new MockTaskBuilder().withTitle("routine task with future due date").withDueDate(dueDate.plusDays(1)).withIsRoutineTask(true).build());
          // Create routine task with expired due date (FALSE)
-         taskRepository.save(new MockTaskBuilder().withDueDate(dueDate.minusDays(1)).withIsRoutineTask(true).build());
+         taskRepository.save(new MockTaskBuilder().withTitle("routine with expired").withDueDate(dueDate.minusDays(1)).withIsRoutineTask(true).build());
          // Create task with previous due date (FALSE)
-         taskRepository.save(new MockTaskBuilder().withDueDate(dueDate.minusDays(1)).build());
+         taskRepository.save(new MockTaskBuilder().withTitle("task with previous").withDueDate(dueDate.minusDays(1)).build());
          // Create future task (FALSE)
-         taskRepository.save(new MockTaskBuilder().withDueDate(dueDate.plusDays(1)).build());
+         taskRepository.save(new MockTaskBuilder().withTitle("task with future").withDueDate(dueDate.plusDays(1)).build());
          taskRepository.flush();
     }
 
