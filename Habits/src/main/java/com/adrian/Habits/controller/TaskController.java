@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
@@ -22,9 +24,11 @@ import java.util.List;
 public class TaskController {
 
     private final TaskService taskService;
+    private final Clock clock;
 
-    public TaskController(TaskService taskService) {
+    public TaskController(TaskService taskService, Clock clock) {
         this.taskService = taskService;
+        this.clock = clock;
     }
 
     @ExceptionHandler(TaskNotFoundException.class)
@@ -36,8 +40,8 @@ public class TaskController {
     @GetMapping
     public ResponseEntity<List<TaskResponse>> getTasks(@RequestParam String filter,
             @RequestParam(required = false, defaultValue = "Etc/UTC") String timeZone) {
-        ZoneId zoneid = ZoneId.of(timeZone);
-        LocalDate today = LocalDate.now(zoneid);
+        ZoneId zoneId = ZoneId.of(timeZone);
+        LocalDate today = Instant.now(clock).atZone(zoneId).toLocalDate();
 
         if (filter != null) {
             if ("today".equalsIgnoreCase(filter))
@@ -59,8 +63,8 @@ public class TaskController {
     @GetMapping("/taskCount")
     public ResponseEntity<TaskCount> getTaskCount(
             @RequestParam(required = false, defaultValue = "Etc/UTC") String timeZone) {
-        ZoneId zoneid = ZoneId.of(timeZone);
-        LocalDate today = LocalDate.now(zoneid);
+        ZoneId zoneId = ZoneId.of(timeZone);
+        LocalDate today = Instant.now(clock).atZone(zoneId).toLocalDate();
 
         TaskCount taskCount = TaskCount.builder()
                 .todayCount(taskService.getTodayTaskCount(today))
