@@ -31,11 +31,6 @@ public class TaskController {
         this.clock = clock;
     }
 
-    @ExceptionHandler(TaskNotFoundException.class)
-    public ResponseEntity<String> handleTaskNotFoundException(TaskNotFoundException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
-    }
-
     // Endpoint to get tasks according to selected filter from client
     @GetMapping
     public ResponseEntity<List<TaskResponse>> getTasks(@RequestParam String filter,

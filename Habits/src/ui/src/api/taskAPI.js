@@ -1,4 +1,4 @@
-// Functions for api calls
+// Functions for task api calls
 
 const BASE_URL = '/api/tasks';
 const clientTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;

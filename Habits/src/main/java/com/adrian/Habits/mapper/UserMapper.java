@@ -2,7 +2,8 @@ package com.adrian.Habits.mapper;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.adrian.Habits.dto.request.CreateUserRequest;
+import com.adrian.Habits.dto.request.RegisterUserRequest;
+import com.adrian.Habits.dto.response.LoginResponse;
 import com.adrian.Habits.dto.response.UserResponse;
 import com.adrian.Habits.model.UserEntity;
 
@@ -16,11 +17,18 @@ public class UserMapper {
                         .build();
     }
 
-    public static UserEntity toUserEntity(CreateUserRequest request, PasswordEncoder passwordEncoder) {
+    public static UserEntity toUserEntity(RegisterUserRequest request, PasswordEncoder passwordEncoder) {
         return UserEntity.builder()
                         .username(request.getUsername())
                         .password(passwordEncoder.encode(request.getPassword()))
                         .build();
+    }
+
+    public static LoginResponse toLoginResponse(UserEntity user) {
+        return LoginResponse.builder()
+                            .id(user.getId())
+                            .username(user.getUsername())
+                            .build();
     }
 
 }
