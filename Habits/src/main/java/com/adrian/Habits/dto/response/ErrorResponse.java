@@ -1,16 +1,13 @@
 package com.adrian.Habits.dto.response;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// Response class for User
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class UserResponse {
-    private Long id;
-    private String username;
+@NoArgsConstructor
+public class ErrorResponse {
+    private String message;
+    private int status;
 }

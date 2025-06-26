@@ -3,7 +3,6 @@ import {
     Typography,
     TextField,
     Stack,
-    IconButton,
     SwipeableDrawer,
     Paper,
     FormControlLabel,
@@ -23,25 +22,10 @@ import { motion } from 'framer-motion';
 import { useForm, Controller } from 'react-hook-form';
 import { styled } from '@mui/material/styles';
 import { useTasks, useTaskState } from "../hooks/taskHooks";
+import{ AnimateButton } from '../styles/StyledComponents';
 
-// Styled button to be used in the form
-const FormButton = styled(IconButton)({
-    transition: 'all 0.3s ease',
-    '&:hover': {
-        transform: 'scale(1.30)',
-    }
-})
-
-// Styled checkbox to indicate routine task
-const RoutineCheckBox = styled(Checkbox)(({ theme }) => ({
-    color: theme.palette.custom.grey,
-    '&.Mui-checked': {
-        color: theme.palette.custom.darkgreen,
-    }
-}));
-
-// Styled checkbox to indicate a task should have a due date
-const DateCheckBox = styled(Checkbox)(({ theme }) => ({
+// Styled checkbox to be used in form 
+const InputCheckBox = styled(Checkbox)(({ theme }) => ({
     color: theme.palette.custom.grey,
     '&.Mui-checked': {
         color: theme.palette.custom.darkgreen,
@@ -167,7 +151,7 @@ function TaskForm() {
                     <FormControlLabel
                         sx={{color: 'secondary.main'}}
                         control={
-                            <RoutineCheckBox 
+                            <InputCheckBox 
                                 aria-label='set task as routine'
                                 checked={field.value}
                                 onChange={field.onChange}
@@ -193,7 +177,7 @@ function TaskForm() {
                     <FormControlLabel 
                         sx={{color: 'secondary.main'}}
                         control={
-                            <DateCheckBox 
+                            <InputCheckBox 
                                 aria-label='set task with due date'
                                 checked={field.value}
                                 onChange={field.onChange}
@@ -258,23 +242,23 @@ function TaskForm() {
                         sx={{ padding: '2rem' }}
                     >
                         <Box display="flex" justifyContent="space-between">
-                            <FormButton
+                            <AnimateButton
                                 aria-label='delete task'
                                 sx={{ color: 'custom.darkred' }}
                                 onClick={handleOnDelete}
                             >
                                 {!isCreate && (<RemoveCircleRoundedIcon fontSize='large' />)}
-                            </FormButton>
+                            </AnimateButton>
                             <Typography variant='h6'>
                                 {dialogTitle}
                             </Typography>
-                            <FormButton
+                            <AnimateButton
                                 type='submit'
                                 aria-label='save task'
                                 sx={{ color: 'primary.main' }}
                             >
                                 {isCreate ? <AddCircleRoundedIcon fontSize='large' /> : <CheckCircleRoundedIcon fontSize='large' />}
-                            </FormButton>
+                            </AnimateButton>
                         </Box>
                         <Stack spacing={2} paddingTop='1rem'>
                             {renderTextField('title', 'Title', titleRef, true)}

@@ -11,16 +11,23 @@ import {
     ListItemButton,
     ListItemIcon,
     ListItemText,
+    Menu,
+    MenuItem,
 } from '@mui/material';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
 import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
 import NightsStayRoundedIcon from '@mui/icons-material/NightsStayRounded';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ArrowRight from '@mui/icons-material/ArrowRight';
+import ChangeCircleRoundedIcon from '@mui/icons-material/ChangeCircleRounded';
+import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import { styled } from '@mui/material/styles';
 import { useSettingsState, useSettings } from '../hooks/settingsHooks';
 import { useState } from 'react';
+import { useAuth, useAuthState } from '../hooks/authHooks';
+import { useNavigate } from "react-router-dom";
 
 // Styled checkbox for visibility settings menu
 const VisibilityCheckBox = styled(Checkbox)(({ theme }) => ({
@@ -94,14 +101,35 @@ function MainAppBar() {
     // State to toggle drawer
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
+    // State to open user menu
+    const [userMenuAnchorEl, setUserMenuAnchorEl] = useState(null);
+    const open = Boolean(userMenuAnchorEl);
+
     // Get settings states and relevant actions
     const state = useSettingsState();
     const { handleChangeTaskDescVisibility, handleChangeTaskDateVisibility, handleDarkMode } = useSettings();
+
+    // Get user state and auth actions
+    const user = useAuthState();
+    const { logoutUser } = useAuth();
+
+    // Navigate to other pages
+    const navigate = useNavigate();
 
     // Hard-coded string
     const IS_SHOW_DESC = 'isShowTaskDesc';
     const IS_SHOW_DATE = 'isShowTaskDate';
     const title = "{habits.}"
+
+    // Handler to open user menu
+    const handleOpenUserMenu = (event) => {
+        setUserMenuAnchorEl(event.currentTarget);
+    }
+
+    // Handler to close user menu
+    const handleCloseUserMenu = () => {
+        setUserMenuAnchorEl(null);
+    }
 
     // Handler to open/close drawer
     const toggleDrawer = (newVal) => () => {
@@ -116,6 +144,11 @@ function MainAppBar() {
     // Handler to show/hide task date
     const handleToggleTaskDate = () => {
         handleChangeTaskDateVisibility(!state.isShowTaskDate);
+    }
+
+    // Navigate to change password page
+    const handleChangePassword = () => {
+        navigate('/changePassword');
     }
 
     // Returns header component in the side drawer
@@ -189,6 +222,28 @@ function MainAppBar() {
         </DrawerBox>
     )
 
+    // User menu
+    const UserMenu = () => (
+        <Menu
+            anchorEl={userMenuAnchorEl}
+            open={open}
+            onClose={handleCloseUserMenu}
+            slotProps={{
+                paper: {
+                  sx: {
+                    backgroundColor: "custom.black",
+                    color: 'custom.white',
+                    borderRadius: '5px'
+                  },
+                },
+              }}
+        >   
+            <MenuItem disabled><AccountCircleIcon sx={{pr: '5px'}}/>{user?.username ?? "Guest"}</MenuItem>
+            <MenuItem onClick={handleChangePassword}><ChangeCircleRoundedIcon sx={{pr: '5px'}}/> Change password</MenuItem>
+            <MenuItem onClick={logoutUser}><LogoutRoundedIcon sx={{pr: '5px'}}/> Logout</MenuItem>
+        </Menu>
+    )
+
     return (
         <>
             <AppBar position='fixed' sx={{ backgroundColor: 'custom.black' }}>
@@ -207,17 +262,21 @@ function MainAppBar() {
                     </Typography>
                     <ThemeModeCheckBox
                         aria-label='toggle light/dark mode'
-                        size='large'
+                        size='medium'
                         checked={state.darkMode}
                         onChange={() => handleDarkMode(!state.darkMode)}
                         icon={<NightsStayRoundedIcon />}
                         checkedIcon={<LightModeRoundedIcon />}
                     />
+                    <IconButton size='medium' sx={{color: 'white'}} onClick={handleOpenUserMenu}>
+                        <AccountCircleIcon />
+                    </IconButton>
                 </Toolbar>
             </AppBar>
             <SideDrawer open={isDrawerOpen} onClose={toggleDrawer(false)} >
                 {DrawerComps}
             </SideDrawer>
+            <UserMenu />
         </>
     )
 }

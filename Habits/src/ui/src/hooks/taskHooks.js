@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { TaskViewContext } from "../context/TaskViewContext";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import * as api from '../api/api';
+import * as api from '../api/taskAPI';
 
 // Sort task by the following priority:
 // 1. isCompleted: Incomplete task always stay at the top, completed task always stay at the bottom

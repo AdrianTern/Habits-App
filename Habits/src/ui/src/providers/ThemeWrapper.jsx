@@ -2,7 +2,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { useSettingsState } from '../hooks/settingsHooks';
 import { AnimatePresence } from 'framer-motion';
-import { lightTheme, darkTheme } from '../utils/theme';
+import { lightTheme, darkTheme } from '../styles/theme';
 
 // A provider for themes related components
 export function ThemeWrapper({ children }) {
