@@ -1,4 +1,5 @@
-import { AppBar, Toolbar, Typography} from '@mui/material';
+import { AppBar, Toolbar } from '@mui/material';
+import HomeButton from './HomeButton';
 
 function SecondaryAppBar() {
     // Hard-coded string
@@ -8,9 +9,7 @@ function SecondaryAppBar() {
         <>
             <AppBar position='fixed' sx={{ backgroundColor: 'custom.black' }}>
                 <Toolbar>
-                    <Typography variant='h6' sx={{ flexGrow: 1, letterSpacing: 1 }}>
-                        {title}
-                    </Typography>
+                    <HomeButton />
                 </Toolbar>
             </AppBar>
         </>

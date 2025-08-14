@@ -20,8 +20,7 @@ const LoginForm = () => {
     const { loginUser } = useAuth();
 
     // State to indicate if the login failed
-    const { errorMsg } = useAuthState();
-    const hasError = errorMsg;
+    const { resError } = useAuthState();
 
     // useForm hook to manage state of form inputs
     const { handleSubmit, control }
@@ -45,7 +44,7 @@ const LoginForm = () => {
                 control={control}
                 defaultValue=''
                 render={({ field }) => (
-                    <InputField error={hasError} required label='Username' inputRef={usernameRef} {...field} />
+                    <InputField error={resError} required label='Username' inputRef={usernameRef} {...field} />
                 )}
             />
             <Controller
@@ -53,10 +52,10 @@ const LoginForm = () => {
                 control={control}
                 defaultValue=''
                 render={({ field }) => (
-                    <InputField error={hasError} required type='password' label='Password' {...field} />
+                    <InputField error={resError} required type='password' label='Password' {...field} />
                 )}
             />
-            <ErrorMsg hasError={hasError} errorMsg={errorMsg}/>
+            <ErrorMsg hasError={resError} errorMsg={resError}/>
             <PrimaryButton
                 type='submit'
                 aria-label='login'

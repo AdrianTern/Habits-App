@@ -7,16 +7,20 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.adrian.Habits.dto.request.ChangePasswordRequest;
-import com.adrian.Habits.dto.request.LoginRequest;
+import com.adrian.Habits.dto.request.AuthRequest;
 import com.adrian.Habits.dto.request.RegisterUserRequest;
+import com.adrian.Habits.dto.response.AuthResponse;
+import com.adrian.Habits.jwt.util.JwtUtil;
 import com.adrian.Habits.model.UserEntity;
 import com.adrian.Habits.repository.UserRepository;
 import com.adrian.Habits.utils.MockUserBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -37,6 +41,9 @@ public class AuthControllerTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     private final String BASE_URL = "/api/auth";
 
@@ -116,19 +123,25 @@ public class AuthControllerTest {
                                                         .withPassword(passwordEncoder.encode("admin123"))
                                                         .build());
 
-        LoginRequest request = LoginRequest.builder()
+        AuthRequest request = AuthRequest.builder()
                                         .username(user.getUsername())
                                         .password("admin123")
                                         .build();
-        
+
         String json = objectMapper.writeValueAsString(request);
 
-        mockMvc.perform(post(BASE_URL + "/login")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(json))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(user.getId()))
-            .andExpect(jsonPath("$.username").value(user.getUsername()));
+        MvcResult result = mockMvc.perform(post(BASE_URL + "/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.token").isString())
+                                .andReturn();
+
+        // Decode jwt to verify username
+        String responseContent = result.getResponse().getContentAsString();
+        AuthResponse authResponse = objectMapper.readValue(responseContent, AuthResponse.class);
+
+        assertEquals(user.getUsername(), jwtUtil.extractUsername(authResponse.getToken()));
     }
 
     @Test
@@ -137,7 +150,7 @@ public class AuthControllerTest {
                                     .withPassword(passwordEncoder.encode("admin123"))
                                     .build());
 
-        LoginRequest request = LoginRequest.builder()
+        AuthRequest request = AuthRequest.builder()
                                         .username("user")
                                         .password("admin123")
                                         .build();
@@ -147,7 +160,7 @@ public class AuthControllerTest {
         mockMvc.perform(post(BASE_URL + "/login")
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -156,7 +169,7 @@ public class AuthControllerTest {
                                     .withPassword(passwordEncoder.encode("admin123"))
                                     .build());
         
-        LoginRequest request = LoginRequest.builder()
+        AuthRequest request = AuthRequest.builder()
                                         .username("admin")
                                         .password("admin")
                                         .build();

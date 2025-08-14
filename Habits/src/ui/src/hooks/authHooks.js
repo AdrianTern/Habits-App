@@ -5,39 +5,45 @@ import * as api from '../api/authAPI';
 import { toast } from "react-toastify";
 
 export const useAuthState = () => {
-    const { user, errorMsg } = useContext(AuthContext);
-    return { user, errorMsg };
+    const { user, resError } = useContext(AuthContext);
+    return { user, resError };
 }
 
 export const useAuth = () => {
-    const { login, logout, setErrorMsg } = useContext(AuthContext);
+    const { login, logout, setResError } = useContext(AuthContext);
     const navigate = useNavigate();
     const location = useLocation();
 
     // Resets state if path changes
     useEffect(() => {
-        setErrorMsg('');
+        setResError('');
     }, [location.pathname]);
 
     const registerUser = async (formData) => {
-        const res = await api.registerUser(formData);
-        if (res.status === 201) {
-            navigate('/login');
-            toast.success("User registered. Please login now.");
-        } else {
-            const error = await res.json();
-            setErrorMsg(error.message);
+        try {
+            const res = await api.registerUser(formData);
+            if (res.status === 201) {
+                navigate('/login');
+                toast.success("User registered. Please login now.");
+            }
+        } catch (err) {
+            console.log(err);
+            setResError(err.message);
+            console.error("Failed to register user: " + err.message);
         }
     }
 
     const loginUser = async (formData) => {
-        const res = await api.loginUser(formData);
-        if (res.ok) {
-            const user = await res.json();
-            login(user);
-            navigate('/');
-        } else {
-            setErrorMsg('Invalid credentials');
+        try {
+            const res = await api.loginUser(formData);
+            if (res.ok) {
+                const user = await res.json();
+                login(user);
+                navigate('/');
+            }
+        } catch (err) {
+            setResError(err.message);
+            console.error("Failed to login user: " + err.message);
         }
     }
 
@@ -47,14 +53,16 @@ export const useAuth = () => {
     }
 
     const changePassword = async (id, passwordData) => {
-        const res = await api.changePassword(id, passwordData);
-        if (res.ok) {
-            logout();
-            navigate('/login');
-            toast.info('Password changes. Please login again');
-        } else {
-            const error = await res.json();
-            setErrorMsg(error.message);
+        try {
+            const res = await api.changePassword(id, passwordData);
+            if (res.ok) {
+                logout();
+                navigate('/login');
+                toast.info('Password changes. Please login again');
+            }
+        } catch (err) {
+            setResError(err.message);
+            console.error("Failed to change password: " + err.message);
         }
     }
 

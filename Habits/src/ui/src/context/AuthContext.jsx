@@ -9,10 +9,11 @@ export function AuthStateProvider({ children }) {
         return stored ? JSON.parse(stored) : null;
     });
     
-    const [errorMsg, setErrorMsg] = useState('');
+    // State to capture response error
+    const [resError, setResError] = useState('');
     
     const login = (userData) => {
-        setUser(userData)
+        setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
     };
 
@@ -21,7 +22,7 @@ export function AuthStateProvider({ children }) {
         localStorage.removeItem("user");
     };
     return (
-       <AuthContext.Provider value={{ user, errorMsg, setErrorMsg, login, logout }}>
+       <AuthContext.Provider value={{ user, resError, setResError, login, logout }}>
         {children}
        </AuthContext.Provider> 
     );

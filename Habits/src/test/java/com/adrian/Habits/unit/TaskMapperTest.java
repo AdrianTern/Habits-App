@@ -16,6 +16,7 @@ import com.adrian.Habits.dto.response.TaskResponse;
 import com.adrian.Habits.mapper.TaskMapper;
 import com.adrian.Habits.model.RoutineDetails;
 import com.adrian.Habits.model.TaskEntity;
+import com.adrian.Habits.model.UserEntity;
 
 // Unit tests for TaskMapper
 @SpringBootTest
@@ -23,6 +24,8 @@ public class TaskMapperTest {
     private final String title = "mock";
     private final String desc = "desc";
     private final LocalDate dueDate = LocalDate.of(2025, 5, 5);
+    private final String username = "admin";
+    private final String password = "admin123";
 
     @Test
     public void toRoutineDetails_shouldCreateRoutineDetailsFromRoutineDetailsRequest(){
@@ -64,13 +67,14 @@ public class TaskMapperTest {
 
     @Test
     public void toTaskEntity_shouldReturnTaskEntityFromCreateRequest(){
+        UserEntity user = UserEntity.builder().username(username).password(password).build();
         CreateTaskRequest request = CreateTaskRequest.builder()
                                                     .title(title)
                                                     .description(desc)
                                                     .dueDate(dueDate)
                                                     .routineDetailsRequest(new RoutineDetailsRequest(true))
                                                     .build();
-        TaskEntity result = TaskMapper.toTaskEntity(request);
+        TaskEntity result = TaskMapper.toTaskEntity(request, user);
 
         assertNotNull(result);
         assertEquals(request.getTitle(), result.getTitle());

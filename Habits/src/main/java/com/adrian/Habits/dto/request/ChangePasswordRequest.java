@@ -13,7 +13,7 @@ public class ChangePasswordRequest {
     private String oldPassword;
 
     @NotBlank
-    @Size(min = 8, message = "Password must be at least 8 characters")
+    @Size(min = 8, message = "Password must have at least 8 characters")
     private String newPassword;
     
 }

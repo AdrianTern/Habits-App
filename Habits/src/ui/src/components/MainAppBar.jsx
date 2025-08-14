@@ -28,6 +28,7 @@ import { useSettingsState, useSettings } from '../hooks/settingsHooks';
 import { useState } from 'react';
 import { useAuth, useAuthState } from '../hooks/authHooks';
 import { useNavigate } from "react-router-dom";
+import HomeButton from './HomeButton';
 
 // Styled checkbox for visibility settings menu
 const VisibilityCheckBox = styled(Checkbox)(({ theme }) => ({
@@ -90,7 +91,7 @@ const DrawerBox = styled(Box)(({ theme }) => ({
 }));
 
 // Styled container for footer in drawer
-const FooterBox = styled(Box)({ 
+const FooterBox = styled(Box)({
     position: 'absolute',
     bottom: 10,
     left: 10,
@@ -110,7 +111,7 @@ function MainAppBar() {
     const { handleChangeTaskDescVisibility, handleChangeTaskDateVisibility, handleDarkMode } = useSettings();
 
     // Get user state and auth actions
-    const user = useAuthState();
+    const { user } = useAuthState();
     const { logoutUser } = useAuth();
 
     // Navigate to other pages
@@ -200,7 +201,7 @@ function MainAppBar() {
             </Box>
         );
     }
-    
+
     // Returns footer component in the side drawer
     const DrawerFooter = () => {
         const footerText = '© {habits.} developed by AdrianTern';
@@ -230,47 +231,49 @@ function MainAppBar() {
             onClose={handleCloseUserMenu}
             slotProps={{
                 paper: {
-                  sx: {
-                    backgroundColor: "custom.black",
-                    color: 'custom.white',
-                    borderRadius: '5px'
-                  },
+                    sx: {
+                        backgroundColor: "custom.black",
+                        color: 'custom.white',
+                        borderRadius: '5px'
+                    },
                 },
-              }}
-        >   
-            <MenuItem disabled><AccountCircleIcon sx={{pr: '5px'}}/>{user?.username ?? "Guest"}</MenuItem>
-            <MenuItem onClick={handleChangePassword}><ChangeCircleRoundedIcon sx={{pr: '5px'}}/> Change password</MenuItem>
-            <MenuItem onClick={logoutUser}><LogoutRoundedIcon sx={{pr: '5px'}}/> Logout</MenuItem>
+            }}
+        >
+            <MenuItem disabled><AccountCircleIcon sx={{ pr: '5px' }} />{user?.username ?? "Guest"}</MenuItem>
+            <MenuItem onClick={handleChangePassword}><ChangeCircleRoundedIcon sx={{ pr: '5px' }} /> Change password</MenuItem>
+            <MenuItem onClick={logoutUser}><LogoutRoundedIcon sx={{ pr: '5px' }} /> Logout</MenuItem>
         </Menu>
     )
 
     return (
         <>
             <AppBar position='fixed' sx={{ backgroundColor: 'custom.black' }}>
-                <Toolbar>
-                    <MenuButton
-                        size='medium'
-                        edge='start'
-                        aria-label='app menu'
-                        onClick={toggleDrawer(true)}
-                    >
-                        <MenuRoundedIcon />
-                        <ArrowRight sx={{ position: 'absolute', right: 4, opacity: 0 }} />
-                    </MenuButton>
-                    <Typography variant='h6' sx={{ flexGrow: 1, letterSpacing: 1 }}>
-                        {title}
-                    </Typography>
-                    <ThemeModeCheckBox
-                        aria-label='toggle light/dark mode'
-                        size='medium'
-                        checked={state.darkMode}
-                        onChange={() => handleDarkMode(!state.darkMode)}
-                        icon={<NightsStayRoundedIcon />}
-                        checkedIcon={<LightModeRoundedIcon />}
-                    />
-                    <IconButton size='medium' sx={{color: 'white'}} onClick={handleOpenUserMenu}>
-                        <AccountCircleIcon />
-                    </IconButton>
+                <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <MenuButton
+                            size='medium'
+                            edge='start'
+                            aria-label='app menu'
+                            onClick={toggleDrawer(true)}
+                        >
+                            <MenuRoundedIcon />
+                            <ArrowRight sx={{ position: 'absolute', right: 4, opacity: 0 }} />
+                        </MenuButton>
+                        <HomeButton />
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <ThemeModeCheckBox
+                            aria-label='toggle light/dark mode'
+                            size='medium'
+                            checked={state.darkMode}
+                            onChange={() => handleDarkMode(!state.darkMode)}
+                            icon={<NightsStayRoundedIcon />}
+                            checkedIcon={<LightModeRoundedIcon />}
+                        />
+                        <IconButton size='medium' sx={{ color: 'white' }} onClick={handleOpenUserMenu}>
+                            <AccountCircleIcon />
+                        </IconButton>
+                    </Box>
                 </Toolbar>
             </AppBar>
             <SideDrawer open={isDrawerOpen} onClose={toggleDrawer(false)} >
