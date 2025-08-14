@@ -19,15 +19,17 @@ public class TaskSpecificationBuilder {
     // dueDate = null
     // OR dueDate = today
     // OR valid routine task
-    public TaskSpecificationBuilder withToday(LocalDate dueDate) {
+    public TaskSpecificationBuilder withToday(Long userId, LocalDate dueDate) {
         if (dueDate != null) {
-            spec = spec.and((root, query, cb) -> cb.or(
+            spec = spec.and((root, query, cb) -> cb.and(
+            cb.equal(root.get("user").get("id"), userId),
+            cb.or(
                     cb.isNull(root.get("dueDate")),
                     cb.equal(root.get("dueDate"), dueDate),
                     cb.and(
                             cb.isNotNull(root.get("routineDetails")),
                             cb.equal(root.get("routineDetails").get("isRoutineTask"), true),
-                            cb.greaterThanOrEqualTo(root.get("dueDate"), dueDate))));
+                            cb.greaterThanOrEqualTo(root.get("dueDate"), dueDate)))));
         }
         return this;
     }
@@ -35,9 +37,10 @@ public class TaskSpecificationBuilder {
     // Select tasks with the following criteria:
     // NOT routine task
     // AND (dueDate = null OR dueDate > today)
-    public TaskSpecificationBuilder withUpcoming(LocalDate dueDate) {
+    public TaskSpecificationBuilder withUpcoming(Long userId, LocalDate dueDate) {
         if (dueDate != null) {
             spec = spec.and((root, query, cb) -> cb.and(
+                cb.equal(root.get("user").get("id"), userId),
                 cb.or(
                     cb.isNull(root.get("routineDetails")),
                     cb.equal(root.get("routineDetails").get("isRoutineTask"), false)),

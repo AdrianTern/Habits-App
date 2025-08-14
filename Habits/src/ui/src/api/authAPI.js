@@ -11,6 +11,11 @@ export const registerUser = async (formData) => {
         body: JSON.stringify(formData),
     });
 
+    if(!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.message);
+    }
+
     return response;
 }
 
@@ -25,19 +30,33 @@ export const loginUser = async (formData) => {
         body: JSON.stringify(formData),
     });
 
+    if(!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.message || 'Invalid credentials');
+    }
+
     return response;
 }
 
 // Change password
 export const changePassword = async (id, passwordData) => {
+    const user = localStorage.getItem("user");
+    const jwt = JSON.parse(user);
     const url = `${BASE_URL}/changePassword/${id}`; 
+
     const response = await fetch(url, {
         method: 'PATCH',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${jwt.token}`,
         },
         body: JSON.stringify(passwordData),
     });
+
+    if(!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.message);
+    }
 
     return response;
 }

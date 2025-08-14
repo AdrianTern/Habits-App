@@ -3,11 +3,12 @@ package com.adrian.Habits.controller;
 import com.adrian.Habits.dto.request.CreateTaskRequest;
 import com.adrian.Habits.dto.request.UpdateTaskRequest;
 import com.adrian.Habits.dto.response.TaskResponse;
-import com.adrian.Habits.exception.TaskNotFoundException;
+import com.adrian.Habits.jwt.details.CustomUserDetails;
 import com.adrian.Habits.model.TaskCount;
 import com.adrian.Habits.service.TaskService;
 import jakarta.validation.Valid;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,55 +34,59 @@ public class TaskController {
 
     // Endpoint to get tasks according to selected filter from client
     @GetMapping
-    public ResponseEntity<List<TaskResponse>> getTasks(@RequestParam String filter,
+    public ResponseEntity<List<TaskResponse>> getTasks(@AuthenticationPrincipal CustomUserDetails user, @RequestParam String filter,
             @RequestParam(required = false, defaultValue = "Etc/UTC") String timeZone) {
-        ZoneId zoneId = ZoneId.of(timeZone);
-        LocalDate today = Instant.now(clock).atZone(zoneId).toLocalDate();
 
+        Long userId = user.getId();
+        
         if (filter != null) {
+            ZoneId zoneId = ZoneId.of(timeZone);
+            LocalDate today = Instant.now(clock).atZone(zoneId).toLocalDate();
+
             if ("today".equalsIgnoreCase(filter))
-                return ResponseEntity.ok(taskService.getTodayTasks(today));
+                return ResponseEntity.ok(taskService.getTodayTasksByUser(userId, today));
             else if ("upcoming".equalsIgnoreCase(filter))
-                return ResponseEntity.ok(taskService.getUpcomingTasks(today));
+                return ResponseEntity.ok(taskService.getUpcomingTasksByUser(userId, today));
             else if ("overdue".equalsIgnoreCase(filter))
-                return ResponseEntity.ok(taskService.getOverdueTasks(today));
+                return ResponseEntity.ok(taskService.getOverdueTasksByUser(userId, today));
             else if ("all".equalsIgnoreCase(filter))
-                return ResponseEntity.ok(taskService.getAllTasks());
+                return ResponseEntity.ok(taskService.getAllTasksByUser(userId));
             else if ("routine".equalsIgnoreCase(filter))
-                return ResponseEntity.ok(taskService.getRoutineTasks());
+                return ResponseEntity.ok(taskService.getRoutineTasksByUser(userId));
         }
 
-        return ResponseEntity.ok(taskService.getAllTasks());
+        return ResponseEntity.ok(taskService.getAllTasksByUser(userId));
     }
 
     // Endpoint to get number of tasks for each filter
     @GetMapping("/taskCount")
-    public ResponseEntity<TaskCount> getTaskCount(
+    public ResponseEntity<TaskCount> getTaskCount(@AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(required = false, defaultValue = "Etc/UTC") String timeZone) {
         ZoneId zoneId = ZoneId.of(timeZone);
         LocalDate today = Instant.now(clock).atZone(zoneId).toLocalDate();
+        Long userId = user.getId();
 
         TaskCount taskCount = TaskCount.builder()
-                .todayCount(taskService.getTodayTaskCount(today))
-                .upcomingCount(taskService.getUpcomingTasksCount(today))
-                .overdueCount(taskService.getOverdueTasksCount(today))
-                .allCount(taskService.getAllTasksCount())
-                .routineCount(taskService.getRoutineTasksCount())
+                .todayCount(taskService.getTodayTaskCountByUser(userId, today))
+                .upcomingCount(taskService.getUpcomingTasksCountByUser(userId, today))
+                .overdueCount(taskService.getOverdueTasksCountByUser(userId, today))
+                .allCount(taskService.getAllTasksCountByUser(userId))
+                .routineCount(taskService.getRoutineTasksCountByUser(userId))
                 .build();
         return ResponseEntity.ok(taskCount);
     }
 
     // Endpoint to create a new task
     @PostMapping
-    public ResponseEntity<TaskResponse> createTask(@Valid @RequestBody CreateTaskRequest request) {
-        TaskResponse task = taskService.createTask(request);
+    public ResponseEntity<TaskResponse> createTask(@Valid @RequestBody CreateTaskRequest request, @AuthenticationPrincipal CustomUserDetails user) {
+        TaskResponse task = taskService.createTask(request, user.getId());
 
         return new ResponseEntity<>(task, HttpStatus.CREATED);
     }
 
     // Endpoint to update a task
     @PutMapping("/{id}")
-    public ResponseEntity<TaskResponse> updateTask(@PathVariable Long id, @RequestBody UpdateTaskRequest request) {
+    public ResponseEntity<TaskResponse> updateTask(@PathVariable Long id, @RequestBody UpdateTaskRequest request, @AuthenticationPrincipal CustomUserDetails user) {
         TaskResponse task = taskService.updateTask(id, request);
 
         return ResponseEntity.ok(task);
@@ -89,7 +94,7 @@ public class TaskController {
 
     // Endpoint to toggle completion of a task
     @PatchMapping("/{id}")
-    public ResponseEntity<TaskResponse> toggleTask(@PathVariable Long id) {
+    public ResponseEntity<TaskResponse> toggleTask(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails user) {
         TaskResponse task = taskService.toggleIsComplete(id);
 
         return ResponseEntity.ok(task);
@@ -97,7 +102,7 @@ public class TaskController {
 
     // Endpoint to delete a task
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTask(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails user) {
         taskService.deleteTask(id);
 
         return ResponseEntity.noContent().build();

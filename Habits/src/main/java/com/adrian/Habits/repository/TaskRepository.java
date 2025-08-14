@@ -11,19 +11,28 @@ import java.util.List;
 @Repository
 public interface TaskRepository extends JpaRepository<TaskEntity, Long>, JpaSpecificationExecutor<TaskEntity> {
     
+    // Get all tasks
+    List<TaskEntity> findByUserId(Long userId);
+
     // Get overdue tasks
-    List<TaskEntity> findByDueDateBeforeAndIsCompletedFalse(LocalDate dueDate);
+    List<TaskEntity> findByUserIdAndDueDateBeforeAndIsCompletedFalse(Long userId, LocalDate dueDate);
 
     // Get Routines
+    List<TaskEntity> findByUserIdAndRoutineDetailsIsRoutineTaskTrue(Long userId);
+
+    // Get all routines
     List<TaskEntity> findByRoutineDetailsIsRoutineTaskTrue();
 
     // Delete completed tasks
     void deleteByIsCompleted(Boolean isCompleted); 
 
+    // Count all tasks
+    long countByUserId(Long userId);
+
     // Count overdue tasks
-    long countByDueDateBeforeAndIsCompletedFalse(LocalDate dueDate);
+    long countByUserIdAndDueDateBeforeAndIsCompletedFalse(Long userId, LocalDate dueDate);
 
     // Count routines
-    long countByRoutineDetailsIsRoutineTaskTrue();
+    long countByUserIdAndRoutineDetailsIsRoutineTaskTrue(Long userId);
 }
 

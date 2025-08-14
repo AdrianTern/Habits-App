@@ -5,8 +5,10 @@ import com.adrian.Habits.dto.request.RoutineDetailsRequest;
 import com.adrian.Habits.dto.request.UpdateTaskRequest;
 import com.adrian.Habits.dto.response.RoutineDetailsResponse;
 import com.adrian.Habits.dto.response.TaskResponse;
+import com.adrian.Habits.dto.response.UserResponse;
 import com.adrian.Habits.model.RoutineDetails;
 import com.adrian.Habits.model.TaskEntity;
+import com.adrian.Habits.model.UserEntity;
 // Mapper class to convert task response and task request to task entity, or the other way round
 public class TaskMapper {
 
@@ -21,6 +23,12 @@ public class TaskMapper {
         if (routineDetails != null) return new RoutineDetailsResponse(routineDetails.getIsRoutineTask());  
         return null;
     }
+
+    // Convert UserEntity to UserResponse
+    public static UserResponse toUserResponse(UserEntity user) {
+        if (user != null) return new UserResponse(user.getId(), user.getUsername());
+        return null;
+    }
     
     // Convert task entity from server to client as response
     public static TaskResponse toTaskResponse(TaskEntity task){
@@ -31,16 +39,18 @@ public class TaskMapper {
                            .dueDate((task.getDueDate() != null) ? task.getDueDate().toString(): null)
                            .isCompleted(task.getIsCompleted()) 
                            .routineDetailsResponse(toRoutineDetailsResponse(task.getRoutineDetails()))
+                           .userResponse(toUserResponse(task.getUser()))
                            .build();
     }
 
     // Convert task request from client to task entity
-    public static TaskEntity toTaskEntity(CreateTaskRequest request){
+    public static TaskEntity toTaskEntity(CreateTaskRequest request, UserEntity user){
         return TaskEntity.builder()
                          .title(request.getTitle())
                          .description(request.getDescription())
                          .dueDate(request.getDueDate())
                          .routineDetails(toRoutineDetails(request.getRoutineDetailsRequest()))
+                         .user(user)
                          .build();
     }
 

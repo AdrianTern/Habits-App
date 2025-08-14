@@ -1,12 +1,12 @@
 import { Typography } from '@mui/material';
 import ChangePasswordForm from '../components/ChangePasswordForm';
-import SecondaryAppBar from '../components/SecondaryAppBar';
 import{ MainBox, HeaderBox, SmallBodyBox } from '../styles/StyledComponents';
+import MainAppBar from '../components/MainAppBar';
 
 const ChangePasswordPage = () => {
   return (
     <>
-      <SecondaryAppBar />
+      <MainAppBar/>
       <MainBox>
         <HeaderBox>
           <Typography variant='h3' align='center' gutterBottom >

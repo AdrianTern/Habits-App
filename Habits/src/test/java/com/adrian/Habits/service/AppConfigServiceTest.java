@@ -15,7 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.adrian.Habits.dto.response.TaskResponse;
 import com.adrian.Habits.model.AppConfig;
+import com.adrian.Habits.model.UserEntity;
 import com.adrian.Habits.repository.TaskRepository;
+import com.adrian.Habits.repository.UserRepository;
+import com.adrian.Habits.utils.MockMethods;
 import com.adrian.Habits.utils.MockTaskBuilder;
 
 // Integration tests for AppConfigService
@@ -25,6 +28,9 @@ public class AppConfigServiceTest {
     
     @Autowired
     private TaskRepository taskRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private AppConfigService appConfigService;
@@ -38,6 +44,8 @@ public class AppConfigServiceTest {
     private final LocalDate prevDate = currentDate.minusDays(2);
     private final LocalDateTime currentDateTime = LocalDateTime.now();
     private final LocalDateTime prevDateTime = currentDateTime.minusDays(2);
+    private final String username = "admin";
+    private final String password = "admin123";
 
     @Test
     public void getCleanUpConfig_shouldReturnCleanUpConfig(){
@@ -57,10 +65,11 @@ public class AppConfigServiceTest {
 
     @Test
     public void runCleanUpConfig_shouldCleanUpCompletedTasks(){
+        UserEntity user = MockMethods.mockUser(userRepository, username, password);
         // Create a incompleted task
-        taskRepository.save(new MockTaskBuilder().build());
+        taskRepository.save(new MockTaskBuilder().withUser(user).build());
         // Create a completed task
-        taskRepository.save(new MockTaskBuilder().withIsCompleted(true).build());
+        taskRepository.save(new MockTaskBuilder().withIsCompleted(true).withUser(user).build());
         taskRepository.flush();
 
         // Run cleanUpCompletedTasks
@@ -79,10 +88,11 @@ public class AppConfigServiceTest {
 
     @Test
     public void cleanUpCompletedTasks_onApplicationStartUp_shouldNotRun() {
+        UserEntity user = MockMethods.mockUser(userRepository, username, password);
         // Create a incompleted task
-        taskRepository.save(new MockTaskBuilder().build());
+        taskRepository.save(new MockTaskBuilder().withUser(user).build());
         // Create a completed task
-        taskRepository.save(new MockTaskBuilder().withIsCompleted(true).build());
+        taskRepository.save(new MockTaskBuilder().withIsCompleted(true).withUser(user).build());
         taskRepository.flush();
 
         AppConfig cleanUpConfig = AppConfig.builder()
@@ -104,10 +114,11 @@ public class AppConfigServiceTest {
 
     @Test
     public void cleanUpCompletedTasks_onApplicationStartUp_shouldRun() {
+        UserEntity user = MockMethods.mockUser(userRepository, username, password);
         // Create a incompleted task
-        taskRepository.save(new MockTaskBuilder().build());
+        taskRepository.save(new MockTaskBuilder().withUser(user).build());
         // Create a completed task
-        taskRepository.save(new MockTaskBuilder().withIsCompleted(true).build());
+        taskRepository.save(new MockTaskBuilder().withIsCompleted(true).withUser(user).build());
         taskRepository.flush();
 
         AppConfig cleanUpConfig = appConfigService.getCleanUpConfig();
@@ -126,16 +137,17 @@ public class AppConfigServiceTest {
 
     @Test
     public void runresetRoutineConfig_shouldResetCompletedRoutinesAndDeleteExpiredRoutines(){
+        UserEntity user = MockMethods.mockUser(userRepository, username, password);
         // Create a completed normal task within due date
-        taskRepository.save(new MockTaskBuilder().withDueDate(currentDate).withIsCompleted(true).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(currentDate).withIsCompleted(true).withUser(user).build());
         // Create an overdue normal task
-        taskRepository.save(new MockTaskBuilder().withDueDate(prevDate).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(prevDate).withUser(user).build());
         // Create an incomplete routine task within due date
-        taskRepository.save(new MockTaskBuilder().withDueDate(currentDate).withIsRoutineTask(true).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(currentDate).withIsRoutineTask(true).withUser(user).build());
         // Create a completed routine task within due date
-        taskRepository.save(new MockTaskBuilder().withDueDate(currentDate).withIsCompleted(true).withIsRoutineTask(true).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(currentDate).withIsCompleted(true).withIsRoutineTask(true).withUser(user).build());
         // Create an expired routine task
-        taskRepository.save(new MockTaskBuilder().withDueDate(prevDate).withIsCompleted(true).withIsRoutineTask(true).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(prevDate).withIsCompleted(true).withIsRoutineTask(true).withUser(user).build());
         taskRepository.flush();
 
         // Run resetRoutineTasks
@@ -156,16 +168,17 @@ public class AppConfigServiceTest {
 
     @Test
     public void resetRoutineTasks_onApplicationStartUp_shouldNotRun(){
+        UserEntity user = MockMethods.mockUser(userRepository, username, password);
         // Create a completed normal task within due date
-        taskRepository.save(new MockTaskBuilder().withDueDate(currentDate).withIsCompleted(true).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(currentDate).withIsCompleted(true).withUser(user).build());
         // Create an overdue normal task
-        taskRepository.save(new MockTaskBuilder().withDueDate(prevDate).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(prevDate).withUser(user).build());
         // Create an incomplete routine task within due date
-        taskRepository.save(new MockTaskBuilder().withDueDate(currentDate).withIsRoutineTask(true).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(currentDate).withIsRoutineTask(true).withUser(user).build());
         // Create a completed routine task within due date
-        taskRepository.save(new MockTaskBuilder().withDueDate(currentDate).withIsCompleted(true).withIsRoutineTask(true).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(currentDate).withIsCompleted(true).withIsRoutineTask(true).withUser(user).build());
         // Create an expired routine task
-        taskRepository.save(new MockTaskBuilder().withDueDate(prevDate).withIsCompleted(true).withIsRoutineTask(true).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(prevDate).withIsCompleted(true).withIsRoutineTask(true).withUser(user).build());
         taskRepository.flush();
 
         // Run resetRoutineTasks
@@ -189,16 +202,17 @@ public class AppConfigServiceTest {
 
     @Test
     public void resetRoutineTasks_onApplicationStartUp_shouldRun(){
+        UserEntity user = MockMethods.mockUser(userRepository, username, password);
         // Create a completed normal task within due date
-        taskRepository.save(new MockTaskBuilder().withDueDate(currentDate).withIsCompleted(true).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(currentDate).withIsCompleted(true).withUser(user).build());
         // Create an overdue normal task
-        taskRepository.save(new MockTaskBuilder().withDueDate(prevDate).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(prevDate).withUser(user).build());
         // Create an incomplete routine task within due date
-        taskRepository.save(new MockTaskBuilder().withDueDate(currentDate).withIsRoutineTask(true).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(currentDate).withIsRoutineTask(true).withUser(user).build());
         // Create a completed routine task within due date
-        taskRepository.save(new MockTaskBuilder().withDueDate(currentDate).withIsCompleted(true).withIsRoutineTask(true).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(currentDate).withIsCompleted(true).withIsRoutineTask(true).withUser(user).build());
         // Create an expired routine task
-        taskRepository.save(new MockTaskBuilder().withDueDate(prevDate).withIsCompleted(true).withIsRoutineTask(true).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(prevDate).withIsCompleted(true).withIsRoutineTask(true).withUser(user).build());
         taskRepository.flush();
 
         // Run resetRoutineTasks

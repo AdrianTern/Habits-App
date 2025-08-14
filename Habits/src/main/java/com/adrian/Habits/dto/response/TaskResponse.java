@@ -16,4 +16,5 @@ public class TaskResponse {
     private String dueDate;
     private Boolean isCompleted;
     private RoutineDetailsResponse routineDetailsResponse;
+    private UserResponse userResponse;
 }

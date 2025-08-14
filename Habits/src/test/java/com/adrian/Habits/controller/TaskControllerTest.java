@@ -4,8 +4,11 @@ import com.adrian.Habits.configuration.FixedClockConfig;
 import com.adrian.Habits.dto.request.CreateTaskRequest;
 import com.adrian.Habits.dto.request.UpdateTaskRequest;
 import com.adrian.Habits.dto.response.TaskResponse;
+import com.adrian.Habits.jwt.util.JwtUtil;
 import com.adrian.Habits.model.TaskEntity;
+import com.adrian.Habits.model.UserEntity;
 import com.adrian.Habits.repository.TaskRepository;
+import com.adrian.Habits.repository.UserRepository;
 import com.adrian.Habits.utils.MockMethods;
 import com.adrian.Habits.utils.MockTaskBuilder;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -31,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 // Integration tests for TaskController
 @SpringBootTest
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc
 @Transactional
 @Import(FixedClockConfig.class)
 public class TaskControllerTest {
@@ -43,6 +46,12 @@ public class TaskControllerTest {
     private TaskRepository taskRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -51,6 +60,8 @@ public class TaskControllerTest {
     private final String BASE_URL = "/api/tasks";
     private final String TIMEZONE = "Asia/Kuala_Lumpur";
     private final String title = "mock";
+    private final String username = "admin";
+    private final String password = "admin123";
 
     public LocalDate getToday() {
         return LocalDate.now(clock);
@@ -64,13 +75,13 @@ public class TaskControllerTest {
         return BASE_URL + "/taskCount" + "?timeZone=" + TIMEZONE;
     }
 
-    
-
     @Test
     public void getTasks_shouldReturnAllTask() throws Exception {
-        MockMethods.mockAllTasks(taskRepository, getToday());
+        UserEntity user = MockMethods.mockUser(userRepository, username, password);
+        MockMethods.mockAllTasks(taskRepository, getToday(), user);
+        String jwt = MockMethods.getJWT(user, jwtUtil);
 
-        MvcResult result = mockMvc.perform(get(getFetchTaskURL("all")))
+        MvcResult result = mockMvc.perform(get(getFetchTaskURL("all")).header("Authorization", "Bearer " + jwt))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -83,9 +94,11 @@ public class TaskControllerTest {
 
     @Test
     public void getTasks_shouldReturnTodayTask() throws Exception {
-        MockMethods.mockTodayTasks(taskRepository, getToday());
+        UserEntity user = MockMethods.mockUser(userRepository, username, password);
+        MockMethods.mockTodayTasks(taskRepository, getToday(), user);
+        String jwt = MockMethods.getJWT(user, jwtUtil);
 
-        MvcResult result = mockMvc.perform(get(getFetchTaskURL("today")))
+        MvcResult result = mockMvc.perform(get(getFetchTaskURL("today")).header("Authorization", "Bearer " + jwt))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -98,9 +111,11 @@ public class TaskControllerTest {
 
     @Test
     public void getTasks_shouldReturnUpcomingTask() throws Exception {
-        MockMethods.mockUpcomingTasks(taskRepository, getToday());
+        UserEntity user = MockMethods.mockUser(userRepository, username, password);
+        MockMethods.mockUpcomingTasks(taskRepository, getToday(), user);
+        String jwt = MockMethods.getJWT(user, jwtUtil);
 
-        MvcResult result = mockMvc.perform(get(getFetchTaskURL("upcoming")))
+        MvcResult result = mockMvc.perform(get(getFetchTaskURL("upcoming")).header("Authorization", "Bearer " + jwt))
                                 .andExpect(status().isOk())
                                 .andReturn();
 
@@ -113,9 +128,11 @@ public class TaskControllerTest {
 
     @Test
     public void getTasks_shouldReturnOverdueTask() throws Exception {
-        MockMethods.mockOverdueTasks(taskRepository, getToday());
+        UserEntity user = MockMethods.mockUser(userRepository, username, password);
+        MockMethods.mockOverdueTasks(taskRepository, getToday(), user);
+        String jwt = MockMethods.getJWT(user, jwtUtil);
 
-        MvcResult result = mockMvc.perform(get(getFetchTaskURL("overdue")))
+        MvcResult result = mockMvc.perform(get(getFetchTaskURL("overdue")).header("Authorization", "Bearer " + jwt))
                                 .andExpect(status().isOk())
                                 .andReturn();
 
@@ -128,9 +145,11 @@ public class TaskControllerTest {
 
     @Test
     public void getTasks_shouldReturnRoutineTask() throws Exception {
-       MockMethods.mockRoutineTasks(taskRepository);
+        UserEntity user = MockMethods.mockUser(userRepository, username, password);
+        MockMethods.mockRoutineTasks(taskRepository, user);
+        String jwt = MockMethods.getJWT(user, jwtUtil);
 
-        MvcResult result = mockMvc.perform(get(getFetchTaskURL("routine")))
+        MvcResult result = mockMvc.perform(get(getFetchTaskURL("routine")).header("Authorization", "Bearer " + jwt))
                                 .andExpect(status().isOk())
                                 .andReturn();
 
@@ -143,10 +162,12 @@ public class TaskControllerTest {
 
     @Test
     public void getTasks_whenFilterIsInvalid_shouldReturnAllTasks() throws Exception {
-       MockMethods.mockAllTasks(taskRepository, getToday());
+        UserEntity user = MockMethods.mockUser(userRepository, username, password);
+        MockMethods.mockAllTasks(taskRepository, getToday(), user);
+        String jwt = MockMethods.getJWT(user, jwtUtil);
 
         // Set filter as blank
-        MvcResult result = mockMvc.perform(get(getFetchTaskURL("")))
+        MvcResult result = mockMvc.perform(get(getFetchTaskURL("")).header("Authorization", "Bearer " + jwt))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -159,17 +180,20 @@ public class TaskControllerTest {
 
     @Test
     public void getTaskCount_shouldReturnCountForEachTaskFilter() throws Exception {
+        UserEntity user = MockMethods.mockUser(userRepository, username, password);
         // Create task with due date = today (today)
-        taskRepository.save(new MockTaskBuilder().withDueDate(getToday()).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(getToday()).withUser(user).build());
         // Create task with future due date (upcoming)
-        taskRepository.save(new MockTaskBuilder().withDueDate(getToday().plusDays(1)).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(getToday().plusDays(1)).withUser(user).build());
         // Create incomplete task with previous due date (overdue)
-        taskRepository.save(new MockTaskBuilder().withDueDate(getToday().minusDays(1)).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(getToday().minusDays(1)).withUser(user).build());
         // Create routine task with no due date (routine) (today)
-        taskRepository.save(new MockTaskBuilder().withDueDate(null).withIsRoutineTask(true).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(null).withIsRoutineTask(true).withUser(user).build());
         taskRepository.flush();
 
-        mockMvc.perform(get(getTaskCountURL()))
+        String jwt = MockMethods.getJWT(user, jwtUtil);
+
+        mockMvc.perform(get(getTaskCountURL()).header("Authorization", "Bearer " + jwt))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.allCount").value(4))
                         .andExpect(jsonPath("$.todayCount").value(2))
@@ -180,6 +204,7 @@ public class TaskControllerTest {
 
     @Test
     public void createTask_shouldCreateTaskSuccessfully() throws Exception {
+        UserEntity user = MockMethods.mockUser(userRepository, username, password);
         // Create request to create task
         CreateTaskRequest request = CreateTaskRequest.builder()
                                     .title(title)
@@ -188,9 +213,11 @@ public class TaskControllerTest {
                                     .build();
 
         String json = objectMapper.writeValueAsString(request);
+        String jwt = MockMethods.getJWT(user, jwtUtil);
 
         // Check task is created with the right title and due date
         mockMvc.perform(post(BASE_URL)
+                        .header("Authorization", "Bearer " + jwt)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
             .andExpect(status().isCreated())
@@ -200,10 +227,10 @@ public class TaskControllerTest {
 
     @Test
     public void updateTask_shouldUpdateTaskSuccessfully() throws Exception {
+        UserEntity user = MockMethods.mockUser(userRepository, username, password);
         // Create task with due date = today
-        TaskEntity task = new MockTaskBuilder().withDueDate(getToday()).build();
-        taskRepository.save(task);
-        taskRepository.flush();
+        TaskEntity task = new MockTaskBuilder().withDueDate(getToday()).withUser(user).build();
+        taskRepository.saveAndFlush(task);
 
         // Create request to update due date to tomorrow and set task as a routine task
         UpdateTaskRequest request = UpdateTaskRequest.builder()
@@ -213,11 +240,13 @@ public class TaskControllerTest {
                                     .build();
 
         String json = objectMapper.writeValueAsString(request);
+        String jwt = MockMethods.getJWT(user, jwtUtil);
 
         // Check title remains the same
         // And due date = tomorrow
         // And isRoutineTask = true
         mockMvc.perform(put(BASE_URL + "/" + task.getId())
+                        .header("Authorization", "Bearer " + jwt)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
             .andExpect(status().isOk())
@@ -228,6 +257,7 @@ public class TaskControllerTest {
 
     @Test
     public void updateTask_whenTaskIsNull_shouldReturnBadRequest() throws Exception {
+        UserEntity user = MockMethods.mockUser(userRepository, username, password);
         // Create request to update due date to tomorrow and set task as a routine task
         UpdateTaskRequest request = UpdateTaskRequest.builder()
                                     .title(title)
@@ -236,9 +266,11 @@ public class TaskControllerTest {
                                     .build();
 
         String json = objectMapper.writeValueAsString(request);
+        String jwt = MockMethods.getJWT(user, jwtUtil);
 
         // Verify bad request is returned due to no task exists
         mockMvc.perform(put(BASE_URL + "/" + 1L)
+                        .header("Authorization", "Bearer " + jwt)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
             .andExpect(status().isBadRequest());
@@ -246,52 +278,64 @@ public class TaskControllerTest {
 
     @Test
     public void toggleTask_shouldToggleTaskSuccessfully() throws Exception {
+        UserEntity user = MockMethods.mockUser(userRepository, username, password);
         // Create incomplete task
-        TaskEntity task = new MockTaskBuilder().withDueDate(getToday()).withIsCompleted(false).build();
+        TaskEntity task = new MockTaskBuilder().withDueDate(getToday()).withIsCompleted(false).withUser(user).build();
         taskRepository.save(task);
         taskRepository.flush();
 
+        String jwt = MockMethods.getJWT(user, jwtUtil);
+
         // Check isCompleted is set to true
-        mockMvc.perform(patch(BASE_URL + "/" + task.getId()))
+        mockMvc.perform(patch(BASE_URL + "/" + task.getId()).header("Authorization", "Bearer " + jwt))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.isCompleted").value(true));
     }
 
     @Test
     public void toggleTask_whenTaskIsNull_shouldReturnBadRequest() throws Exception {
+        UserEntity user = MockMethods.mockUser(userRepository, username, password);
+        String jwt = MockMethods.getJWT(user, jwtUtil);
         // Verify bad request is returned due to no task exists
-        mockMvc.perform(patch(BASE_URL + "/" + 1L))
+        mockMvc.perform(patch(BASE_URL + "/" + 1L).header("Authorization", "Bearer " + jwt))
             .andExpect(status().isBadRequest());
     }
 
     @Test
     public void deleteTask_shouldDeleteTaskSuccessfully() throws Exception {
+        UserEntity user = MockMethods.mockUser(userRepository, username, password);
         // Create task
-        TaskEntity task = new MockTaskBuilder().withDueDate(getToday()).build();
-        taskRepository.save(task);
-        taskRepository.flush();
+        TaskEntity task = new MockTaskBuilder().withDueDate(getToday()).withUser(user).build();
+        taskRepository.saveAndFlush(task);
+
+        String jwt = MockMethods.getJWT(user, jwtUtil);
 
         // Check task is deleted
-        mockMvc.perform(delete(BASE_URL + "/" + task.getId()))
+        mockMvc.perform(delete(BASE_URL + "/" + task.getId()).header("Authorization", "Bearer " + jwt))
             .andExpect(status().isNoContent());
     }
 
     @Test
     public void deleteTask_whenTaskIsNull_shouldReturnBadRequest() throws Exception {
+        UserEntity user = MockMethods.mockUser(userRepository, username, password);
+        String jwt = MockMethods.getJWT(user, jwtUtil);
         // Verify bad request is returned due to no task exists
-        mockMvc.perform(delete(BASE_URL + "/" + 1L))
+        mockMvc.perform(delete(BASE_URL + "/" + 1L).header("Authorization", "Bearer " + jwt))
             .andExpect(status().isBadRequest());
     }
 
     @Test
     public void deleteAllTasks_shouldDeleteAllTasksSuccessfully() throws Exception {
+        UserEntity user = MockMethods.mockUser(userRepository, username, password);
         // Create tasks
-        taskRepository.save(new MockTaskBuilder().withDueDate(getToday()).build());
-        taskRepository.save(new MockTaskBuilder().withDueDate(getToday()).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(getToday()).withUser(user).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(getToday()).withUser(user).build());
         taskRepository.flush();
 
+        String jwt = MockMethods.getJWT(user, jwtUtil);
+
         // Check tasks are deleted
-        mockMvc.perform(delete(BASE_URL))
+        mockMvc.perform(delete(BASE_URL).header("Authorization", "Bearer " + jwt))
             .andExpect(status().isNoContent());
     }
 }

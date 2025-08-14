@@ -4,9 +4,12 @@ import com.adrian.Habits.dto.request.CreateTaskRequest;
 import com.adrian.Habits.dto.request.UpdateTaskRequest;
 import com.adrian.Habits.dto.response.TaskResponse;
 import com.adrian.Habits.exception.TaskNotFoundException;
+import com.adrian.Habits.exception.UserNotFoundException;
 import com.adrian.Habits.mapper.TaskMapper;
 import com.adrian.Habits.model.TaskEntity;
+import com.adrian.Habits.model.UserEntity;
 import com.adrian.Habits.repository.TaskRepository;
+import com.adrian.Habits.repository.UserRepository;
 import com.adrian.Habits.specification.TaskSpecificationBuilder;
 
 import org.springframework.stereotype.Service;
@@ -19,9 +22,11 @@ import java.util.List;
 public class TaskService {
 
     private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
 
-    public TaskService(TaskRepository taskRepository){
+    public TaskService(TaskRepository taskRepository, UserRepository userRepository){
         this.taskRepository = taskRepository;
+        this.userRepository = userRepository;
     }
 
     // Get all tasks
@@ -32,66 +37,78 @@ public class TaskService {
                              .toList();
     }
 
+
+    // Get all tasks by userId
+    public List<TaskResponse> getAllTasksByUser(Long userId){
+        return taskRepository.findByUserId(userId)
+                             .stream()
+                             .map(TaskMapper::toTaskResponse)
+                             .toList();
+    }
+
     // Get today tasks
-    public List<TaskResponse> getTodayTasks(LocalDate dueDate){
-        return taskRepository.findAll(new TaskSpecificationBuilder().withToday(dueDate).build())
+    public List<TaskResponse> getTodayTasksByUser(Long userId, LocalDate dueDate){
+        return taskRepository.findAll(new TaskSpecificationBuilder().withToday(userId, dueDate).build())
                              .stream()
                              .map(TaskMapper::toTaskResponse)
                              .toList();
     }
 
     // Get upcoming tasks
-    public List<TaskResponse> getUpcomingTasks(LocalDate dueDate){
-        return taskRepository.findAll(new TaskSpecificationBuilder().withUpcoming(dueDate).build())
+    public List<TaskResponse> getUpcomingTasksByUser(Long userId, LocalDate dueDate){
+        return taskRepository.findAll(new TaskSpecificationBuilder().withUpcoming(userId, dueDate).build())
                              .stream()
                              .map(TaskMapper::toTaskResponse)
                              .toList();
     }
 
     // Get overdue tasks
-    public List<TaskResponse> getOverdueTasks(LocalDate dueDate){
-        return taskRepository.findByDueDateBeforeAndIsCompletedFalse(dueDate)
+    public List<TaskResponse> getOverdueTasksByUser(Long userId, LocalDate dueDate){
+        return taskRepository.findByUserIdAndDueDateBeforeAndIsCompletedFalse(userId, dueDate)
                              .stream()
                              .map(TaskMapper::toTaskResponse)
                              .toList();
     }
 
     // Get routine tasks
-    public List<TaskResponse> getRoutineTasks(){
-        return taskRepository.findByRoutineDetailsIsRoutineTaskTrue()
+    public List<TaskResponse> getRoutineTasksByUser(Long userId){
+        return taskRepository.findByUserIdAndRoutineDetailsIsRoutineTaskTrue(userId)
                             .stream()
                             .map(TaskMapper::toTaskResponse)
                             .toList();
     }
 
     // Get count of all tasks
-    public long getAllTasksCount(){
-        return taskRepository.count();
+    public long getAllTasksCountByUser(Long userId){
+        return taskRepository.countByUserId(userId);
     }
 
     // Get count of today tasks
-    public long getTodayTaskCount(LocalDate dueDate){
-        return taskRepository.count(new TaskSpecificationBuilder().withToday(dueDate).build());
+    public long getTodayTaskCountByUser(Long userId, LocalDate dueDate){
+        return taskRepository.count(new TaskSpecificationBuilder().withToday(userId, dueDate).build());
     }
 
     // Get count of upcoming tasks
-    public long getUpcomingTasksCount(LocalDate dueDate){
-        return taskRepository.count(new TaskSpecificationBuilder().withUpcoming(dueDate).build());
+    public long getUpcomingTasksCountByUser(Long userId, LocalDate dueDate){
+        return taskRepository.count(new TaskSpecificationBuilder().withUpcoming(userId, dueDate).build());
     }
 
     // Get count of overdue tasks
-    public long getOverdueTasksCount(LocalDate dueDate){
-        return taskRepository.countByDueDateBeforeAndIsCompletedFalse(dueDate);
+    public long getOverdueTasksCountByUser(Long userId, LocalDate dueDate){
+        return taskRepository.countByUserIdAndDueDateBeforeAndIsCompletedFalse(userId, dueDate);
     }
 
     // Get count of routine tasks
-    public long getRoutineTasksCount(){
-        return taskRepository.countByRoutineDetailsIsRoutineTaskTrue();
+    public long getRoutineTasksCountByUser(Long userId){
+        return taskRepository.countByUserIdAndRoutineDetailsIsRoutineTaskTrue(userId);
     }
 
     // Create task
-    public TaskResponse createTask(CreateTaskRequest createTaskRequest) {
-        TaskEntity task = TaskMapper.toTaskEntity(createTaskRequest);
+    public TaskResponse createTask(CreateTaskRequest createTaskRequest, Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                                        .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        TaskEntity task = TaskMapper.toTaskEntity(createTaskRequest, user);
         TaskEntity saved = taskRepository.save(task);
         
         return TaskMapper.toTaskResponse(saved);
