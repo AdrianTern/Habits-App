@@ -1,5 +1,5 @@
 // Reducer to configure each settings state
-export function settingsReducer(state, action){
+export const settingsReducer = (state, action) => {
     switch(action.type){
         case 'SET_DESC_VISIBILITY':
             return{ ...state, isShowTaskDesc: action.payload };
@@ -9,5 +9,5 @@ export function settingsReducer(state, action){
             return{ ...state, darkMode: action.payload };
         default:
             return state;
-    }
-}
+    };
+};

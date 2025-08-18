@@ -1,19 +1,11 @@
 import { useForm, Controller } from 'react-hook-form';
-import { useAuth, useAuthState } from '../hooks/authHooks';
+import { useAuth, useAuthState } from '../../hooks/authHooks';
 import { useEffect, useRef, useState } from 'react';
-import { styled } from '@mui/material/styles';
-import { Box, Typography, Link as MuiLink } from '@mui/material';
+import { Typography, Link as MuiLink } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import { CenterBox, PrimaryButton, InputField } from '../styles/StyledComponents';
-import ErrorMsg from './ErrorMsg';
-
-// Initialize a center box here in order for form component to work
-const InputBox = styled(Box)({
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center,'
-});
+import { CenterBox, PrimaryButton, InputField, InputBox } from '../../styles/StyledComponents';
+import ErrorMsg from '../ErrorMsg';
+import { NUMBERS, ROUTES, STRINGS } from '../../constants';
 
 const RegisterForm = () => {
     // Get function to register user from useAuth hook
@@ -23,7 +15,6 @@ const RegisterForm = () => {
     const { resError } = useAuthState();
     // State to indicate invalid password length
     const [passError, setPassError] = useState('');
-    const hasError = resError || passError;
 
     // useForm hook to manage state of form inputs
     const { handleSubmit, control }
@@ -36,33 +27,56 @@ const RegisterForm = () => {
     }, []);
 
     const handleOnSubmit = async (data) => {
-        if( data?.password.length >= 8) {
+        if (data?.password.length >= NUMBERS.MAX_PASSWORD_LENGTH) {
             setPassError('');
             registerUser(data);
         } else {
-            setPassError("Password must have at least 8 characters");
-        }  
-    }
+            setPassError(STRINGS.INVALID_PASSWORD_LENGTH);
+        }
+    };
 
     return (
         <InputBox component='form' onSubmit={handleSubmit(handleOnSubmit)} gap={2}>
+            {/* Username Input */}
             <Controller
                 name='username'
                 control={control}
                 defaultValue=''
                 render={({ field }) => (
-                    <InputField error={resError} required label='Username' inputRef={usernameRef} {...field} />
+                    <InputField
+                        required
+                        error={resError}
+                        label='Username'
+                        aria-label='enter username'
+                        inputRef={usernameRef}
+                        {...field}
+                    />
                 )}
             />
+
+            {/* Password Input */}
             <Controller
                 name='password'
                 control={control}
                 defaultValue=''
                 render={({ field }) => (
-                    <InputField type='password' error={passError} required label='Password' {...field} />
+                    <InputField
+                        required
+                        type='password'
+                        error={passError}
+                        label='Password'
+                        aria-label='enter password'
+                        {...field}
+                    />
                 )}
             />
-            <ErrorMsg hasError={hasError} errorMsg={resError ? resError : passError}/>
+
+            {/* Error Message */}
+            {(resError || passError) && (
+                <ErrorMsg errorMsg={resError ? resError : passError} />
+            )}
+
+            {/* Register Button */}
             <PrimaryButton
                 type='submit'
                 aria-label='register user'
@@ -70,10 +84,11 @@ const RegisterForm = () => {
             >
                 Register
             </PrimaryButton>
+
             <CenterBox>
                 <Typography variant='subtitle'>
                     Back to {" "}
-                    <MuiLink component={RouterLink} to='/login' sx={{ color: 'custom.violet' }}>
+                    <MuiLink component={RouterLink} to={ROUTES.LOGIN} sx={{ color: 'custom.violet' }}>
                         login
                     </MuiLink>
                 </Typography>

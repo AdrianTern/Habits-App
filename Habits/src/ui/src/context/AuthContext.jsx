@@ -1,11 +1,12 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useState } from "react";
+import { STRINGS } from "../constants/strings";
 
 // Context for user authentication
 export const AuthContext = createContext();
 
-export function AuthStateProvider({ children }) {
+export const AuthStateProvider = ({ children }) => {
     const [user, setUser] = useState(() => {
-        const stored = localStorage.getItem('user');
+        const stored = localStorage.getItem(STRINGS.LOCALSTORAGE_KEY.USER);
         return stored ? JSON.parse(stored) : null;
     });
     
@@ -14,12 +15,12 @@ export function AuthStateProvider({ children }) {
     
     const login = (userData) => {
         setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
+        localStorage.setItem(STRINGS.LOCALSTORAGE_KEY.USER, JSON.stringify(userData));
     };
 
     const logout = () => {
         setUser(null);
-        localStorage.removeItem("user");
+        localStorage.removeItem(STRINGS.LOCALSTORAGE_KEY.USER);
     };
     return (
        <AuthContext.Provider value={{ user, resError, setResError, login, logout }}>

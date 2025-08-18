@@ -1,5 +1,5 @@
 import { Typography } from '@mui/material';
-import LoginForm from '../components/LoginForm';
+import LoginForm from '../components/auth/LoginForm';
 import SecondaryAppBar from '../components/SecondaryAppBar';
 import{ MainBox, HeaderBox, SmallBodyBox } from '../styles/StyledComponents';
 

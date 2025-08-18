@@ -1,44 +1,11 @@
-import TaskList from '../components/TaskList';
+import TaskList from '../components/task/TaskList';
 import MainAppBar from '../components/MainAppBar';
-import TaskChips from '../components/TaskChips';
-import TaskForm from "../components/TaskForm";
-import { Fab, Paper, Typography } from '@mui/material';
+import TaskChips from '../components//task/TaskChips';
+import TaskForm from "../components/task/TaskForm";
+import { Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { styled } from '@mui/material/styles';
 import { useTasks } from '../hooks/taskHooks';
-import{ MainBox, HeaderBox } from '../styles/StyledComponents';
-
-// Styled container for main body
-const BodyBox = styled(Paper)(({ theme }) => ({
-  width: '90vw',
-  height: '50vh',
-  margin: '0 auto',
-  border: '1px solid',
-  borderColor: theme.palette.custom.borderColor,
-  borderRadius: '20px',
-  backgroundColor: theme.palette.secondary.main,
-  padding: '2rem',
-  overflow: 'auto',
-
-  [theme.breakpoints.up('sm')]: {
-    width: '80vw',
-  },
-}));
-
-// Styled button to add new task
-const AddButton = styled(Fab)(({ theme }) => ({
-  color: theme.palette.secondary.main,
-  backgroundColor: theme.palette.custom.violet,
-  position: 'fixed',
-  bottom: '1rem',
-  right: '1rem',
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    transform: 'scale(1.10)',
-    color: theme.palette.secondary.main,
-    backgroundColor: theme.palette.custom.violet,
-  }
-}))
+import{ BodyBox, MainBox, HeaderBox, AddButton } from '../styles/StyledComponents';
 
 const HomePage = () => {
   // Get relevant task actions
@@ -70,6 +37,6 @@ const HomePage = () => {
       </AddButton>
     </>
   );
-}
+};
 
 export default HomePage;

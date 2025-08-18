@@ -8,7 +8,7 @@ import { AuthStateProvider } from "../context/AuthContext";
 const queryClient = new QueryClient();
 
 // Component to combine all provider components
-export function Providers({ children }) {
+export const Providers = ({ children }) => {
     return (
         <QueryClientProvider client={queryClient}>
             <AuthStateProvider>
@@ -22,4 +22,4 @@ export function Providers({ children }) {
             </AuthStateProvider>
         </QueryClientProvider>
     )
-}
+};

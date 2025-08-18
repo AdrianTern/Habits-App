@@ -1,3 +1,4 @@
+// Functions for authentication related api calls
 const BASE_URL = '/api/auth';
 
 // Register user

@@ -1,28 +1,22 @@
-import { Button } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Button, Typography } from '@mui/material';
+import { STRINGS } from '../constants';
+import { goToHome } from "../utils/navigation";
 
-function HomeButton() {
-    const navigate = useNavigate();
-    const title = "{habits.}"
-
-    const goToHome = () => {
-        navigate('/');
-    }
-
+const HomeButton = () => {
     return (
         <Button
             disableRipple
             disableElevation
+            aria-label='go to home page'
             sx={{
                 all: 'unset',
-                cursor: 'pointer',
-
+                cursor: 'pointer'
             }}
-            onClick={goToHome}
+            onClick={() => goToHome()}
         >
-            {title}
+            <Typography variant='h6' letterSpacing={1}>{STRINGS.APP_NAME.FULL}</Typography>
         </Button>
     )
-}
+};
 
 export default HomeButton;
