@@ -6,7 +6,6 @@ import {
     SwipeableDrawer,
     Paper,
     FormControlLabel,
-    Checkbox,
 } from '@mui/material';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import RemoveCircleRoundedIcon from '@mui/icons-material/RemoveCircleRounded';
@@ -20,28 +19,11 @@ import dayjs from 'dayjs';
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useForm, Controller } from 'react-hook-form';
-import { styled } from '@mui/material/styles';
-import { useTasks, useTaskState } from "../hooks/taskHooks";
-import{ AnimateButton } from '../styles/StyledComponents';
+import { useTasks, useTaskState } from "../../hooks/taskHooks";
+import{ AnimateButton, InputCheckBox, ButtonBox } from '../../styles/StyledComponents';
+import { STRINGS } from '../../constants/strings';
 
-// Styled checkbox to be used in form 
-const InputCheckBox = styled(Checkbox)(({ theme }) => ({
-    color: theme.palette.custom.grey,
-    '&.Mui-checked': {
-        color: theme.palette.custom.darkgreen,
-    }
-}));
-
-// Styled container for routine/date checkbox
-const ButtonBox = styled(Box)(({ theme }) => ({
-    border: '1px solid',
-    borderColor: theme.palette.primary.main,
-    borderRadius: '1rem',
-    paddingRight: '1rem',
-    backgroundColor: theme.palette.primary.main,
-}));
-
-function TaskForm() {
+const TaskForm = () => {
     // Get state from task context and relevant task actions
     const state = useTaskState();
     const { saveTask, deleteTask, openTaskForm } = useTasks(); 
@@ -49,7 +31,7 @@ function TaskForm() {
     const task = state.currentTask;
     const isOpen = state.openTaskForm;
     const isCreate = task == null;
-    const dialogTitle = (isCreate ? "Add a new task" : "Edit task");
+    const dialogTitle = (isCreate ? STRINGS.DIALOG_TITLE.ADD : STRINGS.DIALOG_TITLE.EDIT);
 
     // useForm hook to manage state of form inputs
     const { handleSubmit, control, watch, reset }
@@ -63,7 +45,7 @@ function TaskForm() {
                 hasDueDate: false,
                 isRoutineTask: false,
             }
-        })
+        });
     const hasDueDate = watch('hasDueDate');
     const isRoutineTask = watch('isRoutineTask');
     const titleRef = useRef(null);
@@ -87,16 +69,16 @@ function TaskForm() {
         if (isOpen && titleRef.current) {
             titleRef.current.focus();
         }
-    }, [isOpen])
+    }, [isOpen]);
 
     // Handler for closing form
     const handleClose = () => {
         openTaskForm(false);
-    }
+    };
 
     // Handler to submit form data
     const handleOnSave = async (data) => {
-        const dueDateString = hasDueDate ? data.dueDate.format('YYYY-MM-DD') : '';
+        const dueDateString = hasDueDate ? data.dueDate.format(STRINGS.DATE_FORMAT) : '';
         const newTask = {
             id: data.id,
             title: data.title,
@@ -106,19 +88,19 @@ function TaskForm() {
             routineDetailsResponse: {
                 isRoutineTask: isRoutineTask,
             }
-        }
+        };
         // Add/Update task
         saveTask(isCreate, newTask);
 
         // Close form
         handleClose();
-    }
+    };
 
     // Handler to delete task
     const handleOnDelete = () => {
         deleteTask(task.id);
         handleClose();
-    }
+    };
 
     // Function to render text input field
     const renderTextField = (name, label, inputRef, required) => (
@@ -139,7 +121,7 @@ function TaskForm() {
                 />
             )}
         />
-    )
+    );
 
     // Function to render RoutineCheckBox
     const renderRoutineCheckBox = () => (
@@ -165,7 +147,7 @@ function TaskForm() {
                 </ButtonBox>
             )}
         />
-    )
+    );
 
     // Function to render DateCheckBox
     const renderDateCheckBox = () => (
@@ -191,7 +173,7 @@ function TaskForm() {
                 </ButtonBox>
             )}
         />
-    )
+    );
 
     // Function to render DatePicker to set due date
     const renderDatePicker = () => (
@@ -217,7 +199,7 @@ function TaskForm() {
                 </LocalizationProvider>
             )}
         />
-    )
+    );
 
     return (
         <Box>
@@ -242,6 +224,7 @@ function TaskForm() {
                         sx={{ padding: '2rem' }}
                     >
                         <Box display="flex" justifyContent="space-between">
+                            {/* Delete Button */}
                             <AnimateButton
                                 aria-label='delete task'
                                 sx={{ color: 'custom.darkred' }}
@@ -249,9 +232,12 @@ function TaskForm() {
                             >
                                 {!isCreate && (<RemoveCircleRoundedIcon fontSize='large' />)}
                             </AnimateButton>
+
                             <Typography variant='h6'>
                                 {dialogTitle}
                             </Typography>
+
+                            {/* Create/Submit Button */}
                             <AnimateButton
                                 type='submit'
                                 aria-label='save task'
@@ -260,14 +246,20 @@ function TaskForm() {
                                 {isCreate ? <AddCircleRoundedIcon fontSize='large' /> : <CheckCircleRoundedIcon fontSize='large' />}
                             </AnimateButton>
                         </Box>
+
+                        {/* Task Title Input and Task Description Input */}
                         <Stack spacing={2} paddingTop='1rem'>
                             {renderTextField('title', 'Title', titleRef, true)}
                             {renderTextField('description', 'Description', descRef, false)}
                         </Stack>
+
+                        {/* Routine Checkbox and Due Date Checkbox */}
                         <Box display='flex' marginTop='1rem' gap={1}>
                             {renderRoutineCheckBox()}
                             {renderDateCheckBox()}
                         </Box>
+
+                        {/* Date Picker */}
                         {hasDueDate &&
                             <Box display='flex' marginTop='1.3rem'>
                                 {renderDatePicker()}
@@ -278,6 +270,5 @@ function TaskForm() {
             </SwipeableDrawer>
         </Box>
     );
-
-}
+};
 export default TaskForm;

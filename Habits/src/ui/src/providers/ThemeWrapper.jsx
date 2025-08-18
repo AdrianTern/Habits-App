@@ -5,7 +5,7 @@ import { AnimatePresence } from 'framer-motion';
 import { lightTheme, darkTheme } from '../styles/theme';
 
 // A provider for themes related components
-export function ThemeWrapper({ children }) {
+export const ThemeWrapper = ({ children }) => {
     const settingsState = useSettingsState();
 
     return (
@@ -16,4 +16,4 @@ export function ThemeWrapper({ children }) {
             </AnimatePresence>
         </ThemeProvider>
     )
-}
+};

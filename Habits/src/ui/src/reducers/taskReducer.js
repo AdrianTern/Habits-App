@@ -9,5 +9,5 @@ export const taskReducer = (state, action) => {
             return { ...state, openTaskForm: action.payload };
         default:
             return state;
-    }
-}
+    };
+};

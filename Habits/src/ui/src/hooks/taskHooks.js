@@ -15,7 +15,7 @@ const sortTasks = (tasks) => {
             return compareDates(a, b);
         });
     }
-}
+};
 
 const compareDates = (a, b) => {
     if (!a.dueDate && !b.dueDate) return 0;
@@ -23,16 +23,16 @@ const compareDates = (a, b) => {
     if (!b.dueDate) return 1;
 
     return new Date(a.dueDate) - new Date(b.dueDate);
-}
+};
 
 // Custom hook that returns task state
-export function useTaskState() {
+export const useTaskState = () => {
     const { state } = useContext(TaskViewContext);
     return state;
-}
+};
 
 // Custom hook that provides actions to configure task states
-export function useTasks() {
+export const useTasks = () => {
     const state = useTaskState();
     const queryClient = useQueryClient();
     const { dispatch } = useContext(TaskViewContext);
@@ -46,7 +46,7 @@ export function useTasks() {
 
     // Fetch task count
     const { data: taskCountData } = useQuery({
-        queryKey: ['tasks'],
+        queryKey: ['tasksCount'],
         queryFn: () => api.getTaskCount(),
         keepPreviousData: true,
     });
@@ -107,7 +107,7 @@ export function useTasks() {
         tasks: sortTasks(tasksData ?? []),
         taskCount: taskCountData ?? [],
         tasksLoading: tasksLoading,
-        errorFetching: tasksError,
+        tasksError: tasksError,
         tasksErrorObj: tasksErrorObj,
         toggleTask: toggleTask.mutate,
         deleteTask: deleteTask.mutate,
@@ -116,4 +116,4 @@ export function useTasks() {
         setCurrentTask,
         openTaskForm
     };
-}
+};

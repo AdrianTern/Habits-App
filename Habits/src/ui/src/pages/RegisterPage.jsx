@@ -1,5 +1,5 @@
 import { Typography } from '@mui/material';
-import RegisterForm from '../components/RegisterForm';
+import RegisterForm from '../components/auth/RegisterForm';
 import SecondaryAppBar from '../components/SecondaryAppBar';
 import{ MainBox, HeaderBox, SmallBodyBox } from '../styles/StyledComponents';
 

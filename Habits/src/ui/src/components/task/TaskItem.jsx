@@ -16,8 +16,8 @@ import { styled } from '@mui/material/styles';
 import { useState } from 'react';
 import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
-import { useSettingsState } from '../hooks/settingsHooks';
-import { useTasks } from '../hooks/taskHooks';
+import { useSettingsState } from '../../hooks/settingsHooks';
+import { useTasks } from '../../hooks/taskHooks';
 
 // Styled checkbox to toggle the task completion
 const CompletionCheckbox = styled(Checkbox)(({ theme }) => ({
@@ -60,7 +60,10 @@ const EditButton = styled(IconButton, {
     },
 }));
 
-function TaskItem({ task, onEdit }) {
+const TaskItem = ({ 
+    task, 
+    onEdit 
+}) => {
     // Get settings state and relevant task actions
     const state = useSettingsState();
     const { toggleTask } = useTasks();
@@ -94,7 +97,7 @@ function TaskItem({ task, onEdit }) {
                 </TaskInfoText>
             </Box>
         )
-    }
+    };
 
     return (
         <motion.li
@@ -106,6 +109,7 @@ function TaskItem({ task, onEdit }) {
         >
             <Box display='flex'>
                 <TaskListItemButton onClick={handleToggle} dense>
+                    {/* Toggle Completion Button */}
                     <ListItemIcon>
                         <CompletionCheckbox
                             aria-label='toggle task completion'
@@ -116,6 +120,8 @@ function TaskItem({ task, onEdit }) {
                             checkedIcon={<RadioButtonCheckedRoundedIcon />}
                             disableRipple />
                     </ListItemIcon>
+
+                    {/* Task Title and Info */}
                     <Box>
                         <ListItemText
                             className="task-title"
@@ -140,6 +146,8 @@ function TaskItem({ task, onEdit }) {
                         {isShowTaskInfo && <TaskInfo />}
                     </Box>
                 </TaskListItemButton>
+
+                {/* Edit Task Button */}
                 <EditButton
                     edge="end"
                     aria-label="edit task"
@@ -150,6 +158,6 @@ function TaskItem({ task, onEdit }) {
             </Box>
         </motion.li>
     );
-}
+};
 
 export default TaskItem;

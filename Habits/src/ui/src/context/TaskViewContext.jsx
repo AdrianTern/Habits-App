@@ -11,7 +11,7 @@ const initialState = {
   };
 
 // Provider component that provides actions to configure task states
-export function TaskStateProvider({ children }){
+export const TaskStateProvider = ({ children }) => {
     const[state, dispatch] = useReducer(taskReducer, initialState);
 
     return (
@@ -19,4 +19,4 @@ export function TaskStateProvider({ children }){
             {children}
         </TaskViewContext.Provider>
     );
-}
+};

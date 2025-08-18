@@ -1,8 +1,9 @@
 import { useContext, useEffect } from "react"
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext"
 import * as api from '../api/authAPI';
 import { toast } from "react-toastify";
+import { goToHome, goToLogin } from "../utils/navigation";
 
 export const useAuthState = () => {
     const { user, resError } = useContext(AuthContext);
@@ -11,7 +12,6 @@ export const useAuthState = () => {
 
 export const useAuth = () => {
     const { login, logout, setResError } = useContext(AuthContext);
-    const navigate = useNavigate();
     const location = useLocation();
 
     // Resets state if path changes
@@ -23,7 +23,7 @@ export const useAuth = () => {
         try {
             const res = await api.registerUser(formData);
             if (res.status === 201) {
-                navigate('/login');
+                goToLogin();
                 toast.success("User registered. Please login now.");
             }
         } catch (err) {
@@ -31,7 +31,7 @@ export const useAuth = () => {
             setResError(err.message);
             console.error("Failed to register user: " + err.message);
         }
-    }
+    };
 
     const loginUser = async (formData) => {
         try {
@@ -39,37 +39,37 @@ export const useAuth = () => {
             if (res.ok) {
                 const user = await res.json();
                 login(user);
-                navigate('/');
+                goToHome();
             }
         } catch (err) {
             setResError(err.message);
             console.error("Failed to login user: " + err.message);
         }
-    }
+    };
 
     const logoutUser = () => {
         logout();
-        navigate('/login');
-    }
+        goToLogin();
+    };
 
     const changePassword = async (id, passwordData) => {
         try {
             const res = await api.changePassword(id, passwordData);
             if (res.ok) {
                 logout();
-                navigate('/login');
-                toast.info('Password changes. Please login again');
+                goToLogin();
+                toast.info('Password changed. Please login again');
             }
         } catch (err) {
             setResError(err.message);
             console.error("Failed to change password: " + err.message);
         }
-    }
+    };
 
     return {
         registerUser,
         loginUser,
         logoutUser,
         changePassword,
-    }
-}
+    };
+};

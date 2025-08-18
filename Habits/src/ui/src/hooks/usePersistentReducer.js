@@ -1,7 +1,10 @@
 import { useReducer, useEffect } from "react";
 
 // Custom hook to store/load states from browser local storage
-export function usePersistentReducer( reducer, defaultState, storageKey ){
+export const usePersistentReducer = ( 
+    reducer, 
+    defaultState, 
+    storageKey ) =>{
     // Retrieve state value from local storage
     const loadState = () => {
         try{
@@ -27,4 +30,4 @@ export function usePersistentReducer( reducer, defaultState, storageKey ){
     }, [state, storageKey]);
 
     return [state, dispatch];
-}
+};
