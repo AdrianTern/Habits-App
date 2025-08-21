@@ -1,7 +1,8 @@
 package com.adrian.Habits.dto.request;
 
+import com.adrian.Habits.validation.ValidPassword;
+
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 
@@ -12,8 +13,7 @@ public class ChangePasswordRequest {
     @NotBlank
     private String oldPassword;
 
-    @NotBlank
-    @Size(min = 8, message = "Password must have at least 8 characters")
+    @ValidPassword
     private String newPassword;
     
 }

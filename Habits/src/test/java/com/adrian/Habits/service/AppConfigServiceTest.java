@@ -18,6 +18,7 @@ import com.adrian.Habits.model.AppConfig;
 import com.adrian.Habits.model.UserEntity;
 import com.adrian.Habits.repository.TaskRepository;
 import com.adrian.Habits.repository.UserRepository;
+import com.adrian.Habits.utils.Constants;
 import com.adrian.Habits.utils.MockMethods;
 import com.adrian.Habits.utils.MockTaskBuilder;
 
@@ -38,14 +39,14 @@ public class AppConfigServiceTest {
     @Autowired
     private TaskService taskService;
 
-    private final String cleanUpConfigKey = "cleanup_config";
-    private final String resetRoutineConfigKey = "resetRoutine_config";
+    private final String cleanUpConfigKey = Constants.CONFIG_KEY_CLEANUP;
+    private final String resetRoutineConfigKey = Constants.CONFIG_KEY_RESET_ROUTINE;
     private final LocalDate currentDate = LocalDate.now();
     private final LocalDate prevDate = currentDate.minusDays(2);
     private final LocalDateTime currentDateTime = LocalDateTime.now();
     private final LocalDateTime prevDateTime = currentDateTime.minusDays(2);
     private final String username = "admin";
-    private final String password = "admin123";
+    private final String password = "Admin123!";
 
     @Test
     public void getCleanUpConfig_shouldReturnCleanUpConfig(){

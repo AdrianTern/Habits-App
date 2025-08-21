@@ -1,7 +1,8 @@
 package com.adrian.Habits.dto.request;
 
+import com.adrian.Habits.validation.ValidPassword;
+
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,9 +14,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegisterUserRequest {
+    
     @NotBlank
     private String username;
-    @NotBlank
-    @Size(min = 8, message = "Password must have at least 8 characters")
+
+    @ValidPassword
     private String password;
 }

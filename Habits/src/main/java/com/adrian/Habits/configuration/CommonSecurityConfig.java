@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.adrian.Habits.jwt.service.CustomUserDetailsService;
 import com.adrian.Habits.jwt.util.JwtAuthFilter;
+import com.adrian.Habits.utils.Constants;
 
 // Configuration class for security configuration
 // On login, Spring uses AuthenticationManager + DaoAuthenticationProvider to check the username + password
@@ -51,7 +52,7 @@ public class CommonSecurityConfig {
         return http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                                        .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
+                                        .requestMatchers(Constants.ENDPOINT_AUTH_LOGIN_FULL, Constants.ENDPOINT_AUTH_REGISTER_FULL).permitAll()
                                         .anyRequest().authenticated()
                                 )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

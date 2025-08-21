@@ -11,6 +11,7 @@ import com.adrian.Habits.model.UserEntity;
 import com.adrian.Habits.repository.TaskRepository;
 import com.adrian.Habits.repository.UserRepository;
 import com.adrian.Habits.specification.TaskSpecificationBuilder;
+import com.adrian.Habits.utils.Constants;
 
 import org.springframework.stereotype.Service;
 
@@ -106,7 +107,7 @@ public class TaskService {
     // Create task
     public TaskResponse createTask(CreateTaskRequest createTaskRequest, Long userId) {
         UserEntity user = userRepository.findById(userId)
-                                        .orElseThrow(() -> new UserNotFoundException("User not found"));
+                                        .orElseThrow(() -> new UserNotFoundException(Constants.EXCEPTION_USER_NOT_FOUND));
 
         TaskEntity task = TaskMapper.toTaskEntity(createTaskRequest, user);
         TaskEntity saved = taskRepository.save(task);
@@ -117,7 +118,7 @@ public class TaskService {
     // Update task
     public TaskResponse updateTask(Long id, UpdateTaskRequest updateTaskRequest){
         TaskEntity task = taskRepository.findById(id)
-                                        .orElseThrow(() -> new TaskNotFoundException("Task not found"));
+                                        .orElseThrow(() -> new TaskNotFoundException(Constants.EXCEPTION_TASK_NOT_FOUND));
 
         TaskMapper.updateTaskEntity(task, updateTaskRequest);
         TaskEntity saved = taskRepository.save(task);
@@ -128,7 +129,7 @@ public class TaskService {
     // Toggle isComplete (patch)
     public TaskResponse toggleIsComplete(Long id){
         TaskEntity task = taskRepository.findById(id)
-                                        .orElseThrow(() -> new TaskNotFoundException("Task not found"));
+                                        .orElseThrow(() -> new TaskNotFoundException(Constants.EXCEPTION_TASK_NOT_FOUND));
         task.setIsCompleted(!task.getIsCompleted());
         TaskEntity saved = taskRepository.save(task);
 
@@ -138,7 +139,7 @@ public class TaskService {
     // Delete task
     public void deleteTask(Long id){
         TaskEntity task = taskRepository.findById(id)
-                                        .orElseThrow(() -> new TaskNotFoundException("Task not found"));
+                                        .orElseThrow(() -> new TaskNotFoundException(Constants.EXCEPTION_TASK_NOT_FOUND));
 
         taskRepository.delete(task);
     }

@@ -9,6 +9,7 @@ import com.adrian.Habits.model.TaskEntity;
 import com.adrian.Habits.model.UserEntity;
 import com.adrian.Habits.repository.TaskRepository;
 import com.adrian.Habits.repository.UserRepository;
+import com.adrian.Habits.utils.Constants;
 import com.adrian.Habits.utils.MockMethods;
 import com.adrian.Habits.utils.MockTaskBuilder;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -57,11 +58,13 @@ public class TaskControllerTest {
     @Autowired
     private Clock clock;
 
-    private final String BASE_URL = "/api/tasks";
+    private final String BASE_URL = Constants.ENDPOINT_TASK_BASE;
     private final String TIMEZONE = "Asia/Kuala_Lumpur";
     private final String title = "mock";
-    private final String username = "admin";
-    private final String password = "admin123";
+    private final String username1 = "admin";
+    private final String password1 = "Admin123!";
+    private final String username2 = "user1";
+    private final String password2 = "User123!";
 
     public LocalDate getToday() {
         return LocalDate.now(clock);
@@ -72,14 +75,21 @@ public class TaskControllerTest {
     }
 
     public String getTaskCountURL() {
-        return BASE_URL + "/taskCount" + "?timeZone=" + TIMEZONE;
+        return BASE_URL + Constants.ENDPOINT_TASK_TASKCOUNT + "?timeZone=" + TIMEZONE;
     }
 
     @Test
     public void getTasks_shouldReturnAllTask() throws Exception {
-        UserEntity user = MockMethods.mockUser(userRepository, username, password);
-        MockMethods.mockAllTasks(taskRepository, getToday(), user);
-        String jwt = MockMethods.getJWT(user, jwtUtil);
+        // Tasks for user1
+        UserEntity user1 = MockMethods.mockUser(userRepository, username1, password1);
+        MockMethods.mockAllTasks(taskRepository, getToday(), user1);
+
+        // Tasks for user2
+        UserEntity user2 = MockMethods.mockUser(userRepository, username2, password2);
+        MockMethods.mockAllTasks(taskRepository, getToday(), user2);
+
+        // JWT for user1
+        String jwt = MockMethods.getJWT(user1, jwtUtil);
 
         MvcResult result = mockMvc.perform(get(getFetchTaskURL("all")).header("Authorization", "Bearer " + jwt))
                 .andExpect(status().isOk())
@@ -94,9 +104,16 @@ public class TaskControllerTest {
 
     @Test
     public void getTasks_shouldReturnTodayTask() throws Exception {
-        UserEntity user = MockMethods.mockUser(userRepository, username, password);
-        MockMethods.mockTodayTasks(taskRepository, getToday(), user);
-        String jwt = MockMethods.getJWT(user, jwtUtil);
+        // Tasks for user1
+        UserEntity user1 = MockMethods.mockUser(userRepository, username1, password1);
+        MockMethods.mockTodayTasks(taskRepository, getToday(), user1);
+
+        // Tasks for user2
+        UserEntity user2 = MockMethods.mockUser(userRepository, username2, password2);
+        MockMethods.mockTodayTasks(taskRepository, getToday(), user2);
+
+        // JWT for user1
+        String jwt = MockMethods.getJWT(user1, jwtUtil);
 
         MvcResult result = mockMvc.perform(get(getFetchTaskURL("today")).header("Authorization", "Bearer " + jwt))
                 .andExpect(status().isOk())
@@ -111,9 +128,16 @@ public class TaskControllerTest {
 
     @Test
     public void getTasks_shouldReturnUpcomingTask() throws Exception {
-        UserEntity user = MockMethods.mockUser(userRepository, username, password);
-        MockMethods.mockUpcomingTasks(taskRepository, getToday(), user);
-        String jwt = MockMethods.getJWT(user, jwtUtil);
+         // Tasks for user1
+         UserEntity user1 = MockMethods.mockUser(userRepository, username1, password1);
+         MockMethods.mockUpcomingTasks(taskRepository, getToday(), user1);
+ 
+         // Tasks for user2
+         UserEntity user2 = MockMethods.mockUser(userRepository, username2, password2);
+         MockMethods.mockUpcomingTasks(taskRepository, getToday(), user2);
+ 
+         // JWT for user1
+         String jwt = MockMethods.getJWT(user1, jwtUtil);
 
         MvcResult result = mockMvc.perform(get(getFetchTaskURL("upcoming")).header("Authorization", "Bearer " + jwt))
                                 .andExpect(status().isOk())
@@ -128,9 +152,16 @@ public class TaskControllerTest {
 
     @Test
     public void getTasks_shouldReturnOverdueTask() throws Exception {
-        UserEntity user = MockMethods.mockUser(userRepository, username, password);
-        MockMethods.mockOverdueTasks(taskRepository, getToday(), user);
-        String jwt = MockMethods.getJWT(user, jwtUtil);
+         // Tasks for user1
+         UserEntity user1 = MockMethods.mockUser(userRepository, username1, password1);
+         MockMethods.mockOverdueTasks(taskRepository, getToday(), user1);
+ 
+         // Tasks for user2
+         UserEntity user2 = MockMethods.mockUser(userRepository, username2, password2);
+         MockMethods.mockOverdueTasks(taskRepository, getToday(), user2);
+ 
+         // JWT for user1
+         String jwt = MockMethods.getJWT(user1, jwtUtil);
 
         MvcResult result = mockMvc.perform(get(getFetchTaskURL("overdue")).header("Authorization", "Bearer " + jwt))
                                 .andExpect(status().isOk())
@@ -145,9 +176,16 @@ public class TaskControllerTest {
 
     @Test
     public void getTasks_shouldReturnRoutineTask() throws Exception {
-        UserEntity user = MockMethods.mockUser(userRepository, username, password);
-        MockMethods.mockRoutineTasks(taskRepository, user);
-        String jwt = MockMethods.getJWT(user, jwtUtil);
+        // Tasks for user1
+        UserEntity user1 = MockMethods.mockUser(userRepository, username1, password1);
+        MockMethods.mockRoutineTasks(taskRepository, user1);
+
+        // Tasks for user2
+        UserEntity user2 = MockMethods.mockUser(userRepository, username2, password2);
+        MockMethods.mockRoutineTasks(taskRepository, user2);
+
+        // JWT for user1
+        String jwt = MockMethods.getJWT(user1, jwtUtil);
 
         MvcResult result = mockMvc.perform(get(getFetchTaskURL("routine")).header("Authorization", "Bearer " + jwt))
                                 .andExpect(status().isOk())
@@ -162,7 +200,7 @@ public class TaskControllerTest {
 
     @Test
     public void getTasks_whenFilterIsInvalid_shouldReturnAllTasks() throws Exception {
-        UserEntity user = MockMethods.mockUser(userRepository, username, password);
+        UserEntity user = MockMethods.mockUser(userRepository, username1, password1);
         MockMethods.mockAllTasks(taskRepository, getToday(), user);
         String jwt = MockMethods.getJWT(user, jwtUtil);
 
@@ -180,18 +218,32 @@ public class TaskControllerTest {
 
     @Test
     public void getTaskCount_shouldReturnCountForEachTaskFilter() throws Exception {
-        UserEntity user = MockMethods.mockUser(userRepository, username, password);
+        // Tasks for user1
+        UserEntity user1 = MockMethods.mockUser(userRepository, username1, password1);
         // Create task with due date = today (today)
-        taskRepository.save(new MockTaskBuilder().withDueDate(getToday()).withUser(user).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(getToday()).withUser(user1).build());
         // Create task with future due date (upcoming)
-        taskRepository.save(new MockTaskBuilder().withDueDate(getToday().plusDays(1)).withUser(user).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(getToday().plusDays(1)).withUser(user1).build());
         // Create incomplete task with previous due date (overdue)
-        taskRepository.save(new MockTaskBuilder().withDueDate(getToday().minusDays(1)).withUser(user).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(getToday().minusDays(1)).withUser(user1).build());
         // Create routine task with no due date (routine) (today)
-        taskRepository.save(new MockTaskBuilder().withDueDate(null).withIsRoutineTask(true).withUser(user).build());
+        taskRepository.save(new MockTaskBuilder().withDueDate(null).withIsRoutineTask(true).withUser(user1).build());
         taskRepository.flush();
 
-        String jwt = MockMethods.getJWT(user, jwtUtil);
+        // Tasks for user2
+        UserEntity user2 = MockMethods.mockUser(userRepository, username2, password2);
+        // Create task with due date = today (today)
+        taskRepository.save(new MockTaskBuilder().withDueDate(getToday()).withUser(user2).build());
+        // Create task with future due date (upcoming)
+        taskRepository.save(new MockTaskBuilder().withDueDate(getToday().plusDays(1)).withUser(user2).build());
+        // Create incomplete task with previous due date (overdue)
+        taskRepository.save(new MockTaskBuilder().withDueDate(getToday().minusDays(1)).withUser(user2).build());
+        // Create routine task with no due date (routine) (today)
+        taskRepository.save(new MockTaskBuilder().withDueDate(null).withIsRoutineTask(true).withUser(user2).build());
+        taskRepository.flush();
+
+        // JWT for user1
+        String jwt = MockMethods.getJWT(user1, jwtUtil);
 
         mockMvc.perform(get(getTaskCountURL()).header("Authorization", "Bearer " + jwt))
                         .andExpect(status().isOk())
@@ -204,7 +256,7 @@ public class TaskControllerTest {
 
     @Test
     public void createTask_shouldCreateTaskSuccessfully() throws Exception {
-        UserEntity user = MockMethods.mockUser(userRepository, username, password);
+        UserEntity user = MockMethods.mockUser(userRepository, username1, password1);
         // Create request to create task
         CreateTaskRequest request = CreateTaskRequest.builder()
                                     .title(title)
@@ -227,7 +279,7 @@ public class TaskControllerTest {
 
     @Test
     public void updateTask_shouldUpdateTaskSuccessfully() throws Exception {
-        UserEntity user = MockMethods.mockUser(userRepository, username, password);
+        UserEntity user = MockMethods.mockUser(userRepository, username1, password1);
         // Create task with due date = today
         TaskEntity task = new MockTaskBuilder().withDueDate(getToday()).withUser(user).build();
         taskRepository.saveAndFlush(task);
@@ -257,7 +309,7 @@ public class TaskControllerTest {
 
     @Test
     public void updateTask_whenTaskIsNull_shouldReturnBadRequest() throws Exception {
-        UserEntity user = MockMethods.mockUser(userRepository, username, password);
+        UserEntity user = MockMethods.mockUser(userRepository, username1, password1);
         // Create request to update due date to tomorrow and set task as a routine task
         UpdateTaskRequest request = UpdateTaskRequest.builder()
                                     .title(title)
@@ -278,7 +330,7 @@ public class TaskControllerTest {
 
     @Test
     public void toggleTask_shouldToggleTaskSuccessfully() throws Exception {
-        UserEntity user = MockMethods.mockUser(userRepository, username, password);
+        UserEntity user = MockMethods.mockUser(userRepository, username1, password1);
         // Create incomplete task
         TaskEntity task = new MockTaskBuilder().withDueDate(getToday()).withIsCompleted(false).withUser(user).build();
         taskRepository.save(task);
@@ -294,7 +346,7 @@ public class TaskControllerTest {
 
     @Test
     public void toggleTask_whenTaskIsNull_shouldReturnBadRequest() throws Exception {
-        UserEntity user = MockMethods.mockUser(userRepository, username, password);
+        UserEntity user = MockMethods.mockUser(userRepository, username1, password1);
         String jwt = MockMethods.getJWT(user, jwtUtil);
         // Verify bad request is returned due to no task exists
         mockMvc.perform(patch(BASE_URL + "/" + 1L).header("Authorization", "Bearer " + jwt))
@@ -303,21 +355,28 @@ public class TaskControllerTest {
 
     @Test
     public void deleteTask_shouldDeleteTaskSuccessfully() throws Exception {
-        UserEntity user = MockMethods.mockUser(userRepository, username, password);
+        // Task for user1
+        UserEntity user1 = MockMethods.mockUser(userRepository, username1, password1);
         // Create task
-        TaskEntity task = new MockTaskBuilder().withDueDate(getToday()).withUser(user).build();
-        taskRepository.saveAndFlush(task);
+        TaskEntity task1 = new MockTaskBuilder().withDueDate(getToday()).withUser(user1).build();
+        taskRepository.saveAndFlush(task1);
 
-        String jwt = MockMethods.getJWT(user, jwtUtil);
+        // Task for user2
+        UserEntity user2 = MockMethods.mockUser(userRepository, username2, password2);
+        // Create task
+        TaskEntity task2 = new MockTaskBuilder().withDueDate(getToday()).withUser(user2).build();
+        taskRepository.saveAndFlush(task2);
 
-        // Check task is deleted
-        mockMvc.perform(delete(BASE_URL + "/" + task.getId()).header("Authorization", "Bearer " + jwt))
+        String jwt = MockMethods.getJWT(user1, jwtUtil);
+
+        // Check only task1 is deleted
+        mockMvc.perform(delete(BASE_URL + "/" + task1.getId()).header("Authorization", "Bearer " + jwt))
             .andExpect(status().isNoContent());
     }
 
     @Test
     public void deleteTask_whenTaskIsNull_shouldReturnBadRequest() throws Exception {
-        UserEntity user = MockMethods.mockUser(userRepository, username, password);
+        UserEntity user = MockMethods.mockUser(userRepository, username1, password1);
         String jwt = MockMethods.getJWT(user, jwtUtil);
         // Verify bad request is returned due to no task exists
         mockMvc.perform(delete(BASE_URL + "/" + 1L).header("Authorization", "Bearer " + jwt))
@@ -326,7 +385,7 @@ public class TaskControllerTest {
 
     @Test
     public void deleteAllTasks_shouldDeleteAllTasksSuccessfully() throws Exception {
-        UserEntity user = MockMethods.mockUser(userRepository, username, password);
+        UserEntity user = MockMethods.mockUser(userRepository, username1, password1);
         // Create tasks
         taskRepository.save(new MockTaskBuilder().withDueDate(getToday()).withUser(user).build());
         taskRepository.save(new MockTaskBuilder().withDueDate(getToday()).withUser(user).build());

@@ -114,7 +114,7 @@ public class MockMethods {
         taskRepository.flush();
     }
 
-    // Assertion on all asks
+    // Assertion on all tasks
     public static void assertOnAllTasks(List<TaskResponse> result) {
         assertEquals(2, result.size());
     }

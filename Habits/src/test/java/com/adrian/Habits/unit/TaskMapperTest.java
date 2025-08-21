@@ -25,7 +25,7 @@ public class TaskMapperTest {
     private final String desc = "desc";
     private final LocalDate dueDate = LocalDate.of(2025, 5, 5);
     private final String username = "admin";
-    private final String password = "admin123";
+    private final String password = "Admin123!";
 
     @Test
     public void toRoutineDetails_shouldCreateRoutineDetailsFromRoutineDetailsRequest(){

@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.adrian.Habits.service.UserService;
-
+import com.adrian.Habits.utils.Constants;
 import com.adrian.Habits.dto.response.UserResponse;
 
 import java.util.List;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 // Controller for user entity
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping(Constants.ENDPOINT_USER_BASE)
 public class UserController {
 
     private final UserService userService;

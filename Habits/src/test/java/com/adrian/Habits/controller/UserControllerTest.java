@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.adrian.Habits.model.UserEntity;
 import com.adrian.Habits.repository.UserRepository;
+import com.adrian.Habits.utils.Constants;
 import com.adrian.Habits.utils.MockMethods;
 import com.adrian.Habits.utils.MockUserBuilder;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -38,7 +39,7 @@ public class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private final String BASE_URL = "/api/users";
+    private final String BASE_URL = Constants.ENDPOINT_USER_BASE;
 
     public String getUrlWithId(Long id) {
         return BASE_URL + "/" + id;

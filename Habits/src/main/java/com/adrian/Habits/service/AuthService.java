@@ -12,6 +12,7 @@ import com.adrian.Habits.exception.UsernameNotUniqueException;
 import com.adrian.Habits.mapper.UserMapper;
 import com.adrian.Habits.model.UserEntity;
 import com.adrian.Habits.repository.UserRepository;
+import com.adrian.Habits.utils.Constants;
 
 @Service
 public class AuthService {
@@ -26,7 +27,7 @@ public class AuthService {
 
     // Register user
     public UserResponse registerUser(RegisterUserRequest request){
-        if(userRepository.existsByUsername(request.getUsername())) throw new UsernameNotUniqueException("The username is already taken");
+        if(userRepository.existsByUsername(request.getUsername())) throw new UsernameNotUniqueException(Constants.EXCEPTION_USERNAME_TAKEN);
         UserEntity user = userRepository.save(UserMapper.toUserEntity(request, passwordEncoder));
 
         return UserMapper.toUserResponse(user);
@@ -35,10 +36,10 @@ public class AuthService {
     // Change user password
     public UserResponse changePassword(Long id, ChangePasswordRequest request){
         UserEntity user = userRepository.findById(id)
-                                        .orElseThrow(() -> new UserNotFoundException("Username not found"));
+                                        .orElseThrow(() -> new UserNotFoundException(Constants.EXCEPTION_USER_NOT_FOUND));
 
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
-            throw new PasswordNotMatchException("Old password is incorrect");
+            throw new PasswordNotMatchException(Constants.EXCEPTION_INCORRECT_OLD_PASSWORD);
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));

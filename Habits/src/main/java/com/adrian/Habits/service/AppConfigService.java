@@ -14,6 +14,7 @@ import com.adrian.Habits.model.AppConfig;
 import com.adrian.Habits.model.TaskEntity;
 import com.adrian.Habits.repository.AppConfigRepository;
 import com.adrian.Habits.repository.TaskRepository;
+import com.adrian.Habits.utils.Constants;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +26,8 @@ public class AppConfigService {
     private final AppConfigRepository appConfigRepository;
     private final TaskRepository taskRepository;
 
-    private final String cleanUpConfigKey = "cleanup_config";
-    private final String resetRoutineConfigKey = "resetRoutine_config";
+    private final String cleanUpConfigKey = Constants.CONFIG_KEY_CLEANUP;
+    private final String resetRoutineConfigKey = Constants.CONFIG_KEY_RESET_ROUTINE;
 
     private final LocalDateTime currenDateTime = LocalDateTime.now();
     private final LocalDate currentDate = currenDateTime.toLocalDate();

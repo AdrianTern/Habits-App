@@ -1,11 +1,11 @@
 import { useForm, Controller } from 'react-hook-form';
 import { useAuth, useAuthState } from '../../hooks/authHooks';
 import { useEffect, useRef, useState } from 'react';
-import { Typography, Link as MuiLink } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
-import { CenterBox, PrimaryButton, InputField, InputBox } from '../../styles/StyledComponents';
+import { PrimaryButton, InputField, InputBox } from '../../styles/StyledComponents';
 import ErrorMsg from '../ErrorMsg';
-import { NUMBERS, ROUTES, STRINGS } from '../../constants';
+import PasswordInput from '../PasswordInput';
+import { usePassword } from '../../hooks/passwordHooks';
+import PasswordRule from '../PasswordRule';
 
 const RegisterForm = () => {
     // Get function to register user from useAuth hook
@@ -13,8 +13,12 @@ const RegisterForm = () => {
 
     // State to indicate if the registeration failed
     const { resError } = useAuthState();
-    // State to indicate invalid password length
-    const [passError, setPassError] = useState('');
+
+    // State to indicate invalid password
+    const [violatedIndex, setViolatedIndex] = useState([]);
+
+    // Validation function for password
+    const { getViolatedIndex } = usePassword();
 
     // useForm hook to manage state of form inputs
     const { handleSubmit, control }
@@ -27,11 +31,12 @@ const RegisterForm = () => {
     }, []);
 
     const handleOnSubmit = async (data) => {
-        if (data?.password.length >= NUMBERS.MAX_PASSWORD_LENGTH) {
-            setPassError('');
+        const index = getViolatedIndex(data?.password);
+        if (index.length == 0) {
+            setViolatedIndex([]);
             registerUser(data);
         } else {
-            setPassError(STRINGS.INVALID_PASSWORD_LENGTH);
+            setViolatedIndex(index);
         }
     };
 
@@ -60,21 +65,21 @@ const RegisterForm = () => {
                 control={control}
                 defaultValue=''
                 render={({ field }) => (
-                    <InputField
-                        required
-                        type='password'
-                        error={passError}
+                    <PasswordInput
                         label='Password'
-                        aria-label='enter password'
-                        {...field}
+                        ariaLabel='enter password'
+                        field={field}
                     />
                 )}
             />
 
             {/* Error Message */}
-            {(resError || passError) && (
-                <ErrorMsg errorMsg={resError ? resError : passError} />
+            {resError && (
+                <ErrorMsg errorMsg={resError} />
             )}
+
+            {/* Password Rule */}
+            <PasswordRule violatedIndex={violatedIndex} />
 
             {/* Register Button */}
             <PrimaryButton
@@ -84,15 +89,6 @@ const RegisterForm = () => {
             >
                 Register
             </PrimaryButton>
-
-            <CenterBox>
-                <Typography variant='subtitle'>
-                    Back to {" "}
-                    <MuiLink component={RouterLink} to={ROUTES.LOGIN} sx={{ color: 'custom.violet' }}>
-                        login
-                    </MuiLink>
-                </Typography>
-            </CenterBox>
         </InputBox>
     )
 };
