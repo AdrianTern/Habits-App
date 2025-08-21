@@ -5,7 +5,7 @@ import com.adrian.Habits.model.UserEntity;
 //Builder class to create UserEntity
 public class MockUserBuilder {
     private String username = "admin";
-    private String password = "admin123";
+    private String password = "Admin123!";
 
     public MockUserBuilder withUsername(String username){
         this.username = username;

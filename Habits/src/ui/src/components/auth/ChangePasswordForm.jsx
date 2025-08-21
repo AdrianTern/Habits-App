@@ -1,9 +1,11 @@
 import { useForm, Controller } from 'react-hook-form';
 import { useAuth, useAuthState } from '../../hooks/authHooks';
 import { useEffect, useRef, useState } from 'react';
-import { PrimaryButton, InputField, InputBox } from '../../styles/StyledComponents';
+import { PrimaryButton, InputBox } from '../../styles/StyledComponents';
 import ErrorMsg from '../ErrorMsg';
-import { NUMBERS, STRINGS } from '../../constants';
+import PasswordInput from '../PasswordInput';
+import { usePassword } from '../../hooks/passwordHooks';
+import PasswordRule from '../PasswordRule';
 
 const ChangePasswordForm = () => {
     const { user, resError } = useAuthState();
@@ -13,8 +15,11 @@ const ChangePasswordForm = () => {
     const { handleSubmit, control }
         = useForm();
 
-    // State to indicate if the password does not match
-    const [passError, setPassError] = useState('');
+    // State to indicate invalid password
+    const [violatedIndex, setViolatedIndex] = useState([]);
+
+    // Validation function for password
+    const { getViolatedIndex } = usePassword();
 
     const oldPasswordeRef = useRef(null);
 
@@ -23,10 +28,13 @@ const ChangePasswordForm = () => {
     }, []);
 
     const handleOnSubmit = async (data) => {
-        if (data.newPassword.length >= NUMBERS.MAX_PASSWORD_LENGTH) {
-            setPassError('');
+        const index = getViolatedIndex(data?.newPassword);
+        if (index.length == 0) {
+            setViolatedIndex([]);
             changePassword(user.id, data);
-        } else setPassError(STRINGS.INVALID_PASSWORD_LENGTH);
+        } else {
+            setViolatedIndex(index);
+        }
     };
 
     return (
@@ -37,14 +45,12 @@ const ChangePasswordForm = () => {
                 control={control}
                 defaultValue=''
                 render={({ field }) => (
-                    <InputField
-                        required
-                        type='password'
+                    <PasswordInput
                         error={resError}
                         label='Old password'
                         aria-label='enter old password'
+                        field={field}
                         inputRef={oldPasswordeRef}
-                        {...field}
                     />
                 )}
             />
@@ -55,21 +61,21 @@ const ChangePasswordForm = () => {
                 control={control}
                 defaultValue=''
                 render={({ field }) => (
-                    <InputField
-                        required
-                        type='password'
-                        error={passError}
+                    <PasswordInput
                         label='New password'
                         aria-label='enter new password'
-                        {...field}
+                        field={field}
                     />
                 )}
             />
 
             {/* Error Message */}
-            {(resError || passError) && (
-                <ErrorMsg errorMsg={resError ? resError : passError} />
+            {resError && (
+                <ErrorMsg errorMsg={resError} />
             )}
+
+            {/* Password Rule */}
+            <PasswordRule violatedIndex={violatedIndex} />
 
             {/* Change Password Button */}
             <PrimaryButton

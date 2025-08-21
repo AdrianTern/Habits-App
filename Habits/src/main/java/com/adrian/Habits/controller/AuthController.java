@@ -21,11 +21,12 @@ import com.adrian.Habits.dto.response.UserResponse;
 import com.adrian.Habits.jwt.details.CustomUserDetails;
 import com.adrian.Habits.jwt.util.JwtUtil;
 import com.adrian.Habits.service.AuthService;
+import com.adrian.Habits.utils.Constants;
 
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping(Constants.ENDPOINT_AUTH_BASE)
 public class AuthController {
     private final AuthenticationManager authenticationManager;
 
@@ -40,7 +41,7 @@ public class AuthController {
     }
 
     // Register user
-    @PostMapping("/register")
+    @PostMapping(Constants.ENDPOINT_AUTH_REGISTER)
     public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody RegisterUserRequest request) {
         UserResponse user = authService.registerUser(request);
 
@@ -48,14 +49,14 @@ public class AuthController {
     }
 
     // Change user password
-    @PatchMapping("/changePassword/{id}")
+    @PatchMapping(Constants.ENDPOINT_AUTH_CHANGE_PASSWORD)
     public ResponseEntity<UserResponse> changePassword(@PathVariable Long id,
             @Valid @RequestBody ChangePasswordRequest request) {
         return ResponseEntity.ok(authService.changePassword(id, request));
     }
 
     // Login
-    @PostMapping("/login")
+    @PostMapping(Constants.ENDPOINT_AUTH_LOGIN)
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -67,7 +68,7 @@ public class AuthController {
 
             return ResponseEntity.ok(new AuthResponse(token, userDetails.getUsername(), userDetails.getId()));
         } catch(BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Constants.EXCEPTION_INVALID_CREDENTIALS);
         }
     }
 }

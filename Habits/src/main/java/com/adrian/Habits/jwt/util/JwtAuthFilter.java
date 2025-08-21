@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.adrian.Habits.jwt.service.CustomUserDetailsService;
+import com.adrian.Habits.utils.Constants;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -33,7 +34,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
         String path = request.getServletPath();
-        if (path.equals("/api/auth/register") || path.startsWith("/api/auth/login")) {
+        if (path.equals(Constants.ENDPOINT_AUTH_REGISTER_FULL) || path.startsWith(Constants.ENDPOINT_AUTH_LOGIN_FULL)) {
             filterChain.doFilter(request, response);
             return;
         }

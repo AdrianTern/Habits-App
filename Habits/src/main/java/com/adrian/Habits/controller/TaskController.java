@@ -6,6 +6,8 @@ import com.adrian.Habits.dto.response.TaskResponse;
 import com.adrian.Habits.jwt.details.CustomUserDetails;
 import com.adrian.Habits.model.TaskCount;
 import com.adrian.Habits.service.TaskService;
+import com.adrian.Habits.utils.Constants;
+
 import jakarta.validation.Valid;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,7 +23,7 @@ import java.util.List;
 
 // Controller class that handles the endpoints for CRUD actions
 @RestController
-@RequestMapping("/api/tasks")
+@RequestMapping(Constants.ENDPOINT_TASK_BASE)
 public class TaskController {
 
     private final TaskService taskService;
@@ -59,7 +61,7 @@ public class TaskController {
     }
 
     // Endpoint to get number of tasks for each filter
-    @GetMapping("/taskCount")
+    @GetMapping(Constants.ENDPOINT_TASK_TASKCOUNT)
     public ResponseEntity<TaskCount> getTaskCount(@AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(required = false, defaultValue = "Etc/UTC") String timeZone) {
         ZoneId zoneId = ZoneId.of(timeZone);

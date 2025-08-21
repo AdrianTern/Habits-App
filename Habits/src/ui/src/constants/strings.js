@@ -25,7 +25,13 @@ export const STRINGS = {
         USER: 'user',
         SETTINGS: 'appSettings',
     },
-    INVALID_PASSWORD_LENGTH: "Password must have at least 8 characters",
+    PASSWORD_RULES: [
+        'At least one uppercase letter',
+        'At least one lowercase letter',
+        'At least one numeral (0-9)',
+        'At least one symbol (!@#$%^&*(),.?":{}|<>)',
+        'Minimum 8 characters'
+    ],
     DATE_FORMAT: 'YYYY-MM-DD',
     FOOTER_TEXT: '© {habits.} developed by AdrianTern',
 };

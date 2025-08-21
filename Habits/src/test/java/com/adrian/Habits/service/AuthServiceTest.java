@@ -18,6 +18,7 @@ import com.adrian.Habits.exception.PasswordNotMatchException;
 import com.adrian.Habits.exception.UsernameNotUniqueException;
 import com.adrian.Habits.model.UserEntity;
 import com.adrian.Habits.repository.UserRepository;
+import com.adrian.Habits.utils.Constants;
 import com.adrian.Habits.utils.MockUserBuilder;
 
 @SpringBootTest
@@ -32,15 +33,18 @@ public class AuthServiceTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    private final String username = "admin";
+    private final String password = "Admin123!";
+
     @Test
     public void registerUser_shouldRegisterUserSuccessfully(){
         UserResponse result = authService.registerUser(RegisterUserRequest.builder()
-                                                                        .username("admin")
-                                                                        .password("admin123")
+                                                                        .username(username)
+                                                                        .password(password)
                                                                         .build());
         
         assertNotNull(result);
-        assertEquals("admin", result.getUsername());
+        assertEquals(username, result.getUsername());
     }
 
     @Test
@@ -49,38 +53,38 @@ public class AuthServiceTest {
 
         UsernameNotUniqueException exception = assertThrows(UsernameNotUniqueException.class, 
                                                             () -> authService.registerUser(RegisterUserRequest.builder()
-                                                                                                            .username("admin")
-                                                                                                            .password("admin123")
+                                                                                                            .username(username)
+                                                                                                            .password(password)
                                                                                                             .build()));
-        assertEquals("The username is already taken", exception.getMessage());
+        assertEquals(Constants.EXCEPTION_USERNAME_TAKEN, exception.getMessage());
     }
 
     @Test
     public void changePassword_shouldChangePasswordSuccessfully() {
         UserEntity user = userRepository.saveAndFlush(new MockUserBuilder()
-                                                        .withPassword(passwordEncoder.encode("admin123"))
+                                                        .withPassword(passwordEncoder.encode(password))
                                                         .build());
 
         UserResponse result = authService.changePassword(user.getId(), 
                                                         ChangePasswordRequest.builder()
-                                                                            .oldPassword("admin123")
-                                                                            .newPassword("123admin")
+                                                                            .oldPassword(password)
+                                                                            .newPassword("Admin456!")
                                                                             .build());
         assertNotNull(result);
-        assertNotEquals(passwordEncoder.encode("admin123"), user.getPassword());
+        assertNotEquals(passwordEncoder.encode(password), user.getPassword());
     }
 
     @Test
     public void changePassword_whenOldPasswordIsNotMatch_shouldThrowPasswordNotMatchException() {
         UserEntity user = userRepository.saveAndFlush(new MockUserBuilder()
-                                                        .withPassword(passwordEncoder.encode("admin123"))
+                                                        .withPassword(passwordEncoder.encode(password))
                                                         .build());
         PasswordNotMatchException exception = assertThrows(PasswordNotMatchException.class, 
                                                            () ->  authService.changePassword(user.getId(), 
                                                                                              ChangePasswordRequest.builder()
-                                                                                                                .oldPassword("123admin")
-                                                                                                                .newPassword("123admin")
+                                                                                                                .oldPassword("Admin456!")
+                                                                                                                .newPassword("Admin456!")
                                                                                                                 .build()));
-        assertEquals("Old password is incorrect", exception.getMessage());
+        assertEquals(Constants.EXCEPTION_INCORRECT_OLD_PASSWORD, exception.getMessage());
     }
 }
