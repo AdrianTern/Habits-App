@@ -38,31 +38,27 @@ export const HeaderBox = styled(Box)(({ theme }) => ({
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'center',
-  marginTop: '35%',
+  marginTop: '25%',
 
   [theme.breakpoints.up('sm')]: {
-    marginTop: '25%',
-  },
-
-  [theme.breakpoints.up('lg')]: {
     marginTop: '15%',
   },
 }));
 
 // Styled container for body with smaller width
 export const SmallBodyBox = styled(Box)(({ theme }) => ({
-  width: '50vw',
-  height: '50vh',
+  width: '80vw',
+  height: '60vh',
   margin: '0 auto',
   overflow: 'auto',
   paddingTop: '1rem',
 
   [theme.breakpoints.up('sm')]: {
-    width: '30vw',
+    width: '40vw',
   },
 
   [theme.breakpoints.up('lg')]: {
-    width: '20vw',
+    width: '23vw',
   },
 }));
 
