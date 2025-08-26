@@ -84,7 +84,7 @@ const MainAppBar = () => {
                 },
             }}
         >
-            <MenuItem disabled><AccountCircleIcon sx={{ pr: '5px' }} />{user?.username ?? "Guest"}</MenuItem>
+            <MenuItem><AccountCircleIcon sx={{ pr: '5px' }} />{user?.username ?? "Guest"}</MenuItem>
             <MenuItem onClick={handleChangePassword}><ChangeCircleRoundedIcon sx={{ pr: '5px' }} /> Change password</MenuItem>
             <MenuItem onClick={logoutUser}><LogoutRoundedIcon sx={{ pr: '5px' }} /> Logout</MenuItem>
         </Menu>
@@ -93,7 +93,7 @@ const MainAppBar = () => {
     return (
         <>
             <AppBar position='fixed' sx={{ backgroundColor: 'custom.black' }}>
-                <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Toolbar sx={{ position: 'relative' }}>
                     {/* App Menu */}
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <MenuButton
@@ -108,11 +108,11 @@ const MainAppBar = () => {
                     </Box>
 
                     {/* Home Button */}
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center' }}>
                         <HomeButton />
                     </Box>
 
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', marginLeft:'auto' }}>
                         {/* Theme Switch */}
                         <ThemeSwitch />
 

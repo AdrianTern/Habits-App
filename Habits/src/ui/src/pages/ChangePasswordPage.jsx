@@ -1,6 +1,6 @@
 import { Typography } from '@mui/material';
 import ChangePasswordForm from '../components/auth/ChangePasswordForm';
-import{ MainBox, HeaderBox, SmallBodyBox } from '../styles/StyledComponents';
+import{ MainBox, HeaderBox, SmallBodyBox, BodyBox } from '../styles/StyledComponents';
 import MainAppBar from '../components/MainAppBar';
 
 const ChangePasswordPage = () => {
