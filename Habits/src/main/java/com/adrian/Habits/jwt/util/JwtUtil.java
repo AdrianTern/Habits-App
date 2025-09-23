@@ -15,12 +15,23 @@ import com.adrian.Habits.jwt.details.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.annotation.PostConstruct;
+import lombok.AllArgsConstructor;
 
 // Util class to generate JWT token
 @Component
+@AllArgsConstructor
 public class JwtUtil {
-    // Secret string to sign the JWT token, should be stored securely in PROD
-    private final String SECRET_KEY = "boat_goes_binted";
+    private final JwtConfiguration jwtConfiguration;
+
+    private String getSecret() {
+        return jwtConfiguration.getSecret();
+    }
+
+    @PostConstruct
+public void init() {
+    System.out.println(">>> JWT Secret loaded: " + getSecret());
+}
 
     // Creates and builds the token
     private String createToken(Map<String, Object> claims, String subject) {
@@ -29,14 +40,14 @@ public class JwtUtil {
             .setSubject(subject)
             .setIssuedAt(Date.from(Instant.now()))
             .setExpiration(Date.from(Instant.now().plus(24, ChronoUnit.HOURS)))
-            .signWith(SignatureAlgorithm.HS256, SECRET_KEY) // hs256 = hash based authentication code
+            .signWith(SignatureAlgorithm.HS256, getSecret()) // hs256 = hash based authentication code
             .compact();
     }
 
     // Returns the token claims by parsing via secret key
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
-            .setSigningKey(SECRET_KEY)
+            .setSigningKey(getSecret())
             .parseClaimsJws(token)
             .getBody();
     }
