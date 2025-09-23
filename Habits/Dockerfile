@@ -1,11 +1,11 @@
-# Use a minimal Java runtime image
-FROM openjdk:21-jdk-slim
-
-# Set working directory inside the container
+# ---- Build Stage ----
+FROM maven:3.9.6-eclipse-temurin-21 AS builder
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-# Copy your built jar into the container
-COPY target/Habits-0.0.1.jar app.jar
-
-# Run the app
+# ---- Runtime Stage ----
+FROM openjdk:21-jdk-slim
+WORKDIR /app
+COPY --from=builder /app/target/Habits-0.0.1.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]
