@@ -1,7 +1,7 @@
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 // Functions for task api calls
-const BASE_URL = '/api/tasks';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL + '/api/tasks';
 const clientTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 // Get tasks
