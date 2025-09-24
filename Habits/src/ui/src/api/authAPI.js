@@ -1,3 +1,5 @@
+import { fetchWithAuth } from "../utils/fetchWithAuth";
+
 // Functions for authentication related api calls
 const BASE_URL = '/api/auth';
 
@@ -41,16 +43,10 @@ export const loginUser = async (formData) => {
 
 // Change password
 export const changePassword = async (id, passwordData) => {
-    const user = localStorage.getItem("user");
-    const jwt = JSON.parse(user);
     const url = `${BASE_URL}/changePassword/${id}`; 
 
-    const response = await fetch(url, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            "Authorization": `Bearer ${jwt.token}`,
-        },
+    const response = await fetchWithAuth(url, {
+        method: "PATCH",
         body: JSON.stringify(passwordData),
     });
 
