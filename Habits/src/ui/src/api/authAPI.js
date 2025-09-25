@@ -1,7 +1,7 @@
 import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 // Functions for authentication related api calls
-const BASE_URL = import.meta.env.VITE_API_BASE_URL + '/api/auth';
+const BASE_URL = '/api/auth';
 
 // Register user
 export const registerUser = async (formData) => {
