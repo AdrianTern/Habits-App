@@ -17,10 +17,7 @@ WORKDIR /app
 
 # Copy Maven files first (for dependency caching)
 COPY pom.xml .
-COPY mvnw .
-COPY .mvn .mvn
-
-RUN ./mvnw dependency:go-offline -B
+RUN mvn dependency:go-offline -B
 
 # Copy the rest of backend source
 COPY src ./src
