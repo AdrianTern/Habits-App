@@ -26,7 +26,7 @@ COPY src ./src
 COPY --from=frontend-build /app/src/ui/build ./src/main/resources/static
 
 # Build backend JAR
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
 
 
 # ===== Stage 3: Runtime =====
