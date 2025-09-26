@@ -57,8 +57,11 @@ public class CommonSecurityConfig {
         return http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                                        .requestMatchers(Constants.ENDPOINT_AUTH_LOGIN_FULL, Constants.ENDPOINT_AUTH_REGISTER_FULL).permitAll()
-                                        .anyRequest().authenticated()
+                                        .requestMatchers(
+                                            Constants.ENDPOINT_TASK_TASKCOUNT,
+                                            "/api/tasks/**"
+                                        ).authenticated()
+                                        .anyRequest().permitAll()
                                 )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
