@@ -1,35 +1,19 @@
-# ===== Stage 1: Build frontend =====
-FROM node:22-alpine AS frontend-build
-WORKDIR /app/src/ui 
-
-# Copy only frontend package files first (for caching npm install)
-COPY src/ui/package*.json ./
-RUN npm install
-
-# Copy frontend source and build
-COPY src/ui ./
-RUN npm run build
-
-
-# ===== Stage 2: Build backend =====
+# ===== Stage 1: Build backend (includes frontend via Maven) =====
 FROM maven:3.9.6-eclipse-temurin-21 AS backend-build
 WORKDIR /app
 
-# Copy Maven files first (for dependency caching)
+# Copy pom.xml first for dependency caching
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
 
-# Copy the rest of backend source
-COPY src ./src
+# Copy the rest of the project
+COPY . .
 
-# Copy frontend build output into Spring Boot's static resources
-COPY --from=frontend-build /app/src/ui/build ./src/main/resources/static
-
-# Build backend JAR
+# Build backend JAR (includes frontend build & static copy)
 RUN mvn clean package -DskipTests
 
 
-# ===== Stage 3: Runtime =====
+# ===== Stage 2: Runtime =====
 FROM openjdk:21-jdk-slim
 WORKDIR /app
 

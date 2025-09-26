@@ -28,7 +28,13 @@ const App = () => {
         <Routes>
           <Route path={ROUTES.LOGIN} element={<LoginPage />} />
           <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
-          <Route path={ROUTES.CHANGE_PASSWORD} element={<ChangePasswordPage />} />
+          <Route
+            path={ROUTES.CHANGE_PASSWORD}
+            element={
+              <PrivateRoute>
+                <ChangePasswordPage />
+              </PrivateRoute>
+            } />
           <Route
             path={ROUTES.HOME}
             element={

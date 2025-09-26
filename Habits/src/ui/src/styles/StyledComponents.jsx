@@ -126,7 +126,23 @@ export const AddButton = styled(Fab)(({ theme }) => ({
 export const InputField = styled(TextField)({
   "& .MuiOutlinedInput-root": {
     borderRadius: "30px",
-  }
+  },
+  "& input:-webkit-autofill": {
+    WebkitBoxShadow: "0 0 0 1000px #cfc8e0 inset",
+    WebkitTextFillColor: "#111",
+  },
+  "& input:-webkit-autofill:focus": {
+    WebkitBoxShadow: "0 0 0 1000px #cfc8e0 inset",
+    WebkitTextFillColor: "#111",
+  },
+  "& .MuiOutlinedInput-root:has(input:-webkit-autofill)": {
+    backgroundColor: "#cfc8e0",
+    "& .MuiInputAdornment-root": {
+      backgroundColor: "#cfc8e0",
+      borderTopRightRadius: "8px",
+      borderBottomRightRadius: "8px",
+    },
+  },
 });
 
 // Styled input check box
