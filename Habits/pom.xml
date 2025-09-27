@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.adrian.Habits</groupId>
 	<artifactId>Habits</artifactId>
-	<version>0.0.1</version>
+	<version>1.0.0</version>
 	<name>Habits</name>
 	<description>Habits. Your task reminder.</description>
 	<url/>
