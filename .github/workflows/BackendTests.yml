@@ -2,13 +2,16 @@ name: Backend Tests
 
 on:
   push:
-    branches:
-      - master
+    branches: [ "master" ]
   pull_request:
 
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: Habits
 
     steps:
       - name: Checkout code
