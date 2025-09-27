@@ -2,7 +2,7 @@ name: Backend Tests
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "master_deploy" ]
   pull_request:
 
 jobs:
