@@ -1,4 +1,4 @@
-# {h a b i t s.}
+# { h a b i t s. }
 
 A full-stack web application for habit tracking, built with Spring Boot and React.
 
