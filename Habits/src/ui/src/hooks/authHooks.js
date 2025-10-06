@@ -6,12 +6,31 @@ import { toast } from "react-toastify";
 import { goToHome, goToLogin } from "../utils/navigation";
 
 export const useAuthState = () => {
-    const { user, resError } = useContext(AuthContext);
-    return { user, resError };
+    const {
+        user,
+        resError,
+        registerLoading,
+        loginLoading,
+        changePassLoading 
+    } = useContext(AuthContext);
+
+    return { 
+        user,
+        resError,
+        registerLoading,
+        loginLoading,
+        changePassLoading  };
 }
 
 export const useAuth = () => {
-    const { login, logout, setResError } = useContext(AuthContext);
+    const { 
+        login, 
+        logout, 
+        setResError, 
+        setRegisterLoading, 
+        setLoginLoading, 
+        setChangePassLoading 
+    } = useContext(AuthContext);
     const location = useLocation();
 
     // Resets state if path changes
@@ -20,6 +39,7 @@ export const useAuth = () => {
     }, [location.pathname]);
 
     const registerUser = async (formData) => {
+        setRegisterLoading(true)
         try {
             const res = await api.registerUser(formData);
             if (res.status === 201) {
@@ -27,13 +47,15 @@ export const useAuth = () => {
                 toast.success("User registered. Please login now.");
             }
         } catch (err) {
-            console.log(err);
             setResError(err.message);
             console.error("Failed to register user: " + err.message);
+        } finally {
+            setRegisterLoading(false);
         }
     };
 
     const loginUser = async (formData) => {
+        setLoginLoading(true);
         try {
             const res = await api.loginUser(formData);
             if (res.ok) {
@@ -44,6 +66,8 @@ export const useAuth = () => {
         } catch (err) {
             setResError(err.message);
             console.error("Failed to login user: " + err.message);
+        } finally {
+            setLoginLoading(false);
         }
     };
 
@@ -53,6 +77,7 @@ export const useAuth = () => {
     };
 
     const changePassword = async (id, passwordData) => {
+        setChangePassLoading(true);
         try {
             const res = await api.changePassword(id, passwordData);
             if (res.ok) {
@@ -63,6 +88,8 @@ export const useAuth = () => {
         } catch (err) {
             setResError(err.message);
             console.error("Failed to change password: " + err.message);
+        } finally {
+            setChangePassLoading(false);
         }
     };
 

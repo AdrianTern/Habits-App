@@ -1,16 +1,17 @@
 import { useForm, Controller } from 'react-hook-form';
 import { useAuth, useAuthState } from '../../hooks/authHooks';
 import { useEffect, useRef } from 'react';
-import { InputField, PrimaryButton, InputBox } from '../../styles/StyledComponents';
+import { InputField, PrimaryButton, InputBox, CenterBox } from '../../styles/StyledComponents';
 import ErrorMsg from '../ErrorMsg';
 import PasswordInput from '../PasswordInput';
+import { CircularProgress } from '@mui/material';
 
 const LoginForm = () => {
     // Get function to login user from useAuth hook
     const { loginUser } = useAuth();
 
-    // State to indicate if the login failed
-    const { resError } = useAuthState();
+    // State to indicate if the login failed and loading progress
+    const { resError, loginLoading } = useAuthState();
 
     // useForm hook to manage state of form inputs
     const { handleSubmit, control }
@@ -61,8 +62,15 @@ const LoginForm = () => {
                 )}
             />
 
+            {/* Loading */}
+            {loginLoading && (
+                <CenterBox>
+                    <CircularProgress color='inherit' />
+                </CenterBox>
+            )}
+
             {/* Error Message */}
-            {resError && <ErrorMsg errorMsg={resError} />}
+            {!loginLoading && resError && <ErrorMsg errorMsg={resError} />}
 
             {/* Login Button */}
             <PrimaryButton
