@@ -62,7 +62,7 @@ const TaskForm = () => {
             hasDueDate: task?.dueDate ? true : false,
             isRoutineTask: task?.routineDetailsResponse?.isRoutineTask || false,
         })
-    }, [task]);
+    }, [task, isOpen]);
 
     // Focus on title input when form is opened
     useEffect(() => {
