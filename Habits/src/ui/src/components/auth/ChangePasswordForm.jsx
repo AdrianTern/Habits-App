@@ -1,14 +1,15 @@
 import { useForm, Controller } from 'react-hook-form';
 import { useAuth, useAuthState } from '../../hooks/authHooks';
 import { useEffect, useRef, useState } from 'react';
-import { PrimaryButton, InputBox } from '../../styles/StyledComponents';
+import { PrimaryButton, InputBox, CenterBox } from '../../styles/StyledComponents';
 import ErrorMsg from '../ErrorMsg';
 import PasswordInput from '../PasswordInput';
 import { usePassword } from '../../hooks/passwordHooks';
 import PasswordRule from '../PasswordRule';
+import { CircularProgress } from '@mui/material';
 
 const ChangePasswordForm = () => {
-    const { user, resError } = useAuthState();
+    const { user, resError, changePassLoading } = useAuthState();
     const { changePassword } = useAuth();
 
     // useForm hook to manage state of form inputs
@@ -69,13 +70,22 @@ const ChangePasswordForm = () => {
                 )}
             />
 
+            {/* Loading */}
+            {changePassLoading && (
+                <CenterBox>
+                    <CircularProgress color='inherit' />
+                </CenterBox>
+            )}
+
             {/* Error Message */}
-            {resError && (
+            {!changePassLoading && resError && (
                 <ErrorMsg errorMsg={resError} />
             )}
 
             {/* Password Rule */}
-            <PasswordRule violatedIndex={violatedIndex} />
+            {!changePassLoading && (
+                < PasswordRule violatedIndex={violatedIndex} />
+            )}
 
             {/* Change Password Button */}
             <PrimaryButton

@@ -69,12 +69,12 @@ export const toggleCompletion = async (task) => {
 
 // Delete task
 export const deleteTask = async (taskId) => {
-    const url = `${BASE_URL}/${task.id}`;
+    const url = `${BASE_URL}/${taskId}`;
     const response = await fetchWithAuth(url, {
         method: 'DELETE',  
     });
-
+    
     if(!response.status === 204) throw new Error('Failed to delete task');
 
-    return taskId;
+    return;
 }

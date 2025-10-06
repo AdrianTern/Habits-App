@@ -1,18 +1,19 @@
 import { useForm, Controller } from 'react-hook-form';
 import { useAuth, useAuthState } from '../../hooks/authHooks';
 import { useEffect, useRef, useState } from 'react';
-import { PrimaryButton, InputField, InputBox } from '../../styles/StyledComponents';
+import { PrimaryButton, InputField, InputBox, CenterBox } from '../../styles/StyledComponents';
 import ErrorMsg from '../ErrorMsg';
 import PasswordInput from '../PasswordInput';
 import { usePassword } from '../../hooks/passwordHooks';
 import PasswordRule from '../PasswordRule';
+import { CircularProgress } from '@mui/material';
 
 const RegisterForm = () => {
     // Get function to register user from useAuth hook
     const { registerUser } = useAuth();
 
-    // State to indicate if the registeration failed
-    const { resError } = useAuthState();
+    // State to indicate if the registeration failed and loading progress
+    const { resError, registerLoading } = useAuthState();
 
     // State to indicate invalid password
     const [violatedIndex, setViolatedIndex] = useState([]);
@@ -73,13 +74,22 @@ const RegisterForm = () => {
                 )}
             />
 
+            {/* Loading */}
+            {registerLoading && (
+                <CenterBox>
+                    <CircularProgress color='inherit' />
+                </CenterBox>
+            )}
+
             {/* Error Message */}
-            {resError && (
+            {!registerLoading && resError && (
                 <ErrorMsg errorMsg={resError} />
             )}
 
             {/* Password Rule */}
-            <PasswordRule violatedIndex={violatedIndex} />
+            {!registerLoading && (
+                < PasswordRule violatedIndex={violatedIndex} />
+            )}
 
             {/* Register Button */}
             <PrimaryButton
